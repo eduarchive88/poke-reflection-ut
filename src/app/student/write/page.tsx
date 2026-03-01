@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles, Loader2, Star, Info } from "lucide-react";
 
 export default function WriteReflectionPage() {
     const router = useRouter();
@@ -28,6 +28,7 @@ export default function WriteReflectionPage() {
     }
 
     const [content, setContent] = useState("");
+    const [rating, setRating] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [rewardPokemon, setRewardPokemon] = useState<PokemonReward | null>(null);
     const [session, setSession] = useState<StudentSession | null>(null);
@@ -42,7 +43,7 @@ export default function WriteReflectionPage() {
     }, [router]);
 
     const wordCount = content.trim() === "" ? 0 : content.trim().length;
-    const isReady = wordCount >= 10; // 최소 10자 이상 작성 권장 (스펙에 따라 조절 가능)
+    const isReady = wordCount >= 10 && rating > 0; // 최소 10자 이상 + 별점 선택 필수
 
     const handleSubmit = async () => {
         if (!isReady || isSubmitting || !session) return;
@@ -55,6 +56,7 @@ export default function WriteReflectionPage() {
                 classId: session.classId,
                 content: content.trim(),
                 wordCount: wordCount,
+                participationRating: rating,
                 createdAt: serverTimestamp()
             });
 
@@ -155,32 +157,76 @@ export default function WriteReflectionPage() {
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight text-primary">오늘의 성찰</h2>
-                    <p className="text-muted-foreground mt-1">
-                        오늘 있었던 특별한 일을 기록해보세요.
+                    <p className="text-muted-foreground mt-1 text-sm">
+                        오늘 수업 참여도를 평가하고 배운 점을 기록해보세요.
                     </p>
                 </div>
             </div>
 
+            <Card className="border-2 border-primary/20 bg-primary/5">
+                <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-bold flex items-center gap-2 text-primary">
+                        <Sparkles className="h-4 w-4" /> 알아두면 좋은 성찰 가이드
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <ul className="text-sm space-y-1 text-muted-foreground list-disc list-inside">
+                        <li>오늘 수업 활동에서 알게된 것과 더 알고 싶은 것은 무엇인가요?</li>
+                        <li>오늘 배운 내용을 나의 삶에 어떻게 적용할 수 있을까요?</li>
+                        <li>친구들과의 소통이나 협력 과정 중 기억에 남는 것은 무엇인가요?</li>
+                        <li>오늘 활동을 통해 느낀 점을 자유롭게 적어보세요.</li>
+                    </ul>
+                </CardContent>
+            </Card>
+
             <Card className="border-2">
-                <CardHeader>
-                    <CardTitle className="text-lg">나의 이야기</CardTitle>
-                    <CardDescription>
-                        진심을 담아 10자 이상 작성하면 새로운 포켓몬이 찾아옵니다!
-                    </CardDescription>
+                <CardHeader className="pb-4">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <CardTitle className="text-lg">수업 참여도 평가</CardTitle>
+                            <CardDescription>오늘 나의 노력은 몇 점인가요?</CardDescription>
+                        </div>
+                        <div className="flex gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <button
+                                    key={star}
+                                    type="button"
+                                    onClick={() => setRating(star)}
+                                    className={`p-1 transition-all ${rating >= star ? 'text-yellow-400 scale-110' : 'text-muted-foreground/20 hover:scale-105'}`}
+                                >
+                                    <Star className={`h-10 w-10 ${rating >= star ? 'fill-current' : ''}`} />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <Textarea
-                        placeholder="오늘 무엇을 배웠나요? 즐거웠던 일이나 반성할 점은 무엇인가요?"
-                        className="min-h-[300px] text-lg leading-relaxed focus-visible:ring-primary"
+                        placeholder="오늘 무엇을 배웠나요? 즐거웠던 일이나 반성할 점은 무엇인가요? (상단 가이드 질문을 참고하여 10자 이상 작성해주세요)"
+                        className="min-h-[300px] text-lg leading-relaxed focus-visible:ring-primary border-2"
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         disabled={isSubmitting}
                     />
                     <div className="flex justify-between items-center text-sm font-medium">
-                        <span className={wordCount >= 10 ? "text-primary" : "text-muted-foreground"}>
-                            현재 글자 수: <span className="text-lg">{wordCount}</span> / 10자 이상
-                        </span>
-                        {isReady && <span className="text-green-500 flex items-center gap-1 animate-pulse"><Sparkles className="h-4 w-4" /> 보상 획득 가능!</span>}
+                        <div className="flex flex-col gap-1">
+                            <span className={wordCount >= 10 ? "text-primary font-bold" : "text-muted-foreground"}>
+                                📝 글자 수: <span className="text-lg">{wordCount}</span> / 10자 이상
+                            </span>
+                            <span className={rating > 0 ? "text-yellow-600 font-bold" : "text-muted-foreground"}>
+                                ⭐ 참여도 별점: {rating > 0 ? `${rating}점 선택됨` : "미선택"}
+                            </span>
+                        </div>
+                        {isReady ? (
+                            <div className="text-green-500 flex items-center gap-1 animate-pulse bg-green-50 px-3 py-1 rounded-full border border-green-200">
+                                <Sparkles className="h-4 w-4" /> 보상 획득 가능!
+                            </div>
+                        ) : (
+                            <div className="text-muted-foreground bg-secondary/20 px-3 py-1 rounded-full flex items-center gap-2">
+                                <Info className="h-4 w-4" />
+                                {rating === 0 ? "별점을 먼저 선택해주세요" : "내용을 조금 더 적어주세요"}
+                            </div>
+                        )}
                     </div>
                 </CardContent>
                 <CardFooter className="border-t bg-secondary/10 pt-6">

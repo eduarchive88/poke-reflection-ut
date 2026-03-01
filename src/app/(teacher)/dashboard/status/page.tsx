@@ -3,12 +3,13 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { ChevronLeft, Download, Calendar, CheckCircle2, XCircle } from "lucide-react";
+import { ChevronLeft, Download, Calendar, CheckCircle2, XCircle, Gift, Info } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import * as XLSX from "xlsx";
 
 function StatusContent() {
@@ -37,6 +38,15 @@ function StatusContent() {
     const [reflections, setReflections] = useState<ReflectionData[]>([]);
     const [loading, setLoading] = useState(true);
     const [dates, setDates] = useState<string[]>([]);
+    const [selectedStudent, setSelectedStudent] = useState<StudentData | null>(null);
+    const [isRewardDialogOpen, setIsRewardDialogOpen] = useState(false);
+    const [isRewarding, setIsRewarding] = useState(false);
+
+    const LEGENDARY_POKEMON = [
+        { id: 150, name: "뮤츠", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/150.png", types: ["psychic"] },
+        { id: 151, name: "뮤", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/151.png", types: ["psychic"] },
+        { id: 250, name: "칠색조", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/250.png", types: ["fire", "flying"] },
+    ];
 
     useEffect(() => {
         if (!classId) {
@@ -111,6 +121,33 @@ function StatusContent() {
         toast.success("엑셀 파일이 다운로드되었습니다.");
     };
 
+    const giveReward = async (pokeId: number, pokeName: string, image: string, types: string[]) => {
+        if (!selectedStudent || isRewarding) return;
+        setIsRewarding(true);
+        try {
+            const inventoryRef = doc(db, "pokemon_inventory", `${selectedStudent.id}_${pokeId}`);
+            await setDoc(inventoryRef, {
+                studentId: selectedStudent.id,
+                pokemonId: pokeId,
+                name: pokeName,
+                image: image,
+                types: types,
+                level: 50, // 전설은 레벨 50부터 시작
+                exp: 0,
+                isLegendary: true,
+                givenByTeacher: true,
+                createdAt: serverTimestamp()
+            });
+            toast.success(`${selectedStudent.name} 학생에게 ${pokeName}(을)를 지급했습니다!`);
+            setIsRewardDialogOpen(false);
+        } catch (error) {
+            console.error(error);
+            toast.error("보상 지급 중 오류가 발생했습니다.");
+        } finally {
+            setIsRewarding(false);
+        }
+    };
+
     return (
         <div className="space-y-6 pb-12">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -161,7 +198,22 @@ function StatusContent() {
                                 {students.map((student) => (
                                     <TableRow key={student.id} className="hover:bg-secondary/5">
                                         <TableCell className="text-center font-medium">{student.number}</TableCell>
-                                        <TableCell className="font-bold">{student.name}</TableCell>
+                                        <TableCell className="font-bold">
+                                            <div className="flex items-center gap-2">
+                                                {student.name}
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-6 w-6 text-primary hover:text-primary hover:bg-primary/10"
+                                                    onClick={() => {
+                                                        setSelectedStudent(student);
+                                                        setIsRewardDialogOpen(true);
+                                                    }}
+                                                >
+                                                    <Gift className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
                                         {dates.map(date => {
                                             const hasReflection = checkReflection(student.id, date);
                                             return (
@@ -181,6 +233,31 @@ function StatusContent() {
                     )}
                 </CardContent>
             </Card>
+
+            <Dialog open={isRewardDialogOpen} onOpenChange={setIsRewardDialogOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>전설의 포켓몬 보상 지급</DialogTitle>
+                        <DialogDescription>
+                            {selectedStudent?.name} 학생에게 특별한 포켓몬을 선물합니다.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid grid-cols-3 gap-4 py-4">
+                        {LEGENDARY_POKEMON.map((poke) => (
+                            <button
+                                key={poke.id}
+                                disabled={isRewarding}
+                                onClick={() => giveReward(poke.id, poke.name, poke.image, poke.types)}
+                                className="group flex flex-col items-center p-4 border-2 rounded-xl border-secondary hover:border-primary hover:bg-primary/5 transition-all text-center"
+                            >
+                                <img src={poke.image} alt={poke.name} className="w-16 h-16 group-hover:scale-110 transition-transform" />
+                                <span className="mt-2 font-bold text-sm">{poke.name}</span>
+                                <span className="text-[10px] text-muted-foreground">#{poke.id}</span>
+                            </button>
+                        ))}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
