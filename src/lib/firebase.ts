@@ -16,7 +16,14 @@ const app = (getApps().length > 0)
   ? getApps()[0]
   : initializeApp(firebaseConfig);
 
-const auth = getAuth(app);
-const db = getFirestore(app);
+let auth: any;
+let db: any;
+
+try {
+  auth = getAuth(app);
+  db = getFirestore(app);
+} catch (e) {
+  console.warn("Firebase init error during build:", e);
+}
 
 export { app, auth, db };

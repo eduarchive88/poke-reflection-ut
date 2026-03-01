@@ -12,6 +12,8 @@ import { ChevronLeft, Download, Calendar, CheckCircle2, XCircle, Gift, Info } fr
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import * as XLSX from "xlsx";
 
+export const dynamic = 'force-dynamic';
+
 function StatusContent() {
     const searchParams = useSearchParams();
     const router = useRouter();

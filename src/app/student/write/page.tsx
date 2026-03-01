@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Loader2, Star, Info } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default function WriteReflectionPage() {
     const router = useRouter();
 
