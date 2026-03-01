@@ -12,18 +12,39 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-const app = (getApps().length > 0)
-  ? getApps()[0]
-  : initializeApp(firebaseConfig);
+// Initialize App
+const app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig);
 
-let auth: any;
-let db: any;
+// Lazy init services to prevent errors during build time (prerendering)
+let _auth: any = null;
+let _db: any = null;
 
-try {
-  auth = getAuth(app);
-  db = getFirestore(app);
-} catch (e) {
-  console.warn("Firebase init error during build:", e);
-}
+export const auth = new Proxy({}, {
+  get(target, prop) {
+    if (!_auth) {
+      try {
+        _auth = getAuth(app);
+      } catch (e) {
+        console.warn("Firebase Auth not available:", e);
+        return (_: any) => { }; // dummy function for onAuthStateChanged etc
+      }
+    }
+    return (_auth as any)[prop];
+  }
+}) as any;
 
-export { app, auth, db };
+export const db = new Proxy({}, {
+  get(target, prop) {
+    if (!_db) {
+      try {
+        _db = getFirestore(app);
+      } catch (e) {
+        console.warn("Firebase Firestore not available:", e);
+        return null;
+      }
+    }
+    return (_db as any)[prop];
+  }
+}) as any;
+
+export { app };

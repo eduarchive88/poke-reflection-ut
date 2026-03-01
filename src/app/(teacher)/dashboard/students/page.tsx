@@ -16,6 +16,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
+export default function StudentsPage() {
+    return (
+        <Suspense fallback={<div className="p-8 text-center text-muted-foreground font-medium animate-pulse">로딩 중...</div>}>
+            <StudentsContent />
+        </Suspense>
+    );
+}
+
 interface ClassData {
     id: string;
     className: string;
@@ -290,10 +300,4 @@ function StudentsContent() {
     );
 }
 
-export default function TeacherStudentsPage() {
-    return (
-        <Suspense fallback={<div>로딩 중...</div>}>
-            <StudentsContent />
-        </Suspense>
-    );
-}
+// 페이지 하단 중복 제거

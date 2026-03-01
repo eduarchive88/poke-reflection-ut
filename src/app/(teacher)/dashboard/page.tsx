@@ -13,6 +13,8 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { nanoid } from "nanoid";
 
+export const dynamic = 'force-dynamic';
+
 interface ClassData {
     id: string;
     className: string;

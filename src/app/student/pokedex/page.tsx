@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { Sparkles, Trophy, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 
+export const dynamic = 'force-dynamic';
+
 interface Pokemon {
     id: string;
     pokemonId: number;

@@ -12,6 +12,8 @@ import { collection, query, where, getDocs, doc, setDoc } from "firebase/firesto
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
+export const dynamic = 'force-dynamic';
+
 export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();

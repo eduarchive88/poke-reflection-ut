@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Archive, Calendar, MessageSquare, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 
+export const dynamic = 'force-dynamic';
+
 export default function ArchivePage() {
     const router = useRouter();
 

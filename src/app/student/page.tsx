@@ -9,8 +9,11 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { PenTool, Target, History, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
-export default function StudentDashboardPage() {
+export const dynamic = 'force-dynamic';
+
+export default function StudentDashboard() {
     const router = useRouter();
     const [session, setSession] = useState<any>(null);
     const [recentReflections, setRecentReflections] = useState<any[]>([]);
