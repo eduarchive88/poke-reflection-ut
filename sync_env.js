@@ -6,7 +6,7 @@ try {
     const lines = env.split(/\r?\n/);
 
     for (const line of lines) {
-        if (line.startsWith('NEXT_PUBLIC_FIREBASE')) {
+        if (line.trim().startsWith('NEXT_PUBLIC_FIREBASE')) {
             const index = line.indexOf('=');
             if (index === -1) continue;
 
