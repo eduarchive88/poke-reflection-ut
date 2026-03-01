@@ -11,7 +11,6 @@ import { Sparkles, Trophy, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 interface Pokemon {
     id: string;

@@ -14,7 +14,6 @@ import { toast } from "sonner";
 import { nanoid } from "nanoid";
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 interface ClassData {
     id: string;
@@ -22,7 +21,7 @@ interface ClassData {
     sessionCode: string;
 }
 
-export default function TeacherDashboardPage() {
+export default function DashboardPage() {
     const router = useRouter();
     const [classes, setClasses] = useState<ClassData[]>([]);
     const [loading, setLoading] = useState(true);

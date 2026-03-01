@@ -12,7 +12,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Loader2, Star, Info } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 export default function WritePage() {
     const router = useRouter();

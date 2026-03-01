@@ -10,7 +10,6 @@ import { Archive, Calendar, MessageSquare, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 export default function ArchivePage() {
     const router = useRouter();
