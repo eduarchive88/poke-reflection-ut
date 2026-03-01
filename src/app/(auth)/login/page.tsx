@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { auth, db } from "@/lib/firebase";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, setDoc } from "firebase/firestore";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -74,14 +74,60 @@ export default function LoginPage() {
 
         setIsLoading(true);
         try {
-            // 1. 세션 코드 유효성 및 학생 정보 매칭 로직 준비 (Custom Session)
-            // TODO: Firestore 'classes' 컬렉션에서 sessionCode 조회
-            // TODO: 매칭 성공시 학생 전용 대시보드로 이동
+            // 1. 세션 코드로 학급 찾기
+            const classesQuery = query(collection(db, "classes"), where("sessionCode", "==", sessionCode.trim().toUpperCase()));
+            const classSnapshots = await getDocs(classesQuery);
 
-            toast.success("학생 로그인 구성 준비 중!");
-            // router.push("/student");
+            if (classSnapshots.empty) {
+                toast.error("유효하지 않은 세션 코드입니다.");
+                setIsLoading(false);
+                return;
+            }
+
+            const classDoc = classSnapshots.docs[0];
+            const classId = classDoc.id;
+
+            // 2. 해당 학급 내 학생 정보 매칭 (Document ID 규칙: sessionCode_grade_classNum_number)
+            const expectedDocId = `${sessionCode.trim().toUpperCase()}_${grade}_${classNum}_${studentNum}`;
+            const studentDocRef = doc(db, "students", expectedDocId);
+            const studentSnap = await getDocs(query(collection(db, "students"), where("classId", "==", classId), where("grade", "==", parseInt(grade)), where("classNum", "==", parseInt(classNum)), where("number", "==", parseInt(studentNum))));
+
+            if (studentSnap.empty) {
+                toast.error("등록된 학생 정보를 찾을 수 없습니다. (학년/반/번호 확인)");
+                setIsLoading(false);
+                return;
+            }
+
+            const studentDoc = studentSnap.docs[0];
+            const studentData = studentDoc.data();
+
+            if (studentData.name !== studentName.trim()) {
+                toast.error("이름이 일치하지 않습니다.");
+                setIsLoading(false);
+                return;
+            }
+
+            // 3. 세션 저장 (Local Storage 활용)
+            const sessionData = {
+                studentId: studentDoc.id,
+                classId: classId,
+                className: classDoc.data().className,
+                studentInfo: {
+                    grade: parseInt(grade),
+                    classNum: parseInt(classNum),
+                    number: parseInt(studentNum),
+                    name: studentName.trim()
+                },
+                loginAt: new Date().toISOString()
+            };
+
+            localStorage.setItem("poke_student_session", JSON.stringify(sessionData));
+
+            toast.success(`${studentName}님, 환영합니다!`);
+            router.push("/");
         } catch (error: any) {
-            toast.error("입력 정보를 다시 확인해주세요.");
+            console.error(error);
+            toast.error("로그인 중 오류가 발생했습니다.");
         } finally {
             setIsLoading(false);
         }

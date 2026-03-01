@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
 import { collection, query, where, getDocs, doc, writeBatch, serverTimestamp } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
@@ -30,7 +31,10 @@ interface StudentData {
     classId: string;
 }
 
-export default function TeacherStudentsPage() {
+function StudentsContent() {
+    const searchParams = useSearchParams();
+    const urlClassId = searchParams.get("classId");
+
     const [classes, setClasses] = useState<ClassData[]>([]);
     const [selectedClassId, setSelectedClassId] = useState<string>("");
     const [students, setStudents] = useState<StudentData[]>([]);
@@ -43,20 +47,23 @@ export default function TeacherStudentsPage() {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // 교사의 학급 목록 불러오기
                 const q = query(collection(db, "classes"), where("teacherId", "==", user.uid));
                 const snapshots = await getDocs(q);
                 const classList: ClassData[] = [];
                 snapshots.forEach((doc) => classList.push({ id: doc.id, ...(doc.data() as Omit<ClassData, "id">) }));
                 setClasses(classList);
-                if (classList.length > 0) {
+
+                // URL 파라미터가 있으면 우선 적용, 없으면 첫 번째 학급
+                if (urlClassId) {
+                    setSelectedClassId(urlClassId);
+                } else if (classList.length > 0) {
                     setSelectedClassId(classList[0].id);
                 }
                 setLoading(false);
             }
         });
         return () => unsubscribe();
-    }, []);
+    }, [urlClassId]);
 
     useEffect(() => {
         if (selectedClassId) {
@@ -72,7 +79,6 @@ export default function TeacherStudentsPage() {
             const studentList: StudentData[] = [];
             snapshots.forEach((doc) => studentList.push({ id: doc.id, ...(doc.data() as Omit<StudentData, "id">) }));
 
-            // 학년, 반, 번호 순으로 정렬
             studentList.sort((a, b) => {
                 if (a.grade !== b.grade) return a.grade - b.grade;
                 if (a.classNum !== b.classNum) return a.classNum - b.classNum;
@@ -112,8 +118,7 @@ export default function TeacherStudentsPage() {
             const workbook = XLSX.read(data);
             const firstSheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[firstSheetName];
-            // 첫 행을 헤더로 인식. (기대 컬럼명: 학년, 반, 번호, 이름)
-            const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet);
+            const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
             if (jsonData.length === 0) {
                 toast.error("업로드된 엑셀 파일에 데이터가 없습니다.");
@@ -121,20 +126,29 @@ export default function TeacherStudentsPage() {
                 return;
             }
 
-            // Firestore Batch 통신은 최대 500개 제약
             const batch = writeBatch(db);
             let count = 0;
 
-            for (const row of jsonData) {
-                // 컬럼명 매핑 (유연성을 위해 약간의 텍스트 처리 포함 권장)
-                const grade = parseInt(row["학년"] || row["grade"] || 0);
-                const classNum = parseInt(row["반"] || row["classNum"] || row["class"] || 0);
-                const number = parseInt(row["번호"] || row["number"] || 0);
+            interface ExcelRow {
+                "학년"?: string | number;
+                "grade"?: string | number;
+                "반"?: string | number;
+                "classNum"?: string | number;
+                "class"?: string | number;
+                "번호"?: string | number;
+                "number"?: string | number;
+                "이름"?: string;
+                "name"?: string;
+            }
+
+            for (const row of jsonData as ExcelRow[]) {
+                const grade = parseInt(String(row["학년"] || row["grade"] || 0));
+                const classNum = parseInt(String(row["반"] || row["classNum"] || row["class"] || 0));
+                const number = parseInt(String(row["번호"] || row["number"] || 0));
                 const name = row["이름"] || row["name"] || "";
 
                 if (grade && classNum && number && name) {
                     const sessionCode = targetClass.sessionCode;
-                    // 일관성 있는 구조 (조회 최적화용 Document ID)
                     const docId = `${sessionCode}_${grade}_${classNum}_${number}`;
                     const studentRef = doc(collection(db, "students"), docId);
 
@@ -145,7 +159,7 @@ export default function TeacherStudentsPage() {
                         number,
                         name,
                         createdAt: serverTimestamp()
-                    }, { merge: true }); // 이미 존재하면 업데이트
+                    }, { merge: true });
 
                     count++;
                 }
@@ -156,7 +170,7 @@ export default function TeacherStudentsPage() {
                 toast.success(`${count}명의 학생 배치가 완료/갱신 되었습니다.`);
                 setIsUploadOpen(false);
                 setUploadFile(null);
-                fetchStudents(selectedClassId); // 새로고침
+                fetchStudents(selectedClassId);
             } else {
                 toast.error("올바른 컬럼(학년, 반, 번호, 이름) 양식을 찾을 수 없습니다.");
             }
@@ -203,8 +217,7 @@ export default function TeacherStudentsPage() {
                                 <DialogHeader>
                                     <DialogTitle>엑셀 명렬표 업로드</DialogTitle>
                                     <DialogDescription>
-                                        "학년", "반", "번호", "이름" 열이 포함된 .xlsx 또는 .csv 파일을 선택해주세요.
-                                        동일한 세션 + 학번은 자동으로 덮어쓰기 처리됩니다.
+                                        &quot;학년&quot;, &quot;반&quot;, &quot;번호&quot;, &quot;이름&quot; 열이 포함된 .xlsx 또는 .csv 파일을 선택해주세요.
                                     </DialogDescription>
                                 </DialogHeader>
                                 <div className="grid gap-4 py-4">
@@ -236,14 +249,14 @@ export default function TeacherStudentsPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>{classes.find(c => c.id === selectedClassId)?.className || "학급 미지정"}</CardTitle>
-                    <CardDescription>접속 세션 그룹의 총 학생 수: {students.length}명</CardDescription>
+                    <CardDescription>총 학생 수: {students.length}명</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {loading ? (
                         <div className="text-center py-6 text-muted-foreground">목록 갱신 중...</div>
                     ) : students.length === 0 ? (
                         <div className="text-center py-12 text-muted-foreground border border-dashed rounded-lg bg-secondary/20">
-                            명단이 비어있습니다. 우측 상단의 [일괄 등록]을 통해 업로드해주세요.
+                            명단이 비어있습니다.
                         </div>
                     ) : (
                         <div className="border rounded-md">
@@ -273,7 +286,14 @@ export default function TeacherStudentsPage() {
                     )}
                 </CardContent>
             </Card>
-
         </div>
+    );
+}
+
+export default function TeacherStudentsPage() {
+    return (
+        <Suspense fallback={<div>로딩 중...</div>}>
+            <StudentsContent />
+        </Suspense>
     );
 }

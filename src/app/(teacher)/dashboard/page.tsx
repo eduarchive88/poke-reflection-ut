@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
 import { collection, query, where, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
@@ -19,6 +20,7 @@ interface ClassData {
 }
 
 export default function TeacherDashboardPage() {
+    const router = useRouter();
     const [classes, setClasses] = useState<ClassData[]>([]);
     const [loading, setLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -145,9 +147,14 @@ export default function TeacherDashboardPage() {
                                         {cls.sessionCode}
                                     </p>
                                 </div>
-                                <Button variant="outline" className="w-full">
-                                    학생 명렬표 관리
-                                </Button>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Button variant="outline" className="text-xs" onClick={() => router.push(`/dashboard/students?classId=${cls.id}`)}>
+                                        학생 명렬표
+                                    </Button>
+                                    <Button variant="default" className="text-xs" onClick={() => router.push(`/dashboard/status?classId=${cls.id}`)}>
+                                        성찰 현황판
+                                    </Button>
+                                </div>
                             </CardContent>
                         </Card>
                     ))}

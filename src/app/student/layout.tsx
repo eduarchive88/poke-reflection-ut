@@ -15,25 +15,31 @@ export default function StudentLayout({
 }) {
     const router = useRouter();
     const pathname = usePathname();
+    const [studentName, setStudentName] = useState("");
     const [isLogged, setIsLogged] = useState(false);
 
     useEffect(() => {
-        // 1. 임시 세션 확인 (LocalStorage 또는 Cookie 기반)
-        // const session = localStorage.getItem("studentSession");
-        // if (!session) {
-        //   router.push("/login");
-        // } else {
-        //   setIsLogged(true);
-        // }
+        const sessionStr = localStorage.getItem("poke_student_session");
+        if (!sessionStr) {
+            toast.error("로그인이 필요합니다.");
+            router.push("/login");
+            return;
+        }
 
-        // 개발 단계 임시 처리
-        setIsLogged(true);
+        try {
+            const session = JSON.parse(sessionStr);
+            setStudentName(session.studentInfo.name);
+            setIsLogged(true);
+        } catch (e) {
+            localStorage.removeItem("poke_student_session");
+            router.push("/login");
+        }
     }, [router]);
 
     const handleLogout = () => {
-        // localStorage.removeItem("studentSession");
+        localStorage.removeItem("poke_student_session");
         toast.success("로그아웃 되었습니다.");
-        router.push("/");
+        router.push("/login");
     };
 
     const navItems = [
