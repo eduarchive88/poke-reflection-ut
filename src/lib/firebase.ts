@@ -5,8 +5,14 @@ import { getFirestore } from "firebase/firestore";
 const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
 const isServer = typeof window === 'undefined';
 
+// Firebase API key validation requires a specific format starting with AIzaSy
+const rawKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+const safeApiKey = (!rawKey || rawKey === "dummy-key")
+  ? "AIzaSyDummyKey_1234567890abcdefghijklm"
+  : rawKey;
+
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyDummyKey_1234567890abcdefghijklm",
+  apiKey: safeApiKey,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
@@ -15,40 +21,38 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize App (Always safe)
+// Initialize App (Always safe with a valid-looking key)
 const app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig);
 
-// Lazy init services to prevent errors during build time (prerendering)
-let _auth: any = null;
-let _db: any = null;
-
 const createLazyProxy = (initFn: () => any, name: string) => {
+  let _instance: any = null;
   return new Proxy({}, {
     get(target, prop) {
-      // React and other tools check these properties
-      if (prop === '$$typeof' || prop === 'constructor' || prop === 'prototype') {
+      if (prop === '$$typeof' || prop === 'constructor' || prop === 'prototype' || prop === 'toJSON') {
         return undefined;
       }
 
-      // During build phase, if we don't have real keys, return dummy values/functions
-      if (isBuildPhase && !process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
-        console.log(`[Build] Skipping ${name} initialization for property: ${String(prop)}`);
-        return () => { };
+      // During build phase on Vercel, if we don't have real keys, avoid actual init
+      if (isBuildPhase && (!rawKey || rawKey === "dummy-key")) {
+        console.log(`[Build Protection] Skipping ${name} initialization for property: ${String(prop)}`);
+        // Return a no-op function for method calls, or an empty object for properties
+        return (...args: any[]) => {
+          if (prop === 'onAuthStateChanged') return () => { }; // return unsubscriber
+          return Promise.resolve({});
+        };
       }
 
-      if (!target.hasOwnProperty('_instance')) {
+      if (!_instance) {
         try {
-          (target as any)._instance = initFn();
+          _instance = initFn();
         } catch (e) {
           console.error(`[Firebase] Failed to initialize ${name}:`, e);
-          return () => { };
+          return (...args: any[]) => Promise.resolve({});
         }
       }
 
-      const instance = (target as any)._instance;
-      const value = instance ? instance[prop] : undefined;
-
-      return typeof value === 'function' ? value.bind(instance) : value;
+      const value = _instance[prop];
+      return typeof value === 'function' ? value.bind(_instance) : value;
     }
   }) as any;
 };
