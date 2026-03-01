@@ -33,6 +33,7 @@ const getEffectiveness = (moveTypes: string[], targetTypes: string[]) => {
 };
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default function StadiumPage() {
     const router = useRouter();

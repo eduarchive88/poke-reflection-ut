@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default function StudentDashboard() {
     const router = useRouter();

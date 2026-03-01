@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { Upload } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default function StudentsPage() {
     return (

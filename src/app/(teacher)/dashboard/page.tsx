@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { nanoid } from "nanoid";
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 interface ClassData {
     id: string;

@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import * as XLSX from "xlsx";
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 function StatusContent() {
     const searchParams = useSearchParams();
