@@ -58,66 +58,59 @@ export default function TeacherLayout({
     }
 
     return (
-        <div className="flex flex-col md:flex-row min-h-[85vh] gap-8">
-            {/* Pokemon Theme Sidebar */}
-            <aside className="w-full md:w-72 bg-[#001233]/80 backdrop-blur-xl border-2 border-[#3b4cca]/40 rounded-3xl p-6 flex flex-col gap-6 shadow-2xl overflow-hidden relative group">
-                {/* Pokeball Red Top Accent */}
-                <div className="absolute top-0 left-0 w-full h-2 bg-[#ff0000] shadow-[0_2px_10px_rgba(255,0,0,0.3)]"></div>
-
-                {/* Decorative Elements */}
-                <div className="absolute -top-10 -left-10 w-32 h-32 bg-[#ffde00]/5 rounded-full blur-3xl group-hover:bg-[#ffde00]/10 transition-all duration-700"></div>
-
-                <div className="relative z-10 px-2 space-y-1">
-                    <h2 className="text-2xl font-black tracking-tighter pokemon-gradient-text">
-                        교사 대시보드
-                    </h2>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-[#ff0000] animate-pulse shadow-[0_0_5px_#ff0000]"></span>
-                        {teacherName || user.email?.split('@')[0]} 선생님
-                    </p>
+        <div className="min-h-screen bg-[#050b18] text-slate-100 flex flex-col font-sans">
+            {/* Elegant Teacher Header */}
+            <header className="px-6 py-4 flex justify-between items-center bg-[#0a1128]/80 backdrop-blur-xl border-b border-indigo-500/20 relative z-50 sticky top-0">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(79,70,229,0.3)] border border-indigo-400/30">
+                        <Presentation className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-black text-indigo-100 tracking-tighter italic leading-none">TEACHER</h1>
+                        <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest leading-none mt-1">Management Console</p>
+                    </div>
                 </div>
 
-                <nav className="flex-1 space-y-3 relative z-10">
-                    <Link href="/dashboard">
-                        <Button variant="ghost" className="w-full justify-start gap-4 h-12 rounded-2xl hover:bg-[#ffde00]/10 hover:text-[#ffde00] transition-all group/btn border border-transparent hover:border-[#ffde00]/30">
-                            <Presentation className="h-5 w-5 text-slate-400 group-hover/btn:text-[#ffde00]" />
-                            <span className="font-bold">학급 관리</span>
-                        </Button>
-                    </Link>
-                    <Link href="/dashboard/students">
-                        <Button variant="ghost" className="w-full justify-start gap-4 h-12 rounded-2xl hover:bg-[#ffde00]/10 hover:text-[#ffde00] transition-all group/btn border border-transparent hover:border-[#ffde00]/30">
-                            <Users className="h-5 w-5 text-slate-400 group-hover/btn:text-[#ffde00]" />
-                            <span className="font-bold">학생 명렬표</span>
-                        </Button>
-                    </Link>
-                    <Link href="/dashboard/status">
-                        <Button variant="ghost" className="w-full justify-start gap-4 h-12 rounded-2xl hover:bg-[#ffde00]/10 hover:text-[#ffde00] transition-all group/btn border border-transparent hover:border-[#ffde00]/30">
-                            <FileText className="h-5 w-5 text-slate-400 group-hover/btn:text-[#ffde00]" />
-                            <span className="font-bold">성찰 현황판</span>
-                        </Button>
-                    </Link>
-                </nav>
-
-                <div className="mt-auto pt-6 border-t border-slate-800/60 relative z-10">
+                <div className="flex items-center gap-4">
+                    <div className="hidden sm:block text-right mr-2">
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Logged in as</p>
+                        <p className="text-sm font-black text-white">{teacherName || user.email?.split("@")[0]} 선생님</p>
+                    </div>
                     <Button
                         variant="ghost"
-                        className="w-full justify-start gap-4 h-12 rounded-2xl text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all"
+                        size="sm"
                         onClick={handleLogout}
+                        className="rounded-full bg-red-500/10 text-red-500 border border-red-500/20 font-bold hover:bg-red-500/20 text-xs px-4"
                     >
-                        <LogOut className="h-5 w-5" />
-                        <span className="font-bold">시스템 로그아웃</span>
+                        <LogOut className="h-3 w-3 mr-2" />
+                        로그아웃
                     </Button>
                 </div>
-            </aside>
+            </header>
 
-            {/* Pokemon Main Content Area */}
-            <main className="flex-1 bg-[#001233]/30 backdrop-blur-sm rounded-3xl border-2 border-[#3b4cca]/20 p-8 shadow-inner relative overflow-hidden min-h-[600px]">
-                {/* Pokemon background glow */}
-                <div className="absolute top-0 right-0 w-96 h-96 bg-[#ffde00]/5 rounded-full blur-[120px] pointer-events-none"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#3b4cca]/5 rounded-full blur-[100px] pointer-events-none"></div>
-                <div className="relative z-10">
+            {/* Main Content Area */}
+            <main className="flex-1 p-4 sm:p-8 relative">
+                {/* Decorative Elements */}
+                <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+                    <div className="absolute top-1/4 -left-20 w-96 h-96 bg-indigo-600/5 rounded-full blur-[120px]"></div>
+                    <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-blue-600/5 rounded-full blur-[100px]"></div>
+                </div>
+
+                <div className="max-w-7xl mx-auto relative z-10 w-full pb-20">
                     {children}
                 </div>
+
+                {/* Footer */}
+                <footer className="mt-auto py-10 text-center text-[10px] text-slate-500 relative z-10 border-t border-slate-800/30 bg-[#050b18]/50">
+                    <div className="max-w-7xl mx-auto px-6">
+                        <p className="text-slate-400 font-medium">만든 사람: 경기도 지구과학 교사 뀨짱</p>
+                        <div className="mt-2 flex items-center justify-center gap-3 text-slate-500">
+                            <a href="https://open.kakao.com/o/s7hVU65h" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-400 transition-colors">카카오톡 오픈채팅</a>
+                            <span className="w-1 h-1 bg-slate-700 rounded-full"></span>
+                            <a href="https://eduarchive.tistory.com/" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-400 transition-colors">뀨짱쌤의 교육자료 아카이브</a>
+                        </div>
+                    </div>
+                </footer>
             </main>
         </div>
     );

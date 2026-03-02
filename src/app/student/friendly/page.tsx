@@ -11,7 +11,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Users, Swords, User, Shield, Zap, Heart, RefreshCcw, Send, Check, X, Timer } from "lucide-react";
+import { Users, Swords, User, Shield, Zap, Heart, RefreshCcw, Send, Check, X, Timer, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Student {
@@ -95,15 +95,29 @@ export default function FriendlyMatchPage() {
             const pList: PokemonData[] = [];
             pSnap.forEach(doc => {
                 const data = doc.data();
-                const retiredUntil = data.retiredUntil?.toDate();
-                if (!retiredUntil || retiredUntil < now) {
+                let retiredUntilDate = null;
+                if (data.retiredUntil) {
+                    try {
+                        if (typeof data.retiredUntil.toDate === 'function') {
+                            retiredUntilDate = data.retiredUntil.toDate();
+                        } else if (data.retiredUntil instanceof Date) {
+                            retiredUntilDate = data.retiredUntil;
+                        } else if (data.retiredUntil.seconds) {
+                            // Timestamp-like object
+                            retiredUntilDate = new Date(data.retiredUntil.seconds * 1000);
+                        }
+                    } catch (e) {
+                        console.warn("retiredUntil conversion failed:", e);
+                    }
+                }
+                if (!retiredUntilDate || retiredUntilDate < now) {
                     pList.push({ id: doc.id, ...data } as PokemonData);
                 }
             });
             setMyPokemon(pList);
-        } catch (e) {
-            console.error(e);
-            toast.error("데이터 로딩 중 오류 발생");
+        } catch (error) {
+            console.error("fetchInitialData Error:", error);
+            toast.error("데이터를 불러오는 중 오류가 발생했습니다.");
         } finally {
             setLoading(false);
         }
@@ -148,20 +162,30 @@ export default function FriendlyMatchPage() {
 
     const sendRequest = async (target: Student) => {
         if (activeRequest) {
-            toast.error("이미 진행 중인 가 신청이 있습니다.");
+            toast.error("이미 진행 중인 대결 신청이 있습니다.");
             return;
         }
+
+        if (!session?.studentId || !session?.studentInfo?.name) {
+            toast.error("세션 정보가 올바르지 않습니다. 다시 로그인해주세요.");
+            return;
+        }
+
         try {
+            // session.studentInfo.name이 없을 경우를 대비해 name 필드 확인
+            const fromName = session.studentInfo?.name || session.name || "익명 학생";
+
             await addDoc(collection(db, "battle_requests"), {
                 fromId: session.studentId,
-                fromName: session.studentInfo.name,
+                fromName: fromName,
                 toId: target.id,
                 status: 'pending',
                 createdAt: serverTimestamp()
             });
             toast.success(`${target.name}님에게 대결을 신청했습니다!`);
         } catch (e) {
-            toast.error("대결 신청 실패");
+            console.error("sendRequest Error:", e);
+            toast.error("대결 신청 실패. 잠시 후 다시 시도해주세요.");
         }
     };
 
@@ -363,13 +387,27 @@ export default function FriendlyMatchPage() {
     if (loading) return <div className="flex justify-center items-center h-[60vh]">친구 목록 로딩 중...</div>;
 
     return (
-        <div className="space-y-8 pb-24">
-            <div className="relative">
-                <h2 className="text-4xl font-black tracking-tighter text-primary flex items-center gap-3 italic">
-                    <Users className="h-10 w-10 text-blue-500" />
-                    FRIENDLY MATCH
-                </h2>
-                <p className="text-muted-foreground font-medium">최대 3마리의 포켓몬을 선택하여 친구와 친선 경기를 즐겨보세요!</p>
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => router.push("/student")}
+                        className="rounded-full hover:bg-slate-800"
+                    >
+                        <ChevronLeft className="h-6 w-6 text-slate-400 hover:text-white" />
+                    </Button>
+                    <div className="flex items-center gap-3">
+                        <div className="p-3 bg-violet-500/20 rounded-2xl border border-violet-500/30">
+                            <Users className="h-6 w-6 text-violet-400" />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-black italic tracking-tighter pokemon-gradient-text">친선 경기</h2>
+                            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Friendly Match</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <AnimatePresence>
@@ -450,16 +488,6 @@ export default function FriendlyMatchPage() {
 
                 {gameState === "select" && (
                     <motion.div key="select" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-                        <div className="flex justify-between items-end">
-                            <div>
-                                <h3 className="text-2xl font-black">전투 엔트리 구성 (최대 3마리)</h3>
-                                <p className="text-muted-foreground">출전 순서대로 선택해주세요.</p>
-                            </div>
-                            <Button size="lg" className="rounded-full px-10 font-black h-14 text-lg" onClick={confirmSelection}>
-                                선택 완료 ({selectedTeam.length}/3)
-                            </Button>
-                        </div>
-
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             {myPokemon.map(poke => {
                                 const isSelected = selectedTeam.find(p => p.id === poke.id);

@@ -11,7 +11,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Trophy, Swords, Shield, Heart, Zap, RefreshCcw, User, Crown, Info } from "lucide-react";
+import { Trophy, Swords, Shield, Heart, Zap, RefreshCcw, User, Crown, Info, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // 상성 데이터 (lib/stadium 등의 로직과 동기화 필요 시 유틸리티화 권장)
@@ -97,11 +97,16 @@ export default function GymPage() {
         setLoading(true);
         try {
             // 1. 체육관 정보 가져오기
-            const gymDoc = await getDoc(doc(db, "gyms", classId));
+            const gymRef = doc(db, "gyms", classId);
+            const gymDoc = await getDoc(gymRef);
+
+            let currentGymData: GymData;
+
             if (gymDoc.exists()) {
-                setGym(gymDoc.data() as GymData);
+                currentGymData = gymDoc.data() as GymData;
+                setGym(currentGymData);
                 // 주간 보상 체크
-                checkWeeklyReward(studentId, classId, gymDoc.data() as GymData);
+                await checkWeeklyReward(studentId, classId, currentGymData);
             } else {
                 // 체육관이 없으면 초기화
                 const initialGym: GymData = {
@@ -111,7 +116,7 @@ export default function GymPage() {
                     lastRewardAt: serverTimestamp(),
                     occupiedAt: serverTimestamp()
                 };
-                await setDoc(doc(db, "gyms", classId), initialGym);
+                await setDoc(gymRef, initialGym);
                 setGym(initialGym);
             }
 
@@ -120,26 +125,54 @@ export default function GymPage() {
             const myQ = query(collection(db, "pokemon_inventory"), where("studentId", "==", studentId));
             const mySnap = await getDocs(myQ);
             const list: PokemonData[] = [];
-            mySnap.forEach(doc => {
-                const data = doc.data();
-                const retiredUntil = data.retiredUntil?.toDate();
-                if (!retiredUntil || retiredUntil < now) {
-                    list.push({ id: doc.id, ...data } as PokemonData);
+            mySnap.forEach(docSnap => {
+                const data = docSnap.data();
+                // Firestore Timestamp 유효성 검사 로직 보강
+                let retiredUntilDate = null;
+                if (data.retiredUntil) {
+                    try {
+                        if (typeof data.retiredUntil.toDate === 'function') {
+                            retiredUntilDate = data.retiredUntil.toDate();
+                        } else if (data.retiredUntil instanceof Date) {
+                            retiredUntilDate = data.retiredUntil;
+                        } else if (data.retiredUntil.seconds) {
+                            retiredUntilDate = new Date(data.retiredUntil.seconds * 1000);
+                        }
+                    } catch (e) {
+                        console.warn("retiredUntil conversion failed:", e);
+                    }
+                }
+
+                if (!retiredUntilDate || retiredUntilDate < now) {
+                    list.push({ id: docSnap.id, ...data } as PokemonData);
                 }
             });
             setMyPokemon(list);
         } catch (error) {
-            console.error(error);
-            toast.error("데이터 동기화 중 오류 발생");
+            console.error("fetchData Error:", error);
+            toast.error("데이터 동기화 중 오류 발생. 새로고침 해주세요.");
         } finally {
             setLoading(false);
         }
     };
 
     const checkWeeklyReward = async (studentId: string, classId: string, currentGym: GymData) => {
-        if (currentGym.leaderId !== studentId) return;
+        if (!currentGym || currentGym.leaderId !== studentId) return;
 
-        const lastReward = currentGym.lastRewardAt?.toDate() || new Date(0);
+        // lastRewardAt이 없거나 toDate가 없는 경우를 위한 방어 로직
+        let lastReward = new Date(0);
+        if (currentGym.lastRewardAt) {
+            try {
+                if (typeof currentGym.lastRewardAt.toDate === 'function') {
+                    lastReward = currentGym.lastRewardAt.toDate();
+                } else if (currentGym.lastRewardAt.seconds) {
+                    lastReward = new Date(currentGym.lastRewardAt.seconds * 1000);
+                }
+            } catch (e) {
+                console.warn("lastRewardAt conversion failed:", e);
+            }
+        }
+
         const now = new Date();
         const diffDays = (now.getTime() - lastReward.getTime()) / (1000 * 3600 * 24);
 
@@ -274,14 +307,27 @@ export default function GymPage() {
     if (loading) return <div className="flex justify-center items-center h-[60vh]">로딩 중...</div>;
 
     return (
-        <div className="space-y-8 pb-20">
-            <div className="relative">
-                <div className="absolute -top-10 -left-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl -z-10"></div>
-                <h2 className="text-4xl font-black tracking-tighter text-primary flex items-center gap-3 italic">
-                    <Trophy className="h-10 w-10 text-yellow-400 drop-shadow-md" />
-                    GYM STADIUM
-                </h2>
-                <p className="text-muted-foreground font-medium">체육관을 점령하여 학급 최고의 마스터가 되어보세요!</p>
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => router.push("/student")}
+                        className="rounded-full hover:bg-slate-800"
+                    >
+                        <ChevronLeft className="h-6 w-6 text-slate-400 hover:text-white" />
+                    </Button>
+                    <div className="flex items-center gap-3">
+                        <div className="p-3 bg-amber-500/20 rounded-2xl border border-amber-500/30">
+                            <Trophy className="h-6 w-6 text-amber-400" />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-black italic tracking-tighter pokemon-gradient-text">포켓몬 체육관</h2>
+                            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Gym Stadium</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <AnimatePresence mode="wait">

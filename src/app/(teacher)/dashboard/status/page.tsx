@@ -125,13 +125,7 @@ function StatusContent() {
         }
     };
 
-    const checkReflection = (studentId: string, dateStr: string) => {
-        return reflections.find(r => {
-            if (!r.createdAt?.toDate) return false;
-            const rDate = r.createdAt.toDate().toISOString().split('T')[0];
-            return r.studentId === studentId && rDate === dateStr;
-        });
-    };
+    // checkReflection 함수 제거 (날짜 그리드가 없으므로 불필요)
 
     const fetchInventory = async (student: StudentData) => {
         setSelectedStudent(student);
@@ -151,6 +145,10 @@ function StatusContent() {
     };
 
     const filteredStudents = students.filter(s => s.name.includes(searchStudent));
+    const studentMap = students.reduce((acc, s) => {
+        acc[s.id] = s.name;
+        return acc;
+    }, {} as Record<string, string>);
 
     const fetchStudentReflections = async (student: StudentData) => {
         setSelectedStudent(student);
@@ -188,11 +186,6 @@ function StatusContent() {
             const q = query(collection(db, "reflections"), where("classId", "==", classId));
             const snap = await getDocs(q);
             const allReflections: any[] = [];
-
-            // 학생 이름 매핑용
-            const studentMap: Record<string, string> = {};
-            students.forEach(s => studentMap[s.id] = s.name);
-
             snap.forEach(doc => {
                 const data = doc.data();
                 allReflections.push({
@@ -247,22 +240,24 @@ function StatusContent() {
     return (
         <div className="space-y-6 pb-12">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
+                <div className="flex items-center gap-4">
                     <Button
                         variant="ghost"
-                        size="sm"
+                        size="icon"
                         onClick={() => router.push("/dashboard")}
-                        className="mb-2 -ml-2 text-muted-foreground hover:text-primary"
+                        className="rounded-full hover:bg-slate-800/50"
                     >
-                        <ChevronLeft className="h-4 w-4 mr-1" /> 대시보드로 돌아가기
+                        <ChevronLeft className="h-6 w-6 text-slate-400 hover:text-white" />
                     </Button>
-                    <h2 className="text-3xl font-black tracking-tight text-primary flex items-center gap-2">
-                        <Calendar className="h-8 w-8 text-blue-500" />
-                        {className} 성찰 현황판
-                    </h2>
-                    <p className="text-muted-foreground mt-2">
-                        학생들의 성찰 참여 횟수를 확인하고 상세 기록을 관리합니다.
-                    </p>
+                    <div>
+                        <h2 className="text-3xl font-black tracking-tight text-primary flex items-center gap-2">
+                            <Calendar className="h-8 w-8 text-blue-500" />
+                            {className} 성찰 현황판
+                        </h2>
+                        <p className="text-muted-foreground mt-1">
+                            학생들의 성찰 참여 횟수를 확인하고 상세 기록을 관리합니다.
+                        </p>
+                    </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
                     <Button variant="outline" onClick={exportToExcelFull} className="gap-2 rounded-full border-2">
@@ -474,7 +469,7 @@ function StatusContent() {
                     )}
                 </DialogContent>
             </Dialog>
-        </div>
+        </div >
     );
 }
 

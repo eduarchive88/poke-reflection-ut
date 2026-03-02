@@ -53,55 +53,79 @@ export default function StudentLayout({
     if (!isLogged) return <div className="flex justify-center items-center h-[50vh]">인증 확인 중...</div>;
 
     return (
-        <div className="flex flex-col min-h-[85vh] relative pb-24 md:pb-0 md:flex-row gap-8">
-            {/* Pokemon Theme Student Navigation */}
-            <nav className="fixed bottom-4 left-4 right-4 z-50 bg-[#001233]/90 backdrop-blur-2xl border-2 border-[#3b4cca]/40 flex justify-around p-3 rounded-[2.5rem] shadow-[0_10px_30px_rgba(0,0,0,0.5)] md:relative md:w-72 md:flex-col md:p-6 md:rounded-[3rem] md:justify-start gap-4 md:border-t-0 md:bg-[#001233]/80">
-                {/* Pokeball Red Top Accent for Sidebar (Desktop) */}
-                <div className="hidden md:block absolute top-0 left-0 w-full h-2 bg-[#ff0000] rounded-t-[3rem] shadow-[0_2px_10px_rgba(255,0,0,0.3)]"></div>
+        <div className="min-h-screen bg-[#001233] text-slate-100 flex flex-col font-sans">
+            {/* Elegant Glass Header */}
+            <header className="sticky top-0 z-50 px-6 py-4 bg-[#001233]/80 backdrop-blur-xl border-b border-white/10 shadow-2xl">
+                <div className="max-w-7xl mx-auto flex justify-between items-center">
+                    <Link href="/student" className="flex items-center gap-3 group transition-transform hover:scale-105">
+                        <div className="w-10 h-10 bg-gradient-to-tr from-[#ffde00] to-[#ff9500] rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(255,222,0,0.3)] group-hover:rotate-12 transition-transform">
+                            <div className="w-5 h-5 border-[3px] border-slate-900 rounded-full bg-white/20"></div>
+                        </div>
+                        <div className="flex flex-col">
+                            <h1 className="text-xl font-black pokemon-gradient-text tracking-tighter italic leading-none">POCKETMON</h1>
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mt-1">Reflection Ultimate</p>
+                        </div>
+                    </Link>
 
-                <div className="hidden md:block mb-8 px-2 relative">
-                    <h2 className="text-2xl font-black pokemon-gradient-text italic">학생용 공간</h2>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Gamer Dashboard</p>
+                    <div className="flex items-center gap-4">
+                        <div className="hidden sm:flex flex-col items-end">
+                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Trainer</span>
+                            <span className="text-sm font-black text-white leading-none">{studentName}</span>
+                        </div>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleLogout}
+                            className="h-9 px-4 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 font-bold hover:bg-red-500/20 hover:text-red-400 flex items-center gap-2 transition-all"
+                        >
+                            <LogOut className="h-4 w-4" />
+                            <span className="hidden sm:inline">로그아웃</span>
+                        </Button>
+                    </div>
+                </div>
+            </header>
+
+            {/* Main Content Area */}
+            <main className="flex-1 flex flex-col relative overflow-hidden">
+                {/* Visual enhancements */}
+                <div className="absolute inset-0 z-0 pointer-events-none">
+                    <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] animate-pulse"></div>
+                    <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-indigo-600/10 rounded-full blur-[100px]"></div>
+                    <div className="h-full w-full opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
                 </div>
 
-                {navItems.map((item) => {
-                    const isActive = pathname?.includes(item.path);
-                    return (
-                        <Link key={item.path} href={`/student${item.path}`} className="flex-1 md:flex-none">
-                            <Button
-                                variant="ghost"
-                                className={`w-full flex-col md:flex-row gap-2 h-auto py-3 md:py-4 md:justify-start rounded-full md:rounded-2xl transition-all duration-300 border-2 ${isActive
-                                    ? "bg-[#ffde00]/10 border-[#ffde00]/40 text-[#ffde00] shadow-[0_0_15px_rgba(255,222,0,0.2)]"
-                                    : "border-transparent text-slate-400 hover:bg-[#3b4cca]/10 hover:border-[#3b4cca]/30 hover:text-slate-200"
-                                    }`}
-                            >
-                                <div className={`${isActive ? "animate-bounce" : ""}`}>{item.icon}</div>
-                                <span className="text-[10px] md:text-sm font-bold">{item.name}</span>
-                            </Button>
-                        </Link>
-                    );
-                })}
-
-                <div className="hidden md:flex mt-auto pt-4 border-t border-border">
-                    <Button variant="destructive" className="w-full justify-start gap-3" onClick={handleLogout}>
-                        <LogOut className="h-5 w-5" />
-                        <span className="text-sm">로그아웃</span>
-                    </Button>
-                </div>
-            </nav>
-
-            {/* Pokemon Theme Student Main Content Area */}
-            <main className="flex-1 bg-[#001233]/30 backdrop-blur-sm rounded-[3rem] border-2 border-[#3b4cca]/20 p-6 sm:p-10 shadow-inner relative overflow-hidden mb-24 md:mb-0">
-                <div className="cute-dots absolute inset-0"></div>
-
-                <div className="md:hidden flex justify-end mb-6">
-                    <Button variant="ghost" size="sm" onClick={handleLogout} className="rounded-full bg-[#ff0000]/10 text-[#ff0000] border border-[#ff0000]/20 font-bold">
-                        로그아웃
-                    </Button>
-                </div>
-                <div className="relative z-10">
+                <div className="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-8 relative z-10">
                     {children}
                 </div>
+
+                {/* Global Footer */}
+                <footer className="w-full py-10 border-t border-white/5 bg-slate-950/20 backdrop-blur-sm relative z-10">
+                    <div className="max-w-7xl mx-auto px-6 flex flex-col items-center">
+                        <div className="text-center space-y-2">
+                            <p className="text-sm font-bold text-slate-400">
+                                만든 사람: <span className="text-slate-200">경기도 지구과학 교사 뀨짱</span>
+                            </p>
+                            <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-xs font-medium text-slate-500">
+                                <a
+                                    href="https://open.kakao.com/o/s7hVU65h"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/5 hover:bg-[#3b4cca]/20 hover:text-white hover:border-[#3b4cca]/30 transition-all flex items-center gap-2"
+                                >
+                                    <span>문의: 카카오톡 오픈채팅</span>
+                                </a>
+                                <a
+                                    href="https://eduarchive.tistory.com/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/5 hover:bg-[#3b4cca]/20 hover:text-white hover:border-[#3b4cca]/30 transition-all flex items-center gap-2"
+                                >
+                                    <span>블로그: 뀨짱쌤의 교육자료 아카이브</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
             </main>
         </div>
     );

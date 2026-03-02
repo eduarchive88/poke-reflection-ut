@@ -31,5 +31,15 @@ service cloud.firestore {
     match /pokemon_inventory/{inventoryId} {
       allow read, write: if true;
     }
+
+    // 체육관(Gyms) 컬렉션:
+    match /gyms/{classId} {
+      allow read, write: if true;
+    }
+
+    // 친선전 요청(Battle Requests) 컬렉션:
+    match /battle_requests/{requestId} {
+      allow read, write, delete: if true;
+    }
   }
 }

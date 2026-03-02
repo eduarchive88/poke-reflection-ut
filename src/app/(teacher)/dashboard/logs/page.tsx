@@ -136,9 +136,9 @@ function LogsContent() {
                     variant="ghost"
                     size="icon"
                     onClick={() => router.push("/dashboard")}
-                    className="h-12 w-12 rounded-2xl bg-slate-800/40 border border-slate-700/50 hover:bg-slate-700/60 text-slate-300 transition-all hover:-translate-x-1"
+                    className="rounded-full hover:bg-slate-800/50"
                 >
-                    <ChevronLeft className="h-6 w-6" />
+                    <ChevronLeft className="h-6 w-6 text-slate-400 hover:text-white" />
                 </Button>
                 <div className="space-y-1">
                     <h2 className="text-4xl font-black tracking-tighter gold-gradient-text">데이터 매트릭스 로그</h2>

@@ -71,24 +71,31 @@ export default function ArchivePage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={() => router.push("/student")}>
-                        <ChevronLeft className="h-6 w-6" />
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => router.push("/student")}
+                        className="rounded-full hover:bg-slate-800"
+                    >
+                        <ChevronLeft className="h-6 w-6 text-slate-400 hover:text-white" />
                     </Button>
-                    <div>
-                        <h2 className="text-3xl font-black tracking-tight text-primary flex items-center gap-2">
-                            <Archive className="h-8 w-8 text-blue-500" />
-                            나의 기록 보관함
-                        </h2>
-                        <p className="text-muted-foreground mt-1">
-                            지금까지 포켓몬과 함께 쌓아온 성장의 기록들입니다.
-                        </p>
+                    <div className="flex items-center gap-3">
+                        <div className="p-3 bg-blue-500/20 rounded-2xl border border-blue-500/30">
+                            <Archive className="h-6 w-6 text-blue-400" />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-black italic tracking-tighter pokemon-gradient-text">기록 보관함</h2>
+                            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Reflection Archive</p>
+                        </div>
                     </div>
                 </div>
-                <div className="bg-secondary/50 px-4 py-2 rounded-full border border-border flex items-center gap-2 whitespace-nowrap">
-                    <span className="text-sm font-bold">총 기록 수:</span>
-                    <span className="text-primary font-black">{reflections.length}개</span>
+                <div className="flex items-center gap-2">
+                    <div className="bg-slate-900/50 px-4 py-1.5 rounded-full border border-slate-800 flex items-center gap-2">
+                        <span className="text-[10px] font-black text-slate-500 uppercase">총 기록</span>
+                        <span className="text-sm font-black text-white">{reflections.length}개</span>
+                    </div>
                 </div>
             </div>
 
@@ -125,7 +132,8 @@ export default function ArchivePage() {
                         </Card>
                     ))}
                 </div>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 }

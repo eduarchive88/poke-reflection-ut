@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Sparkles, Trophy, ChevronRight, Info, Zap, Shield, Heart } from "lucide-react";
+import { Sparkles, Trophy, ChevronRight, Info, Zap, Shield, Heart, ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
 export const dynamic = 'force-dynamic';
@@ -94,7 +94,7 @@ export default function PokedexPage() {
         try {
             const statsFields = ['hp', 'attack', 'defense'];
             const randomStat = statsFields[Math.floor(Math.random() * statsFields.length)];
-            const incrementValue = Math.floor(Math.random() * 2) + 1; // 1 또는 2 포인트 증가
+            const incrementValue = Math.floor(Math.random() * 2) + 1; // 1 또는 2 포인트 랜덤 증가
 
             // 1. 학생 캔디 차감
             await updateDoc(doc(db, "students", session.studentId), {
@@ -102,7 +102,6 @@ export default function PokedexPage() {
             });
 
             // 2. 포켓몬 레벨 및 스탯 증가
-            // 기존 스탯이 없을 경우를 대비해 초기값을 보장해야 함 (보통 생성 시점에 부여되지만 안전을 위해)
             const pokeDoc = await getDoc(doc(db, "pokemon_inventory", inventoryId));
             const currentData = pokeDoc.data();
 
@@ -112,18 +111,18 @@ export default function PokedexPage() {
                 level: increment(1),
             };
 
-            // 필드 경로를 사용하여 중첩된 객체 업데이트
-            updates[`stats.${randomStat}`] = increment(incrementValue);
-
-            // stats 객체가 없는 경우를 대비해 기본값 설정 로직 (필요시)
+            // stats 객체가 없는 경우 초기맵 설정, 있는 경우 개별 필드 업데이트
             if (!currentData.stats) {
-                updates.stats = {
+                const initialStats = {
                     hp: 50,
                     attack: 50,
                     defense: 50
                 };
-                updates.stats[randomStat] += incrementValue;
-                delete updates[`stats.${randomStat}`];
+                // @ts-ignore
+                initialStats[randomStat] += incrementValue;
+                updates.stats = initialStats;
+            } else {
+                updates[`stats.${randomStat}`] = increment(incrementValue);
             }
 
             await updateDoc(doc(db, "pokemon_inventory", inventoryId), updates);
@@ -149,7 +148,8 @@ export default function PokedexPage() {
                 setSelectedPokemon({ ...selectedPokemon, level: selectedPokemon.level + 1, stats: newStats });
             }
 
-            toast.success(`레벨업 성공! ${(randomStat === 'hp' ? '체력' : randomStat === 'attack' ? '공격력' : '방어력')}이(가) ${incrementValue} 상승했습니다.`);
+            const statName = randomStat === 'hp' ? '체력' : randomStat === 'attack' ? '공격력' : '방어력';
+            toast.success(`레벨업 성공! ${statName}이(가) ${incrementValue} 상승했습니다.`);
         } catch (error) {
             console.error(error);
             toast.error("레벨업 처리 중 오류가 발생했습니다.");
@@ -160,25 +160,30 @@ export default function PokedexPage() {
 
     return (
         <div className="space-y-6 pb-12">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 className="text-3xl font-black tracking-tight text-primary flex items-center gap-2">
-                        <Trophy className="h-8 w-8 text-yellow-500" />
-                        나의 포켓몬 도감
-                    </h2>
-                    <p className="text-muted-foreground mt-2">
-                        열심히 기록하고 모은 소중한 친구들입니다.
-                    </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                    <div className="bg-amber-500/10 text-amber-600 px-4 py-2 rounded-full border border-amber-200 flex items-center gap-2 whitespace-nowrap min-w-fit">
-                        <Sparkles className="h-5 w-5 fill-current shrink-0" />
-                        <span className="text-sm font-bold">보유 캔디:</span>
-                        <span className="text-primary font-black ml-1">{candies}개</span>
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => router.push("/student")}
+                        className="rounded-full hover:bg-slate-800"
+                    >
+                        <ChevronLeft className="h-6 w-6 text-slate-400 hover:text-white" />
+                    </Button>
+                    <div className="flex items-center gap-3">
+                        <div className="p-3 bg-rose-500/20 rounded-2xl border border-rose-500/30">
+                            <Sparkles className="h-6 w-6 text-rose-400" />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-black italic tracking-tighter pokemon-gradient-text">포켓몬 도감</h2>
+                            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Pokemon Collection</p>
+                        </div>
                     </div>
-                    <div className="bg-secondary/50 px-4 py-2 rounded-full border border-border flex items-center gap-2 whitespace-nowrap min-w-fit">
-                        <span className="text-sm font-bold">도감 등록:</span>
-                        <span className="text-primary font-black ml-1">{myPokemon.length} / 151</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="bg-slate-900/50 px-4 py-1.5 rounded-full border border-slate-800 flex items-center gap-2">
+                        <span className="text-[10px] font-black text-amber-500 uppercase">보유 캔디</span>
+                        <span className="text-sm font-black text-white">{candies}🍬</span>
                     </div>
                 </div>
             </div>

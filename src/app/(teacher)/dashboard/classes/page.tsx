@@ -1,0 +1,310 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { auth, db } from "@/lib/firebase";
+import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { nanoid } from "nanoid";
+import { Edit2, Trash2, Copy, Check, Presentation, ChevronLeft } from "lucide-react";
+
+export const dynamic = 'force-dynamic';
+
+interface ClassData {
+    id: string;
+    className: string;
+    sessionCode: string;
+}
+
+export default function ClassesPage() {
+    const router = useRouter();
+    const [classes, setClasses] = useState<ClassData[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [newClassName, setNewClassName] = useState("");
+    const [currentUserUid, setCurrentUserUid] = useState<string | null>(null);
+
+    // 수정용 상태
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [editingClass, setEditingClass] = useState<ClassData | null>(null);
+    const [editName, setEditName] = useState("");
+    const [editCode, setEditCode] = useState("");
+
+    const [copiedId, setCopiedId] = useState<string | null>(null);
+
+    const fetchClasses = async (uid: string) => {
+        try {
+            const q = query(collection(db, "classes"), where("teacherId", "==", uid));
+            const querySnapshot = await getDocs(q);
+            const classList: ClassData[] = [];
+            querySnapshot.forEach((doc) => {
+                classList.push({ id: doc.id, ...(doc.data() as Omit<ClassData, "id">) });
+            });
+            setClasses(classList);
+        } catch (error) {
+            toast.error("학급 정보를 불러오는데 실패했습니다.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setCurrentUserUid(user.uid);
+                fetchClasses(user.uid);
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    const handleCreateClass = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newClassName.trim() || !currentUserUid) return;
+
+        const newSessionCode = nanoid(8).toUpperCase();
+        try {
+            const docRef = await addDoc(collection(db, "classes"), {
+                teacherId: currentUserUid,
+                className: newClassName.trim(),
+                sessionCode: newSessionCode,
+                createdAt: serverTimestamp()
+            });
+
+            setClasses([...classes, { id: docRef.id, className: newClassName.trim(), sessionCode: newSessionCode }]);
+            setNewClassName("");
+            setIsDialogOpen(false);
+            toast.success("학급이 성공적으로 생성되었습니다.");
+        } catch (error) {
+            toast.error("학급 생성에 실패했습니다.");
+        }
+    };
+
+    const handleUpdateClass = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingClass || !editName.trim() || !editCode.trim()) return;
+
+        try {
+            const classRef = doc(db, "classes", editingClass.id);
+            await updateDoc(classRef, {
+                className: editName.trim(),
+                sessionCode: editCode.trim().toUpperCase()
+            });
+
+            setClasses(classes.map(c => c.id === editingClass.id ? { ...c, className: editName.trim(), sessionCode: editCode.trim().toUpperCase() } : c));
+            setIsEditOpen(false);
+            toast.success("학급 정보가 수정되었습니다.");
+        } catch (error) {
+            toast.error("수정에 실패했습니다.");
+        }
+    };
+
+    const handleDeleteClass = async (classId: string) => {
+        if (!confirm("정말로 이 학급을 삭제하시겠습니까? 학생 명단은 별도로 삭제해야 합니다.")) return;
+        try {
+            await deleteDoc(doc(db, "classes", classId));
+            setClasses(classes.filter(c => c.id !== classId));
+            toast.success("학급이 삭제되었습니다.");
+        } catch (error) {
+            toast.error("삭제에 실패했습니다.");
+        }
+    };
+
+    const copyToClipboard = (text: string, id: string) => {
+        navigator.clipboard.writeText(text);
+        setCopiedId(id);
+        toast.info("세션 코드가 복사되었습니다.");
+        setTimeout(() => setCopiedId(null), 2000);
+    };
+
+    return (
+        <div className="space-y-8">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => router.push("/dashboard")}
+                        className="rounded-full hover:bg-slate-800/50"
+                    >
+                        <ChevronLeft className="h-6 w-6 text-slate-400 hover:text-white" />
+                    </Button>
+                    <div className="space-y-1">
+                        <h2 className="text-4xl font-black tracking-tighter pokemon-gradient-text uppercase italic">학급 관리</h2>
+                        <p className="text-slate-400 font-bold tracking-tight text-xs uppercase">Class & Session Management</p>
+                    </div>
+                </div>
+
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                        <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-black px-8 h-12 rounded-2xl shadow-lg shadow-indigo-600/20 transition-all hover:scale-105 active:scale-95 border-2 border-indigo-400/30">
+                            새 학급 생성
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px] bg-[#0a1128] border-2 border-indigo-500/30 rounded-3xl">
+                        <DialogHeader>
+                            <DialogTitle className="text-2xl font-black text-indigo-100 uppercase italic">새 학급 생성</DialogTitle>
+                            <DialogDescription className="text-slate-400 font-bold">
+                                학급 이름을 입력하세요. 접속용 세션 코드가 자동으로 발급됩니다.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <form onSubmit={handleCreateClass}>
+                            <div className="grid gap-6 py-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="name" className="text-slate-300 font-bold ml-1">학급 이름</Label>
+                                    <Input
+                                        id="name"
+                                        value={newClassName}
+                                        onChange={(e) => setNewClassName(e.target.value)}
+                                        className="bg-[#050b18] border-indigo-500/30 h-12 rounded-xl focus:ring-indigo-500"
+                                        placeholder="예: 3학년 2반"
+                                        autoComplete="off"
+                                    />
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button type="submit" className="w-full h-12 bg-indigo-600 text-white font-black rounded-xl hover:bg-indigo-500">생성하기</Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
+            </div>
+
+            {loading ? (
+                <div className="py-24 text-center text-slate-500 font-medium animate-pulse">시스템 데이터 로딩 중...</div>
+            ) : classes.length === 0 ? (
+                <Card className="bg-[#0a1128]/50 border-2 border-dashed border-indigo-500/20 rounded-3xl">
+                    <CardContent className="flex flex-col items-center justify-center h-64 text-center px-4">
+                        <div className="w-20 h-20 bg-indigo-500/10 rounded-full flex items-center justify-center mb-6">
+                            <Presentation className="h-10 w-10 text-indigo-400/50" />
+                        </div>
+                        <p className="text-xl font-bold text-slate-300">아직 등록된 학급이 없습니다.</p>
+                        <p className="text-slate-500 mt-2">상단의 &apos;새 학급 생성&apos; 버튼을 눌러 시작해보세요.</p>
+                    </CardContent>
+                </Card>
+            ) : (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {classes.map((cls) => (
+                        <Card key={cls.id} className="bg-[#0a1128]/40 border-2 border-indigo-500/10 hover:border-indigo-500/30 transition-all relative group overflow-hidden flex flex-col h-full rounded-3xl">
+                            {/* Card Accent Glow */}
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl group-hover:bg-indigo-500/10 transition-all duration-500"></div>
+
+                            <CardHeader className="pb-4 relative z-10">
+                                <div className="flex justify-between items-start gap-4">
+                                    <div className="space-y-1 min-w-0">
+                                        <CardTitle className="text-2xl font-black text-slate-100 tracking-tight truncate">{cls.className}</CardTitle>
+                                        <CardDescription className="text-indigo-400 font-bold text-[10px] uppercase tracking-[0.2em]">Management Stage</CardDescription>
+                                    </div>
+                                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-9 w-9 bg-slate-800/50 text-slate-300 hover:text-indigo-400 rounded-xl"
+                                            onClick={() => {
+                                                setEditingClass(cls);
+                                                setEditName(cls.className);
+                                                setEditCode(cls.sessionCode);
+                                                setIsEditOpen(true);
+                                            }}
+                                        >
+                                            <Edit2 className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-9 w-9 bg-slate-800/50 text-slate-300 hover:text-red-400 rounded-xl"
+                                            onClick={() => handleDeleteClass(cls.id)}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="flex-1 flex flex-col justify-between relative z-10 space-y-6">
+                                <div className="bg-[#050b18]/80 border-2 border-indigo-500/20 rounded-2xl p-4 group/code transition-all hover:border-indigo-500/40 shadow-inner">
+                                    <p className="text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-widest text-center">학생 접속 세션 코드</p>
+                                    <div className="flex items-center justify-center gap-2">
+                                        <p className="text-xl md:text-2xl font-black font-mono tracking-[0.1em] text-indigo-400 select-all drop-shadow-[0_0_8px_rgba(79,70,229,0.4)]">
+                                            {cls.sessionCode}
+                                        </p>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 bg-[#0a1128] group-hover/code:bg-indigo-500/10 rounded-full transition-all"
+                                            onClick={() => copyToClipboard(cls.sessionCode, cls.id)}
+                                        >
+                                            {copiedId === cls.id ? <Check className="h-4 w-4 text-indigo-400" /> : <Copy className="h-4 w-4 text-slate-400 transition-colors group-hover/code:text-indigo-400" />}
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-11 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 font-bold rounded-2xl border border-indigo-500/20 text-xs"
+                                            onClick={() => router.push(`/dashboard/students?classId=${cls.id}`)}
+                                        >
+                                            학생 명렬표
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-11 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 font-bold rounded-2xl border border-blue-500/20 text-xs"
+                                            onClick={() => router.push(`/dashboard/status?classId=${cls.id}`)}
+                                        >
+                                            성찰 현황판
+                                        </Button>
+                                    </div>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="w-full h-11 bg-slate-800/40 hover:bg-slate-800/60 text-slate-400 font-bold rounded-2xl border border-slate-700/30 text-xs"
+                                        onClick={() => router.push(`/dashboard/logs?classId=${cls.id}`)}
+                                    >
+                                        통합 로그 리포트 (Excel)
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            )}
+
+            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                <DialogContent className="sm:max-w-[425px] bg-[#0a1128] border-indigo-500/30 rounded-3xl p-8">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-black text-indigo-100 uppercase italic">학급 정보 수정</DialogTitle>
+                        <DialogDescription className="text-slate-400 font-medium">
+                            학급 이름과 세션 코드를 변경합니다. 세션 코드를 바꾸면 학생들도 바뀐 코드로 접속해야 합니다.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleUpdateClass}>
+                        <div className="grid gap-6 py-6">
+                            <div className="space-y-2">
+                                <Label htmlFor="edit-name" className="text-sm text-slate-400 font-bold ml-1">학급 이름</Label>
+                                <Input id="edit-name" value={editName} onChange={(e) => setEditName(e.target.value)} className="bg-[#050b18] border-indigo-500/30 rounded-xl h-12 focus:ring-indigo-500" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="edit-code" className="text-sm text-slate-400 font-bold ml-1">세션 코드 (접속 코드)</Label>
+                                <Input id="edit-code" value={editCode} onChange={(e) => setEditCode(e.target.value)} className="bg-[#050b18] border-indigo-500/30 rounded-xl h-12 focus:ring-indigo-500 font-mono font-bold tracking-widest uppercase" />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button type="submit" className="h-14 w-full rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black shadow-lg shadow-indigo-600/20 transition-all active:scale-95">정보 업데이트</Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+        </div>
+    );
+}
+

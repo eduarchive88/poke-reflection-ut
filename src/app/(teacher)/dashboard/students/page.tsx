@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
 import { collection, query, where, getDocs, doc, setDoc, writeBatch, serverTimestamp } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Upload, Download, UserPlus, Trash2 } from "lucide-react";
+import { Upload, Download, UserPlus, Trash2, ChevronLeft } from "lucide-react";
 import { deleteDoc } from "firebase/firestore";
 
 export const dynamic = 'force-dynamic';
@@ -44,6 +44,7 @@ interface StudentData {
 
 function StudentsContent() {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const urlClassId = searchParams.get("classId");
 
     const [classes, setClasses] = useState<ClassData[]>([]);
@@ -283,9 +284,19 @@ function StudentsContent() {
     return (
         <div className="space-y-8 pb-12">
             <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
-                <div className="space-y-1">
-                    <h2 className="text-4xl font-black tracking-tighter gold-gradient-text">학생 명렬표 관리</h2>
-                    <p className="text-slate-400 font-medium tracking-tight">학급별 학생 명단을 확인하고 엑셀로 일괄 등록 및 개별 관리를 수행합니다.</p>
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => router.push("/dashboard")}
+                        className="rounded-full hover:bg-slate-800/50"
+                    >
+                        <ChevronLeft className="h-6 w-6 text-slate-400 hover:text-white" />
+                    </Button>
+                    <div className="space-y-1">
+                        <h2 className="text-4xl font-black tracking-tighter gold-gradient-text">학생 명렬표 관리</h2>
+                        <p className="text-slate-400 font-medium tracking-tight">학급별 학생 명단을 확인하고 엑셀로 일괄 등록 및 개별 관리를 수행합니다.</p>
+                    </div>
                 </div>
 
                 {classes.length > 0 && (

@@ -3,13 +3,13 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp, doc, setDoc, getDoc, updateDoc, increment, writeBatch } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, doc, setDoc, getDoc, updateDoc, increment, writeBatch, runTransaction } from "firebase/firestore";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Loader2, Star, Info } from "lucide-react";
+import { Sparkles, Loader2, Star, Info, PenTool, ChevronLeft } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
@@ -182,6 +182,28 @@ export default function WritePage() {
 
     return (
         <div className="max-w-3xl mx-auto space-y-6">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => router.push("/student")}
+                        className="rounded-full hover:bg-slate-800/50"
+                    >
+                        <ChevronLeft className="h-6 w-6 text-slate-400 hover:text-white" />
+                    </Button>
+                    <div>
+                        <h2 className="text-3xl font-bold tracking-tight text-primary flex items-center gap-3">
+                            <PenTool className="h-8 w-8" />
+                            오늘의 성찰
+                        </h2>
+                        <p className="text-muted-foreground mt-1 text-sm">
+                            오늘 수업 참여도를 평가하고 배운 점을 기록해보세요.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             <AnimatePresence>
                 {rewardPokemon ? (
                     <motion.div
@@ -225,14 +247,6 @@ export default function WritePage() {
                 ) : null}
             </AnimatePresence>
 
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-3xl font-bold tracking-tight text-primary">오늘의 성찰</h2>
-                    <p className="text-muted-foreground mt-1 text-sm">
-                        오늘 수업 참여도를 평가하고 배운 점을 기록해보세요.
-                    </p>
-                </div>
-            </div>
 
             <Card className="border-2 border-primary/20 bg-primary/5">
                 <CardHeader className="pb-3">
