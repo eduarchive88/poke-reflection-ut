@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp, doc, setDoc, getDoc, updateDoc, increment } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, doc, setDoc, getDoc, updateDoc, increment, writeBatch } from "firebase/firestore";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -118,36 +118,42 @@ export default function WritePage() {
             // 캔디 계산 (50자당 1개, 최소 1개)
             const earnedCandies = Math.max(1, Math.floor(wordCount / 50));
 
-            // DB 작업 순서 최적화 (일기 먼저 저장 후 학생 정보 갱신)
-            // 2. 성찰 일기 저장
-            await addDoc(collection(db, "reflections"), {
+            // Firestore writeBatch를 사용하여 모든 작업을 원자적으로 처리 (성찰 일기 + 캔디/작성일 업데이트 + 포켓몬 지급)
+            const batch = writeBatch(db);
+
+            // 1. 성찰 일기 저장
+            const reflectionRef = doc(collection(db, "reflections"));
+            batch.set(reflectionRef, {
                 studentId: session.studentId,
                 classId: session.classId,
                 content: content.trim(),
                 wordCount: wordCount,
                 participationRating: rating,
-                createdAt: serverTimestamp()
+                earnedCandies: earnedCandies,
+                createdAt: serverTimestamp(),
             });
 
-            // 3. 학생 정보 업데이트 (캔디 추가 및 날짜 갱신)
-            await updateDoc(studentRef, {
+            // 2. 학생 정보 업데이트 (캔디 누적 및 마지막 작성일 갱신)
+            batch.update(studentRef, {
                 candies: increment(earnedCandies),
                 lastReflectedAt: serverTimestamp()
             });
 
-            // 4. 인벤토리에 추가
+            // 3. 포켓몬 지급 또는 레벨업 (인벤토리)
             const inventoryRef = doc(db, "pokemon_inventory", `${session.studentId}_${randomPokeId}`);
             const existing = await getDoc(inventoryRef);
 
             if (existing.exists()) {
                 const currentData = existing.data();
-                await setDoc(inventoryRef, {
-                    ...currentData,
+                batch.update(inventoryRef, {
                     level: (currentData.level || 5) + 1,
                     updatedAt: serverTimestamp()
-                }, { merge: true });
+                });
             } else {
-                await setDoc(inventoryRef, {
+                const initialStats = getPokemonStats(randomPokeId, 5);
+                const initialSkills = getRandomSkills(pokemon.types);
+
+                batch.set(inventoryRef, {
                     studentId: session.studentId,
                     pokemonId: randomPokeId,
                     name: pokemon.name,
@@ -161,6 +167,9 @@ export default function WritePage() {
                     createdAt: serverTimestamp()
                 });
             }
+
+            // 모든 변경 사항 일괄 커밋
+            await batch.commit();
 
             setRewardPokemon(pokemon);
             setHasAlreadyReflected(true);
@@ -283,10 +292,10 @@ export default function WritePage() {
                             />
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-sm font-medium">
                                 <div className="flex flex-col gap-1">
-                                    <span className={wordCount >= 10 ? "text-primary font-bold" : "text-muted-foreground"}>
+                                    <span className={`whitespace-nowrap ${wordCount >= 10 ? "text-primary font-bold" : "text-muted-foreground"}`}>
                                         📝 글자 수: <span className="text-lg">{wordCount}</span> / 10자 이상
                                     </span>
-                                    <span className={rating > 0 ? "text-yellow-600 font-bold" : "text-muted-foreground"}>
+                                    <span className={`whitespace-nowrap ${rating > 0 ? "text-yellow-600 font-bold" : "text-muted-foreground"}`}>
                                         ⭐ 참여도 별점: {rating > 0 ? `${rating}점 선택됨` : "미선택"}
                                     </span>
                                 </div>
@@ -317,7 +326,7 @@ export default function WritePage() {
                                 포켓몬을 부르는 중...
                             </>
                         ) : hasAlreadyReflected ? (
-                            <>작성 완료 (내일 다시 기록해주세요)</>
+                            <>작성 완료 (내일 새로운 포켓몬을 만나러 오세요)</>
                         ) : (
                             <>기록 완료하고 보상 받기</>
                         )}

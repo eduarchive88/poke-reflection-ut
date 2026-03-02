@@ -426,9 +426,9 @@ function StudentsContent() {
                             <TableBody>
                                 {students.map((student) => (
                                     <TableRow key={student.id} className="border-slate-800/40 hover:bg-slate-800/20 transition-colors group">
-                                        <TableCell className="text-center font-mono font-black text-slate-300 group-hover:text-amber-400">{student.grade}</TableCell>
-                                        <TableCell className="text-center font-mono font-black text-slate-300 group-hover:text-amber-400">{student.classNum}</TableCell>
-                                        <TableCell className="text-center font-mono font-black text-slate-300 group-hover:text-amber-400">{student.number}</TableCell>
+                                        <TableCell className="text-center font-mono font-black text-slate-300 group-hover:text-amber-400 whitespace-nowrap">{student.grade}</TableCell>
+                                        <TableCell className="text-center font-mono font-black text-slate-300 group-hover:text-amber-400 whitespace-nowrap">{student.classNum}</TableCell>
+                                        <TableCell className="text-center font-mono font-black text-slate-300 group-hover:text-amber-400 whitespace-nowrap">{student.number}</TableCell>
                                         <TableCell className="font-black text-slate-100 group-hover:text-amber-300 text-base">{student.name}</TableCell>
                                         <TableCell className="text-center">
                                             <Button

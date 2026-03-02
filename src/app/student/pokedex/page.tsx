@@ -130,13 +130,13 @@ export default function PokedexPage() {
                         열심히 기록하고 모은 소중한 친구들입니다.
                     </p>
                 </div>
-                <div className="flex gap-2">
-                    <div className="bg-amber-500/10 text-amber-600 px-4 py-2 rounded-full border border-amber-200 flex items-center gap-2">
+                <div className="flex flex-wrap gap-2">
+                    <div className="bg-amber-500/10 text-amber-600 px-4 py-2 rounded-full border border-amber-200 flex items-center gap-2 whitespace-nowrap">
                         <Sparkles className="h-5 w-5 fill-current" />
                         <span className="text-sm font-bold">보유 캔디:</span>
                         <span className="text-primary font-black">{candies}개</span>
                     </div>
-                    <div className="bg-secondary/50 px-4 py-2 rounded-full border border-border flex items-center gap-2">
+                    <div className="bg-secondary/50 px-4 py-2 rounded-full border border-border flex items-center gap-2 whitespace-nowrap">
                         <span className="text-sm font-bold">도감 등록:</span>
                         <span className="text-primary font-black">{myPokemon.length} / 151</span>
                     </div>
