@@ -197,7 +197,7 @@ function LogsContent() {
                             상담용 근거 자료 및 학기말 생활기록부 작성에 최적화된 포맷입니다.
                         </p>
                         <Button
-                            className="w-full h-16 rounded-[1.25rem] text-xl font-black bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xl shadow-amber-500/20 transition-all active:scale-95 gap-3"
+                            className="w-full h-16 rounded-[1.25rem] text-xl font-black bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xl shadow-amber-500/20 transition-all active:scale-95 gap-3 whitespace-nowrap"
                             disabled={loading}
                             onClick={downloadAllLogs}
                         >
