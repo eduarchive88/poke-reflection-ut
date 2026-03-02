@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { ChevronLeft, Download, Calendar, CheckCircle2, XCircle, Gift, Info, Search, Filter, BookOpen } from "lucide-react";
+import { ChevronLeft, Download, Calendar, CheckCircle2, XCircle, Gift, Info, Search, Filter, BookOpen, Sparkles } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -41,24 +41,30 @@ function StatusContent() {
     const [students, setStudents] = useState<StudentData[]>([]);
     const [reflections, setReflections] = useState<ReflectionData[]>([]);
     const [loading, setLoading] = useState(true);
-    const [dates, setDates] = useState<string[]>([]);
-    const [selectedStudent, setSelectedStudent] = useState<StudentData | null>(null);
-    const [isRewardDialogOpen, setIsRewardDialogOpen] = useState(false);
-    const [isRewarding, setIsRewarding] = useState(false);
-
-    // 필터 및 도감용 상태
     const [searchStudent, setSearchStudent] = useState("");
-    const [filterDays, setFilterDays] = useState("30"); // 기본 30일
+    const [filterDays, setFilterDays] = useState("30");
+    const [dates, setDates] = useState<string[]>([]);
+
+    // 모달 및 상세 정보 상태
+    const [selectedStudent, setSelectedStudent] = useState<StudentData | null>(null);
     const [isPokedexOpen, setIsPokedexOpen] = useState(false);
     const [studentInventory, setStudentInventory] = useState<any[]>([]);
     const [loadingInventory, setLoadingInventory] = useState(false);
+    const [isRewardDialogOpen, setIsRewardDialogOpen] = useState(false);
+    const [isRewarding, setIsRewarding] = useState(false);
+
+    // 학생별 성찰 기록 상세 모달 관련
+    const [isReflectionListOpen, setIsReflectionListOpen] = useState(false);
+    const [studentReflections, setStudentReflections] = useState<any[]>([]);
+    const [loadingStudentReflections, setLoadingStudentReflections] = useState(false);
 
     const LEGENDARY_POKEMON = [
-        { id: 150, name: "뮤츠", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/150.png", types: ["psychic"] },
-        { id: 151, name: "뮤", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/151.png", types: ["psychic"] },
-        { id: 250, name: "칠색조", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/250.png", types: ["fire", "flying"] },
+        { id: 144, name: "프리져", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/144.png", types: ["Ice", "Flying"] },
+        { id: 145, name: "썬더", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/145.png", types: ["Electric", "Flying"] },
+        { id: 146, name: "파이어", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/146.png", types: ["Fire", "Flying"] },
+        { id: 150, name: "뮤츠", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/150.png", types: ["Psychic"] },
+        { id: 151, name: "뮤", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/151.png", types: ["Psychic"] },
     ];
-
     useEffect(() => {
         if (!classId) {
             router.push("/dashboard");
@@ -146,20 +152,68 @@ function StatusContent() {
 
     const filteredStudents = students.filter(s => s.name.includes(searchStudent));
 
-    const exportToExcel = () => {
-        const data = filteredStudents.map(s => {
-            const row: Record<string, string | number> = { "번호": s.number, "이름": s.name };
-            dates.forEach(d => {
-                row[d] = checkReflection(s.id, d) ? "O" : "X";
+    const fetchStudentReflections = async (student: StudentData) => {
+        setSelectedStudent(student);
+        setLoadingStudentReflections(true);
+        setIsReflectionListOpen(true);
+        try {
+            const q = query(
+                collection(db, "reflections"),
+                where("studentId", "==", student.id)
+            );
+            const snap = await getDocs(q);
+            const list: any[] = [];
+            snap.forEach(doc => {
+                const data = doc.data();
+                list.push({
+                    id: doc.id,
+                    ...data,
+                    date: data.createdAt?.toDate().toLocaleDateString() || "날짜 없음"
+                });
             });
-            return row;
-        });
+            // 날짜 역순 정렬
+            setStudentReflections(list.sort((a, b) => b.createdAt?.toMillis() - a.createdAt?.toMillis()));
+        } catch (error) {
+            console.error(error);
+            toast.error("성찰 기록을 가져오는데 실패했습니다.");
+        } finally {
+            setLoadingStudentReflections(false);
+        }
+    };
 
-        const worksheet = XLSX.utils.json_to_sheet(data);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "성찰현황");
-        XLSX.writeFile(workbook, `${className}_성찰현황_${new Date().toISOString().split('T')[0]}.xlsx`);
-        toast.success("엑셀 파일이 다운로드되었습니다.");
+    const exportToExcelFull = async () => {
+        // 모든 성찰 기록 다운로드
+        setLoading(true);
+        try {
+            const q = query(collection(db, "reflections"), where("classId", "==", classId));
+            const snap = await getDocs(q);
+            const allReflections: any[] = [];
+
+            // 학생 이름 매핑용
+            const studentMap: Record<string, string> = {};
+            students.forEach(s => studentMap[s.id] = s.name);
+
+            snap.forEach(doc => {
+                const data = doc.data();
+                allReflections.push({
+                    "학생 이름": studentMap[data.studentId] || "알 수 없음",
+                    "날짜": data.createdAt?.toDate().toLocaleString() || "",
+                    "성찰 내용": data.content || "",
+                    "별점": data.rating || 0
+                });
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(allReflections);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "전체_성찰_기록");
+            XLSX.writeFile(workbook, `${className}_전체성찰기록_${new Date().toISOString().split('T')[0]}.xlsx`);
+            toast.success("전체 성찰 기록이 다운로드되었습니다.");
+        } catch (error) {
+            console.error(error);
+            toast.error("다운로드 중 오류가 발생했습니다.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     const giveReward = async (pokeId: number, pokeName: string, image: string, types: string[]) => {
@@ -189,165 +243,200 @@ function StatusContent() {
         }
     };
 
+
     return (
-        <div className="space-y-8 pb-12">
-            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
-                <div className="flex items-center gap-6">
+        <div className="space-y-6 pb-12">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
                     <Button
                         variant="ghost"
-                        size="icon"
+                        size="sm"
                         onClick={() => router.push("/dashboard")}
-                        className="h-12 w-12 rounded-2xl bg-slate-800/40 border border-slate-700/50 hover:bg-slate-700/60 text-slate-300 transition-all hover:-translate-x-1"
+                        className="mb-2 -ml-2 text-muted-foreground hover:text-primary"
                     >
-                        <ChevronLeft className="h-6 w-6" />
+                        <ChevronLeft className="h-4 w-4 mr-1" /> 대시보드로 돌아가기
                     </Button>
-                    <div className="space-y-1">
-                        <h2 className="text-4xl font-black tracking-tighter gold-gradient-text">{className} 성찰 현황판</h2>
-                        <p className="text-slate-400 font-medium tracking-tight">학생들의 성찰 기록과 포켓몬 수집 상태를 한눈에 관리합니다.</p>
-                    </div>
+                    <h2 className="text-3xl font-black tracking-tight text-primary flex items-center gap-2">
+                        <Calendar className="h-8 w-8 text-blue-500" />
+                        {className} 성찰 현황판
+                    </h2>
+                    <p className="text-muted-foreground mt-2">
+                        학생들의 성찰 참여 횟수를 확인하고 상세 기록을 관리합니다.
+                    </p>
                 </div>
-                <div className="flex flex-wrap gap-3 w-full xl:w-auto">
-                    <div className="flex items-center gap-3 bg-slate-800/40 px-4 py-2 rounded-2xl border border-slate-700/50 flex-1 sm:flex-none">
-                        <Search className="h-5 w-5 text-slate-500" />
-                        <Input
-                            placeholder="학생 이름 검색..."
-                            className="border-none bg-transparent h-8 w-full sm:w-40 focus-visible:ring-0 text-slate-200 font-medium placeholder:text-slate-600"
-                            value={searchStudent}
-                            onChange={(e) => setSearchStudent(e.target.value)}
-                        />
-                    </div>
-                    <Select value={filterDays} onValueChange={setFilterDays}>
-                        <SelectTrigger className="w-full sm:w-[150px] h-12 rounded-2xl bg-slate-800/40 border-slate-700/50 text-slate-300 font-bold focus:ring-amber-500">
-                            <Filter className="h-4 w-4 mr-2 text-amber-500" />
-                            <SelectValue placeholder="기간 선택" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-slate-900 border-slate-800 rounded-2xl shadow-2xl">
-                            <SelectItem value="7" className="rounded-xl focus:bg-amber-500/10 focus:text-amber-400">최근 7일</SelectItem>
-                            <SelectItem value="14" className="rounded-xl focus:bg-amber-500/10 focus:text-amber-400">최근 14일</SelectItem>
-                            <SelectItem value="30" className="rounded-xl focus:bg-amber-500/10 focus:text-amber-400">최근 30일</SelectItem>
-                            <SelectItem value="100" className="rounded-xl focus:bg-amber-500/10 focus:text-amber-400">최근 100일</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <Button onClick={exportToExcel} className="h-12 w-full sm:w-auto px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black shadow-lg shadow-emerald-500/20 transition-all active:scale-95 gap-2">
-                        <Download className="h-5 w-5" /> 엑셀 리포트
+                <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" onClick={exportToExcelFull} className="gap-2 rounded-full border-2">
+                        <Download className="h-4 w-4" /> 전체 기록 다운로드 (Excel)
                     </Button>
                 </div>
             </div>
 
-            <Card className="premium-card overflow-hidden border-slate-800/80 rounded-3xl">
-                <CardHeader className="bg-slate-950/40 border-b border-slate-800/60 p-6">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <CardTitle className="text-xl font-black text-slate-100 flex items-center gap-3">
-                            <Calendar className="h-6 w-6 text-amber-500" />
-                            작성 현황 트래킹
-                        </CardTitle>
-                        <div className="flex items-center gap-6 text-[11px] font-black uppercase tracking-widest bg-slate-950/50 px-4 py-2 rounded-xl border border-slate-800/50">
-                            <div className="flex items-center gap-2 text-emerald-500"><CheckCircle2 className="h-4 w-4" /> COMPLETED</div>
-                            <div className="flex items-center gap-2 text-slate-600"><XCircle className="h-4 w-4" /> PENDING</div>
+            <Card className="border-2 shadow-sm rounded-[2rem] overflow-hidden">
+                <CardHeader className="bg-secondary/30 border-b">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="relative w-full md:w-72">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                placeholder="학생 이름 검색..."
+                                value={searchStudent}
+                                onChange={(e) => setSearchStudent(e.target.value)}
+                                className="pl-9 rounded-full bg-background border-2"
+                            />
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="p-0 overflow-x-auto">
-                    {loading ? (
-                        <div className="p-32 text-center text-slate-500 font-bold animate-pulse tracking-tighter text-xl">데이터 매트릭스 동기화 중...</div>
-                    ) : (
-                        <Table>
-                            <TableHeader className="bg-slate-950/60">
-                                <TableRow className="border-slate-800/80 hover:bg-transparent">
-                                    <TableHead className="w-[80px] text-center font-black text-slate-400 uppercase text-[10px] tracking-widest">ID</TableHead>
-                                    <TableHead className="w-[180px] font-black text-slate-400 uppercase text-[10px] tracking-widest">Student</TableHead>
-                                    {dates.map(date => (
-                                        <TableHead key={date} className="text-center font-black text-slate-500 text-[10px] min-w-[90px] uppercase tracking-tighter">
-                                            {date.split('-').slice(1).join('/')}
-                                        </TableHead>
-                                    ))}
+                <CardContent className="p-0">
+                    <Table>
+                        <TableHeader className="bg-muted/50">
+                            <TableRow>
+                                <TableHead className="w-16 text-center font-bold">번호</TableHead>
+                                <TableHead className="w-32 font-bold">이름</TableHead>
+                                <TableHead className="font-bold text-center text-primary bg-primary/5">총 성찰 횟수</TableHead>
+                                <TableHead className="text-right font-bold">활동 관리</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {loading ? (
+                                <TableRow>
+                                    <TableCell colSpan={4} className="h-40 text-center text-muted-foreground animate-pulse font-bold">
+                                        데이터를 불러오고 있습니다...
+                                    </TableCell>
                                 </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredStudents.map((student) => (
-                                    <TableRow key={student.id} className="border-slate-800/40 hover:bg-slate-800/20 transition-colors">
-                                        <TableCell className="text-center font-mono font-bold text-slate-500">{student.number}</TableCell>
-                                        <TableCell>
-                                            <div className="flex justify-between items-center group/row">
-                                                <span className="font-black text-slate-100 text-base">{student.name}</span>
-                                                <div className="flex gap-1 opacity-0 group-hover/row:opacity-100 transition-all translate-x-2 group-hover/row:translate-x-0">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-9 w-9 bg-slate-800/60 text-amber-500 hover:bg-amber-500 hover:text-slate-950 rounded-xl transition-all shadow-lg"
-                                                        title="도감 보기"
-                                                        onClick={() => fetchInventory(student)}
-                                                    >
-                                                        <BookOpen className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-9 w-9 bg-slate-800/60 text-emerald-500 hover:bg-emerald-500 hover:text-slate-950 rounded-xl transition-all shadow-lg"
-                                                        title="전설 지급"
-                                                        onClick={() => {
-                                                            setSelectedStudent(student);
-                                                            setIsRewardDialogOpen(true);
-                                                        }}
-                                                    >
-                                                        <Gift className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        {dates.map(date => {
-                                            const hasReflection = checkReflection(student.id, date);
-                                            return (
-                                                <TableCell key={date} className="text-center p-2">
-                                                    <div className="flex items-center justify-center">
-                                                        {hasReflection ? (
-                                                            <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-                                                                <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-                                                            </div>
-                                                        ) : (
-                                                            <div className="w-8 h-8 rounded-full bg-slate-900/50 flex items-center justify-center border border-slate-800/50 opacity-20">
-                                                                <XCircle className="h-5 w-5 text-slate-500" />
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </TableCell>
-                                            );
-                                        })}
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    )}
+                            ) : filteredStudents.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={4} className="h-40 text-center text-muted-foreground font-bold">
+                                        검색 결과가 없습니다.
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                filteredStudents.map((student) => {
+                                    const studentReflectionCount = reflections.filter(r => r.studentId === student.id).length;
+                                    return (
+                                        <TableRow key={student.id} className="hover:bg-muted/30 transition-colors">
+                                            <TableCell className="text-center font-medium">{student.number}번</TableCell>
+                                            <TableCell>
+                                                <button
+                                                    onClick={() => fetchStudentReflections(student)}
+                                                    className="font-black hover:text-primary hover:underline underline-offset-4 decoration-2 transition-all"
+                                                >
+                                                    {student.name}
+                                                </button>
+                                            </TableCell>
+                                            <TableCell className="text-center font-black text-xl text-primary bg-primary/5">
+                                                {studentReflectionCount}회
+                                            </TableCell>
+                                            <TableCell className="text-right space-x-2">
+                                                <Button size="sm" variant="outline" className="rounded-full gap-1 border-2" onClick={() => fetchInventory(student)}>
+                                                    <BookOpen className="h-3.5 w-3.5" /> 도감
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="secondary"
+                                                    className="rounded-full gap-1 bg-amber-100 text-amber-700 hover:bg-amber-200"
+                                                    onClick={() => {
+                                                        setSelectedStudent(student);
+                                                        setIsRewardDialogOpen(true);
+                                                    }}
+                                                >
+                                                    <Gift className="h-3.5 w-3.5" /> 보상
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    className="rounded-full gap-1"
+                                                    onClick={() => fetchStudentReflections(student)}
+                                                >
+                                                    <Search className="h-3.5 w-3.5" /> 상세
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })
+                            )}
+                        </TableBody>
+                    </Table>
                 </CardContent>
             </Card>
 
-            <Dialog open={isRewardDialogOpen} onOpenChange={setIsRewardDialogOpen}>
-                <DialogContent className="sm:max-w-md">
+            {/* 성찰 기록 상세 모달 */}
+            <Dialog open={isReflectionListOpen} onOpenChange={setIsReflectionListOpen}>
+                <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto rounded-[2rem]">
                     <DialogHeader>
-                        <DialogTitle>전설의 포켓몬 보상 지급</DialogTitle>
+                        <DialogTitle className="text-2xl font-black text-primary flex items-center gap-2">
+                            <Calendar className="h-6 w-6" />
+                            {selectedStudent?.name} 학생의 성찰 기록
+                        </DialogTitle>
+                        <DialogDescription>
+                            지금까지 작성한 모든 성찰 내용을 확인합니다. (총 {studentReflections.length}건)
+                        </DialogDescription>
+                    </DialogHeader>
+                    {loadingStudentReflections ? (
+                        <div className="py-20 text-center animate-pulse text-muted-foreground font-bold italic">기록을 불러오는 중...</div>
+                    ) : studentReflections.length === 0 ? (
+                        <div className="py-20 text-center text-muted-foreground border-dashed border-2 rounded-2xl bg-secondary/10">
+                            아직 작성된 성찰 기록이 없습니다.
+                        </div>
+                    ) : (
+                        <div className="space-y-4 py-4">
+                            {studentReflections.map((item) => (
+                                <Card key={item.id} className="border-2 rounded-2xl overflow-hidden">
+                                    <div className="flex justify-between items-center bg-muted/30 px-4 py-2 border-b">
+                                        <div className="flex items-center gap-2">
+                                            <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                            <span className="text-xs font-bold">{item.date}</span>
+                                        </div>
+                                        <div className="flex gap-0.5">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <Sparkles
+                                                    key={star}
+                                                    className={`h-3 w-3 ${star <= (item.rating || 0) ? 'text-yellow-500 fill-current' : 'text-muted'}`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <CardContent className="p-4">
+                                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{item.content}</p>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
+
+            {/* 전설의 포켓몬 보상 모달 */}
+            <Dialog open={isRewardDialogOpen} onOpenChange={setIsRewardDialogOpen}>
+                <DialogContent className="sm:max-w-md rounded-[2.5rem]">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-black text-primary flex items-center gap-2">
+                            <Gift className="h-6 w-6 text-amber-500" />
+                            전설의 포켓몬 보상 지급
+                        </DialogTitle>
                         <DialogDescription>
                             {selectedStudent?.name} 학생에게 특별한 포켓몬을 선물합니다.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="grid grid-cols-3 gap-4 py-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 py-4">
                         {LEGENDARY_POKEMON.map((poke) => (
                             <button
                                 key={poke.id}
                                 disabled={isRewarding}
                                 onClick={() => giveReward(poke.id, poke.name, poke.image, poke.types)}
-                                className="group flex flex-col items-center p-4 border-2 rounded-xl border-secondary hover:border-primary hover:bg-primary/5 transition-all text-center"
+                                className="group flex flex-col items-center p-4 border-2 rounded-2xl border-secondary hover:border-primary hover:bg-primary/5 transition-all text-center relative overflow-hidden"
                             >
-                                <img src={poke.image} alt={poke.name} className="w-16 h-16 group-hover:scale-110 transition-transform" />
-                                <span className="mt-2 font-bold text-sm">{poke.name}</span>
-                                <span className="text-[10px] text-muted-foreground">#{poke.id}</span>
+                                <div className="absolute -top-1 -right-1 bg-yellow-400 text-[8px] font-black px-2 py-0.5 rounded-bl-lg transform rotate-12">LEGEND</div>
+                                <img src={poke.image} alt={poke.name} className="w-16 h-16 group-hover:scale-110 transition-transform drop-shadow-md" />
+                                <span className="mt-2 font-bold text-xs">{poke.name}</span>
+                                <span className="text-[10px] text-muted-foreground">No.{poke.id}</span>
                             </button>
                         ))}
                     </div>
                 </DialogContent>
             </Dialog>
 
+            {/* 도감 모달 */}
             <Dialog open={isPokedexOpen} onOpenChange={setIsPokedexOpen}>
-                <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+                <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto rounded-[2rem]">
                     <DialogHeader>
                         <DialogTitle className="text-2xl font-black text-primary flex items-center gap-2">
                             <BookOpen className="h-6 w-6" />
@@ -358,22 +447,24 @@ function StatusContent() {
                         </DialogDescription>
                     </DialogHeader>
                     {loadingInventory ? (
-                        <div className="py-20 text-center animate-pulse text-muted-foreground font-bold">도감을 가져오는 중...</div>
+                        <div className="py-20 text-center animate-pulse text-muted-foreground font-bold italic">도감을 가져오는 중...</div>
                     ) : studentInventory.length === 0 ? (
-                        <div className="py-20 text-center text-muted-foreground border-dashed border-2 rounded-xl">
+                        <div className="py-20 text-center text-muted-foreground border-dashed border-2 rounded-2xl bg-secondary/10">
                             아직 수집한 포켓몬이 없습니다.
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 py-4">
                             {studentInventory.map((item) => (
-                                <Card key={item.id} className="relative overflow-hidden group hover:border-primary transition-all">
-                                    <div className={`absolute top-0 right-0 p-1 text-[10px] font-bold ${item.isLegendary ? 'bg-yellow-400 text-black' : 'bg-secondary text-muted-foreground'}`}>
-                                        {item.isLegendary ? "LEGEND" : `#${item.pokemonId}`}
+                                <Card key={item.id} className="relative overflow-hidden group hover:border-primary border-2 rounded-[1.5rem] transition-all bg-secondary/5">
+                                    <div className={`absolute top-0 right-0 p-1 text-[8px] font-black ${item.isLegendary ? 'bg-yellow-400 text-black' : 'bg-muted text-muted-foreground'} rounded-bl-lg`}>
+                                        {item.isLegendary ? "LEGEND" : `#${item.pokemonId.toString().padStart(3, '0')}`}
                                     </div>
-                                    <CardContent className="p-3 text-center">
-                                        <img src={item.image} alt={item.name} className="w-16 h-16 mx-auto group-hover:scale-110 transition-transform" />
-                                        <p className="font-bold mt-2 text-sm capitalize">{item.name}</p>
-                                        <p className="text-[10px] text-muted-foreground">Lv.{item.level}</p>
+                                    <CardContent className="p-4 text-center">
+                                        <img src={item.image} alt={item.name} className="w-20 h-20 mx-auto group-hover:scale-110 transition-transform drop-shadow-sm" />
+                                        <p className="font-bold mt-2 text-sm text-primary">{item.koName || item.name}</p>
+                                        <div className="flex justify-center items-center gap-1 mt-1">
+                                            <span className="text-[10px] font-black italic text-muted-foreground bg-background px-2 py-0.5 rounded-full border">Lv.{item.level}</span>
+                                        </div>
                                     </CardContent>
                                 </Card>
                             ))}

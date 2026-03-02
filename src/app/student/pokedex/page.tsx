@@ -84,35 +84,75 @@ export default function PokedexPage() {
         }
     };
 
-    const handleLevelUp = async (pokemonDocId: string) => {
-        if (!session) return;
 
-        if (candies < 1) {
-            toast.error("캔디가 부족합니다! 성찰 일기를 작성하여 캔디를 모으세요.");
+    const handleLevelUp = async (inventoryId: string) => {
+        if (!session || candies <= 0) {
+            toast.error("캔디가 부족합니다! 성찰 일기를 써서 캔디를 모아보세요.");
             return;
         }
 
         try {
-            const pokeRef = doc(db, "pokemon_inventory", pokemonDocId);
-            const studentRef = doc(db, "students", session.studentId);
+            const statsFields = ['hp', 'attack', 'defense'];
+            const randomStat = statsFields[Math.floor(Math.random() * statsFields.length)];
+            const incrementValue = Math.floor(Math.random() * 2) + 1; // 1 또는 2 포인트 증가
 
-            // 레벨업 및 캔디 소모
-            await updateDoc(pokeRef, {
-                level: increment(1)
-            });
-            await updateDoc(studentRef, {
+            // 1. 학생 캔디 차감
+            await updateDoc(doc(db, "students", session.studentId), {
                 candies: increment(-1)
             });
 
-            // 로컬 상태 업데이트
-            setMyPokemon(prev => prev.map(p =>
-                p.id === pokemonDocId ? { ...p, level: p.level + 1 } : p
-            ));
-            setCandies(prev => prev - 1);
+            // 2. 포켓몬 레벨 및 스탯 증가
+            // 기존 스탯이 없을 경우를 대비해 초기값을 보장해야 함 (보통 생성 시점에 부여되지만 안전을 위해)
+            const pokeDoc = await getDoc(doc(db, "pokemon_inventory", inventoryId));
+            const currentData = pokeDoc.data();
 
-            toast.success("레벨업! 캔디 1개를 사용했습니다.");
+            if (!currentData) throw new Error("포켓몬 데이터를 찾을 수 없습니다.");
+
+            const updates: any = {
+                level: increment(1),
+            };
+
+            // 필드 경로를 사용하여 중첩된 객체 업데이트
+            updates[`stats.${randomStat}`] = increment(incrementValue);
+
+            // stats 객체가 없는 경우를 대비해 기본값 설정 로직 (필요시)
+            if (!currentData.stats) {
+                updates.stats = {
+                    hp: 50,
+                    attack: 50,
+                    defense: 50
+                };
+                updates.stats[randomStat] += incrementValue;
+                delete updates[`stats.${randomStat}`];
+            }
+
+            await updateDoc(doc(db, "pokemon_inventory", inventoryId), updates);
+
+            // 3. 로컬 상태 업데이트
+            setCandies(prev => prev - 1);
+            setMyPokemon(prev => prev.map(p => {
+                if (p.id === inventoryId) {
+                    const currentStats = p.stats || { hp: 50, attack: 50, defense: 50 };
+                    const newStats = { ...currentStats };
+                    // @ts-ignore
+                    newStats[randomStat] += incrementValue;
+                    return { ...p, level: p.level + 1, stats: newStats };
+                }
+                return p;
+            }));
+
+            if (selectedPokemon && selectedPokemon.id === inventoryId) {
+                const currentStats = selectedPokemon.stats || { hp: 50, attack: 50, defense: 50 };
+                const newStats = { ...currentStats };
+                // @ts-ignore
+                newStats[randomStat] += incrementValue;
+                setSelectedPokemon({ ...selectedPokemon, level: selectedPokemon.level + 1, stats: newStats });
+            }
+
+            toast.success(`레벨업 성공! ${(randomStat === 'hp' ? '체력' : randomStat === 'attack' ? '공격력' : '방어력')}이(가) ${incrementValue} 상승했습니다.`);
         } catch (error) {
-            toast.error("레벨업 중 오류가 발생했습니다.");
+            console.error(error);
+            toast.error("레벨업 처리 중 오류가 발생했습니다.");
         }
     };
 
