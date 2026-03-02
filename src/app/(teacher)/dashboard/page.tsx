@@ -189,10 +189,10 @@ export default function DashboardPage() {
                             <div className="absolute top-0 right-0 w-32 h-32 bg-[#ffde00]/5 rounded-full blur-3xl group-hover:bg-[#ffde00]/10 transition-all duration-500"></div>
 
                             <CardHeader className="pb-4 relative z-10">
-                                <div className="flex justify-between items-start">
-                                    <div className="space-y-1">
-                                        <CardTitle className="text-2xl font-black text-slate-100 tracking-tight">{cls.className}</CardTitle>
-                                        <CardDescription className="text-[#ffde00]/70 font-bold text-xs uppercase tracking-widest">Adventure Stage</CardDescription>
+                                <div className="flex justify-between items-start gap-4">
+                                    <div className="space-y-1 min-w-0">
+                                        <CardTitle className="text-2xl font-black text-slate-100 tracking-tight truncate">{cls.className}</CardTitle>
+                                        <CardDescription className="text-[#ffde00]/70 font-bold text-[10px] uppercase tracking-[0.2em]">Adventure Stage</CardDescription>
                                     </div>
                                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
                                         <Button
@@ -220,35 +220,37 @@ export default function DashboardPage() {
                                 </div>
                             </CardHeader>
                             <CardContent className="flex-1 flex flex-col justify-between relative z-10 space-y-6">
-                                <div className="bg-[#0a285f]/40 border-2 border-[#3b4cca]/30 rounded-2xl p-5 group/code transition-all hover:border-[#ffde00]/30 shadow-inner">
+                                <div className="bg-[#0a285f]/40 border-2 border-[#3b4cca]/30 rounded-[2rem] p-4 group/code transition-all hover:border-[#ffde00]/30 shadow-inner">
                                     <p className="text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-widest text-center">학생 접속 세션 코드</p>
-                                    <div className="flex items-center justify-center gap-3">
-                                        <p className="text-2xl font-black font-mono tracking-[0.2em] text-[#ffde00] select-all drop-shadow-[0_0_5px_rgba(255,222,0,0.3)]">
+                                    <div className="flex items-center justify-center gap-2">
+                                        <p className="text-xl md:text-2xl font-black font-mono tracking-[0.1em] text-[#ffde00] select-all drop-shadow-[0_0_8px_rgba(255,222,0,0.4)]">
                                             {cls.sessionCode}
                                         </p>
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="h-10 w-10 bg-[#001233]/50 group-hover/code:bg-[#ffde00]/10 rounded-xl transition-all"
+                                            className="h-8 w-8 bg-[#001233]/50 group-hover/code:bg-[#ffde00]/10 rounded-full transition-all"
                                             onClick={() => copyToClipboard(cls.sessionCode, cls.id)}
                                         >
-                                            {copiedId === cls.id ? <Check className="h-5 w-5 text-[#ffde00]" /> : <Copy className="h-5 w-5 text-slate-400 transition-colors group-hover/code:text-[#ffde00]" />}
+                                            {copiedId === cls.id ? <Check className="h-4 w-4 text-[#ffde00]" /> : <Copy className="h-4 w-4 text-slate-400 transition-colors group-hover/code:text-[#ffde00]" />}
                                         </Button>
                                     </div>
                                 </div>
 
                                 <div className="space-y-3">
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-2 gap-2">
                                         <Button
                                             variant="ghost"
-                                            className="h-12 bg-[#0a285f]/40 hover:bg-[#3b4cca]/20 text-slate-200 font-bold rounded-2xl border-2 border-[#3b4cca]/20"
+                                            size="sm"
+                                            className="h-11 bg-[#0a285f]/60 hover:bg-[#3b4cca]/30 text-slate-200 font-bold rounded-2xl border border-[#3b4cca]/20 text-xs"
                                             onClick={() => router.push(`/dashboard/students?classId=${cls.id}`)}
                                         >
                                             학생 명렬표
                                         </Button>
                                         <Button
                                             variant="ghost"
-                                            className="h-12 bg-[#ffde00]/10 hover:bg-[#ffde00]/20 text-[#ffde00] font-bold rounded-2xl border-2 border-[#ffde00]/20"
+                                            size="sm"
+                                            className="h-11 bg-[#ffde00]/10 hover:bg-[#ffde00]/20 text-[#ffde00] font-bold rounded-2xl border border-[#ffde00]/20 text-xs"
                                             onClick={() => router.push(`/dashboard/status?classId=${cls.id}`)}
                                         >
                                             성찰 현황판
@@ -256,7 +258,8 @@ export default function DashboardPage() {
                                     </div>
                                     <Button
                                         variant="ghost"
-                                        className="w-full h-12 bg-[#ff0000]/5 hover:bg-[#ff0000]/10 text-[#ff0000] font-bold rounded-2xl border-2 border-[#ff0000]/10"
+                                        size="sm"
+                                        className="w-full h-11 bg-[#ff0000]/5 hover:bg-[#ff0000]/10 text-[#ff0000] font-bold rounded-2xl border border-[#ff0000]/10 text-xs"
                                         onClick={() => router.push(`/dashboard/logs?classId=${cls.id}`)}
                                     >
                                         통합 로그 리포트 (Excel)

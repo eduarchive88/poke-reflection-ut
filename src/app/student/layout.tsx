@@ -52,26 +52,34 @@ export default function StudentLayout({
     if (!isLogged) return <div className="flex justify-center items-center h-[50vh]">인증 확인 중...</div>;
 
     return (
-        <div className="flex flex-col min-h-[80vh] relative pb-20 md:pb-0 md:flex-row gap-6">
-            {/* Mobile Bottom Navigation / Desktop Sidebar */}
-            <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border flex justify-around p-2 md:relative md:w-64 md:border-t-0 md:border-r md:flex-col md:p-4 md:bg-card md:rounded-xl md:justify-start gap-2 shadow-sm">
+        <div className="flex flex-col min-h-[85vh] relative pb-24 md:pb-0 md:flex-row gap-8">
+            {/* Pokemon Theme Student Navigation */}
+            <nav className="fixed bottom-4 left-4 right-4 z-50 bg-[#001233]/90 backdrop-blur-2xl border-2 border-[#3b4cca]/40 flex justify-around p-3 rounded-[2.5rem] shadow-[0_10px_30px_rgba(0,0,0,0.5)] md:relative md:w-72 md:flex-col md:p-6 md:rounded-[3rem] md:justify-start gap-4 md:border-t-0 md:bg-[#001233]/80">
+                {/* Pokeball Red Top Accent for Sidebar (Desktop) */}
+                <div className="hidden md:block absolute top-0 left-0 w-full h-2 bg-[#ff0000] rounded-t-[3rem] shadow-[0_2px_10px_rgba(255,0,0,0.3)]"></div>
 
-                <div className="hidden md:block mb-6 px-2">
-                    <h2 className="text-xl font-bold text-primary">학생용 공간</h2>
+                <div className="hidden md:block mb-8 px-2 relative">
+                    <h2 className="text-2xl font-black pokemon-gradient-text italic">학생용 공간</h2>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Gamer Dashboard</p>
                 </div>
 
-                {navItems.map((item) => (
-                    <Link key={item.path} href={`/student${item.path}`} className="flex-1 md:flex-none">
-                        <Button
-                            variant={pathname?.includes(item.path) ? "secondary" : "ghost"}
-                            className={`w-full flex-col md:flex-row gap-1 h-auto py-3 md:py-2 md:justify-start ${pathname?.includes(item.path) ? "bg-secondary" : ""
-                                }`}
-                        >
-                            {item.icon}
-                            <span className="text-xs md:text-sm">{item.name}</span>
-                        </Button>
-                    </Link>
-                ))}
+                {navItems.map((item) => {
+                    const isActive = pathname?.includes(item.path);
+                    return (
+                        <Link key={item.path} href={`/student${item.path}`} className="flex-1 md:flex-none">
+                            <Button
+                                variant="ghost"
+                                className={`w-full flex-col md:flex-row gap-2 h-auto py-3 md:py-4 md:justify-start rounded-full md:rounded-2xl transition-all duration-300 border-2 ${isActive
+                                        ? "bg-[#ffde00]/10 border-[#ffde00]/40 text-[#ffde00] shadow-[0_0_15px_rgba(255,222,0,0.2)]"
+                                        : "border-transparent text-slate-400 hover:bg-[#3b4cca]/10 hover:border-[#3b4cca]/30 hover:text-slate-200"
+                                    }`}
+                            >
+                                <div className={`${isActive ? "animate-bounce" : ""}`}>{item.icon}</div>
+                                <span className="text-[10px] md:text-sm font-bold">{item.name}</span>
+                            </Button>
+                        </Link>
+                    );
+                })}
 
                 <div className="hidden md:flex mt-auto pt-4 border-t border-border">
                     <Button variant="destructive" className="w-full justify-start gap-3" onClick={handleLogout}>
@@ -81,14 +89,18 @@ export default function StudentLayout({
                 </div>
             </nav>
 
-            {/* Main Content */}
-            <main className="flex-1 bg-card rounded-xl border border-border p-4 sm:p-6 shadow-sm mb-16 md:mb-0">
-                <div className="md:hidden flex justify-end mb-4">
-                    <Button variant="outline" size="sm" onClick={handleLogout}>
+            {/* Pokemon Theme Student Main Content Area */}
+            <main className="flex-1 bg-[#001233]/30 backdrop-blur-sm rounded-[3rem] border-2 border-[#3b4cca]/20 p-6 sm:p-10 shadow-inner relative overflow-hidden mb-24 md:mb-0">
+                <div className="cute-dots absolute inset-0"></div>
+
+                <div className="md:hidden flex justify-end mb-6">
+                    <Button variant="ghost" size="sm" onClick={handleLogout} className="rounded-full bg-[#ff0000]/10 text-[#ff0000] border border-[#ff0000]/20 font-bold">
                         로그아웃
                     </Button>
                 </div>
-                {children}
+                <div className="relative z-10">
+                    {children}
+                </div>
             </main>
         </div>
     );

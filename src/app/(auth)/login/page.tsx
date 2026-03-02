@@ -126,7 +126,7 @@ export default function LoginPage() {
             localStorage.setItem("poke_student_session", JSON.stringify(sessionData));
 
             toast.success(`${studentName}님, 환영합니다!`);
-            router.push("/");
+            router.push("/student");
         } catch (error: any) {
             console.error(error);
             toast.error("로그인 중 오류가 발생했습니다.");

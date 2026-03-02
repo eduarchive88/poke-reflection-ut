@@ -1,10 +1,21 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ArrowRight } from "lucide-react";
+import { Sparkles, ArrowRight, User } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
 export default function Home() {
+  const [studentSession, setStudentSession] = useState<any>(null);
+
+  useEffect(() => {
+    const session = localStorage.getItem("poke_student_session");
+    if (session) {
+      setStudentSession(JSON.parse(session));
+    }
+  }, []);
   return (
     <div className="flex flex-col items-center justify-center min-h-[75vh] text-center space-y-12 relative overflow-hidden">
       {/* Background Decorative Elements */}
@@ -28,13 +39,28 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-6 pt-4 w-full max-w-sm px-6">
-        <Link href="/login" className="flex-1">
-          <Button size="lg" className="pokeball-button h-20 w-full text-2xl shadow-[0_10px_30px_rgba(255,0,0,0.4)]">
-            로그인하여 시작하기
-            <ArrowRight className="ml-3 h-8 w-8 group-hover:translate-x-1 transition-transform" />
-          </Button>
-        </Link>
+      <div className="flex flex-col sm:flex-row gap-6 pt-4 w-full max-w-md px-6">
+        {studentSession ? (
+          <Link href="/student" className="flex-1 group">
+            <Button size="lg" className="pokeball-button h-24 w-full text-2xl shadow-[0_15px_40px_rgba(255,0,0,0.5)]">
+              <div className="flex items-center gap-4">
+                <User className="h-10 w-10 p-2 bg-white/20 rounded-full" />
+                <div className="text-left">
+                  <p className="text-[10px] uppercase tracking-widest opacity-80">Welcome back, {studentSession.studentInfo.name}</p>
+                  <p>나의 대시보드로 이동</p>
+                </div>
+              </div>
+              <ArrowRight className="ml-auto h-8 w-8 group-hover:translate-x-2 transition-transform" />
+            </Button>
+          </Link>
+        ) : (
+          <Link href="/login" className="flex-1">
+            <Button size="lg" className="pokeball-button h-20 w-full text-2xl shadow-[0_10px_30px_rgba(255,0,0,0.4)]">
+              로그인하여 시작하기
+              <ArrowRight className="ml-3 h-8 w-8 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </Link>
+        )}
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-4 pt-12">

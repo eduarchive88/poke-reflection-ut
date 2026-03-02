@@ -54,13 +54,13 @@ export default function StudentDashboard() {
     return (
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 className="text-3xl font-black tracking-tight text-primary flex items-center gap-2">
-                        <Sparkles className="h-8 w-8 text-yellow-500 animate-pulse" />
+                <div className="relative z-10">
+                    <h2 className="text-3xl md:text-5xl font-black tracking-tighter pokemon-gradient-text flex items-center gap-3 italic">
+                        <Sparkles className="h-10 w-10 text-yellow-500 animate-bounce" />
                         반가워요, {session.studentInfo.name}님!
                     </h2>
-                    <p className="text-muted-foreground mt-2 text-lg">
-                        {session.className}에서 포켓몬과 함께 성실하게 성장하고 있어요.
+                    <p className="text-slate-400 mt-2 text-lg font-medium opacity-80 backdrop-blur-sm inline-block px-3 py-1 rounded-full bg-slate-900/40 border border-slate-800/50">
+                        {session.className}의 성실한 트레이너 ✨
                     </p>
                 </div>
                 <Link href="/student/write">
@@ -72,33 +72,33 @@ export default function StudentDashboard() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-                <Card className="border-primary/20 bg-primary/5 overflow-hidden relative">
-                    <div className="absolute top-0 right-0 p-4 opacity-10">
-                        <PenTool className="h-24 w-24" />
+                <Card className="premium-card group">
+                    <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity rotate-12">
+                        <PenTool className="h-32 w-32" />
                     </div>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-xl">
+                    <CardHeader className="pb-2">
+                        <CardTitle className="flex items-center gap-2 text-2xl font-black text-white italic">
                             나의 기록 현황
                         </CardTitle>
-                        <CardDescription>
-                            지금까지 총 {recentReflections.length}개 이상의 소중한 기록을 남겼습니다.
+                        <CardDescription className="text-slate-400 font-bold text-xs">
+                            꾸준한 성찰은 포켓몬을 강하게 합니다!
                         </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-center text-sm font-medium">
-                                <span>주간 목표 달성도</span>
-                                <span>{recentReflections.length} / 5</span>
+                    <CardContent className="pt-4">
+                        <div className="space-y-6">
+                            <div className="flex justify-between items-end">
+                                <span className="text-sm font-black text-[#ffde00] uppercase tracking-widest">주간 목표 달성도</span>
+                                <span className="text-2xl font-black text-white">{recentReflections.length} / 5</span>
                             </div>
-                            <div className="h-3 w-full bg-secondary rounded-full overflow-hidden">
+                            <div className="h-6 w-full bg-slate-900/60 rounded-full border-2 border-[#3b4cca]/30 p-1 overflow-hidden shadow-inner">
                                 <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${Math.min(100, (recentReflections.length / 5) * 100)}%` }}
-                                    className="h-full bg-primary"
+                                    className="h-full bg-gradient-to-r from-[#3b4cca] to-[#ffde00] rounded-full shadow-[0_0_15px_rgba(59,76,202,0.5)]"
                                 />
                             </div>
-                            <p className="text-xs text-muted-foreground">
-                                조금 더 힘내면 새로운 포켓몬이 찾아올지도 몰라요!
+                            <p className="text-xs text-slate-400 text-center font-bold italic">
+                                "{recentReflections.length < 5 ? "조금만 더 힘내면 새로운 포켓몬이 찾아올지도 몰라요!" : "대단해요! 목표를 달성했습니다!"}"
                             </p>
                         </div>
                     </CardContent>
