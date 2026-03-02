@@ -130,19 +130,27 @@
 
 @layer components {
   .glass {
-    @apply bg-[#001233]/60 backdrop-blur-xl border-2 border-[#3b4cca]/30 rounded-[2.5rem] shadow-[0_8px_32px_rgba(59, 76, 202, 0.3)];
+    @apply bg-[#001233]/60 backdrop-blur-xl border-2 border-[#3b4cca]/30 rounded-[2.5rem];
+    box-shadow: 0 8px 32px rgba(59, 76, 202, 0.3);
   }
 
   .premium-card {
-    @apply bg-[#001233]/80 backdrop-blur-md border-4 border-[#3b4cca]/40 rounded-[3rem] hover:border-[#ffde00]/60 transition-all duration-500 shadow-[0_20px_40px_rgba(0, 0, 0, 0.4)] relative overflow-hidden;
+    @apply bg-[#001233]/80 backdrop-blur-md border-4 border-[#3b4cca]/40 rounded-[3rem] hover:border-[#ffde00]/60 transition-all duration-500 relative overflow-hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
   }
 
   .pokemon-gradient-text {
-    @apply bg-gradient-to-r from-[#ffde00] via-[#ffcb05] to-[#ffde00] bg-clip-text text-transparent drop-shadow-[0_4px_4px_rgba(59, 76, 202, 0.6)] font-black italic;
+    @apply bg-gradient-to-r from-[#ffde00] via-[#ffcb05] to-[#ffde00] bg-clip-text text-transparent font-black italic;
+    filter: drop-shadow(0 4px 4px rgba(59, 76, 202, 0.6));
   }
 
   .pokeball-button {
-    @apply relative overflow-hidden bg-[#ff0000] text-white font-black rounded-full border-[6px] border-[#3b4cca] hover:bg-[#cc0000] active:scale-90 transition-all shadow-[0_10px_20px_rgba(255, 0, 0, 0.3)] hover:shadow-[0_15px_30px_rgba(255, 0, 0, 0.5)];
+    @apply relative overflow-hidden bg-[#ff0000] text-white font-black rounded-full border-[6px] border-[#3b4cca] hover:bg-[#cc0000] active:scale-90 transition-all;
+    box-shadow: 0 10px 20px rgba(255, 0, 0, 0.3);
+  }
+
+  .pokeball-button:hover {
+    box-shadow: 0 15px 30px rgba(255, 0, 0, 0.5);
   }
 
   /* Cute Floating Dots */
