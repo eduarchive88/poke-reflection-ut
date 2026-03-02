@@ -272,18 +272,6 @@ export default function DashboardPage() {
                     </form>
                 </DialogContent>
             </Dialog>
-
-            <footer className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground space-y-2">
-                <p>만든 사람: 경기도 지구과학 교사 뀨짱</p>
-                <div className="flex justify-center gap-4">
-                    <a href="https://open.kakao.com/o/s7hVU65h" target="_blank" rel="noopener noreferrer" className="hover:text-primary underline transition-colors">
-                        문의: 카카오톡 오픈채팅
-                    </a>
-                    <a href="https://eduarchive.tistory.com/" target="_blank" rel="noopener noreferrer" className="hover:text-primary underline transition-colors">
-                        뀨짱쌤의 교육자료 아카이브
-                    </a>
-                </div>
-            </footer>
         </div>
     );
 }
