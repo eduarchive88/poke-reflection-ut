@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { nanoid } from "nanoid";
-import { Edit2, Trash2, Copy, Check } from "lucide-react";
+import { Edit2, Trash2, Copy, Check, Presentation } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
@@ -125,44 +125,44 @@ export default function DashboardPage() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h2 className="text-3xl font-bold tracking-tight">학급 관리</h2>
-                    <p className="text-muted-foreground mt-2">
+        <div className="space-y-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                <div className="space-y-1">
+                    <h2 className="text-4xl font-black tracking-tighter gold-gradient-text">학급 관리</h2>
+                    <p className="text-slate-400 font-medium tracking-tight">
                         선생님의 학급 및 접속 세션 코드를 관리하세요.
                     </p>
                 </div>
 
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button>새 학급 생성</Button>
+                        <Button className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-8 h-12 rounded-2xl shadow-lg shadow-amber-500/20 transition-all hover:scale-105 active:scale-95">
+                            새 학급 생성
+                        </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
+                    <DialogContent className="sm:max-w-[425px] bg-slate-900 border-slate-800 rounded-3xl">
                         <DialogHeader>
-                            <DialogTitle>새 학급 생성</DialogTitle>
-                            <DialogDescription>
-                                학급 이름(예: 1학년 1반)을 입력하세요. 접속용 세션 코드가 자동으로 발급됩니다.
+                            <DialogTitle className="text-2xl font-bold gold-gradient-text uppercase">새 학급 생성</DialogTitle>
+                            <DialogDescription className="text-slate-400">
+                                학급 이름을 입력하세요. 접속용 세션 코드가 자동으로 발급됩니다.
                             </DialogDescription>
                         </DialogHeader>
                         <form onSubmit={handleCreateClass}>
-                            <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="name" className="text-right">
-                                        학급 이름
-                                    </Label>
+                            <div className="grid gap-6 py-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="name" className="text-slate-300 font-bold ml-1">학급 이름</Label>
                                     <Input
                                         id="name"
                                         value={newClassName}
                                         onChange={(e) => setNewClassName(e.target.value)}
-                                        className="col-span-3"
+                                        className="bg-slate-800/50 border-slate-700 h-12 rounded-xl focus:ring-amber-500"
                                         placeholder="예: 3학년 2반"
                                         autoComplete="off"
                                     />
                                 </div>
                             </div>
                             <DialogFooter>
-                                <Button type="submit">생성하기</Button>
+                                <Button type="submit" className="w-full h-12 bg-amber-500 text-slate-950 font-bold rounded-xl">생성하기</Button>
                             </DialogFooter>
                         </form>
                     </DialogContent>
@@ -170,26 +170,35 @@ export default function DashboardPage() {
             </div>
 
             {loading ? (
-                <div className="py-12 text-center text-muted-foreground">로딩 중...</div>
+                <div className="py-24 text-center text-slate-500 font-medium animate-pulse">시스템 데이터 로딩 중...</div>
             ) : classes.length === 0 ? (
-                <Card className="border-dashed bg-secondary/30">
-                    <CardContent className="flex flex-col items-center justify-center h-48 text-center px-4">
-                        <p className="text-muted-foreground">아직 등록된 학급이 없습니다.</p>
-                        <p className="text-sm text-muted-foreground mt-1">상단의 &apos;새 학급 생성&apos; 버튼을 눌러 시작해보세요.</p>
+                <Card className="premium-card border-dashed">
+                    <CardContent className="flex flex-col items-center justify-center h-64 text-center px-4">
+                        <div className="w-20 h-20 bg-slate-800/50 rounded-full flex items-center justify-center mb-6">
+                            <Presentation className="h-10 w-10 text-slate-600" />
+                        </div>
+                        <p className="text-xl font-bold text-slate-300">아직 등록된 학급이 없습니다.</p>
+                        <p className="text-slate-500 mt-2">상단의 &apos;새 학급 생성&apos; 버튼을 눌러 모험을 시작해보세요.</p>
                     </CardContent>
                 </Card>
             ) : (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {classes.map((cls) => (
-                        <Card key={cls.id} className="relative group overflow-hidden border-2 hover:border-primary/50 transition-colors">
-                            <CardHeader className="pb-2">
+                        <Card key={cls.id} className="premium-card relative group overflow-hidden flex flex-col h-full rounded-3xl">
+                            {/* Card Accent Glow */}
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl group-hover:bg-amber-500/10 transition-all duration-500"></div>
+
+                            <CardHeader className="pb-4 relative z-10">
                                 <div className="flex justify-between items-start">
-                                    <CardTitle className="text-xl">{cls.className}</CardTitle>
-                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="space-y-1">
+                                        <CardTitle className="text-2xl font-black text-slate-100 tracking-tight">{cls.className}</CardTitle>
+                                        <CardDescription className="text-amber-500/70 font-bold text-xs uppercase tracking-widest">Adventure Stage</CardDescription>
+                                    </div>
+                                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="h-8 w-8 text-muted-foreground"
+                                            className="h-9 w-9 bg-slate-800/50 text-slate-300 hover:text-amber-400 rounded-xl"
                                             onClick={() => {
                                                 setEditingClass(cls);
                                                 setEditName(cls.className);
@@ -202,43 +211,55 @@ export default function DashboardPage() {
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-red-50"
+                                            className="h-9 w-9 bg-slate-800/50 text-slate-300 hover:text-red-400 rounded-xl"
                                             onClick={() => handleDeleteClass(cls.id)}
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
                                     </div>
                                 </div>
-                                <CardDescription>모험의 무대</CardDescription>
                             </CardHeader>
-                            <CardContent>
-                                <div className="bg-secondary/50 rounded-md p-3 mb-4 mt-2 relative">
-                                    <p className="text-xs text-muted-foreground mb-1">학생 접속 세션 코드 (복사 및 공유)</p>
-                                    <div className="flex items-center justify-center gap-2">
-                                        <p className="text-lg font-mono font-bold tracking-widest text-primary my-1 select-all">
+                            <CardContent className="flex-1 flex flex-col justify-between relative z-10 space-y-6">
+                                <div className="bg-slate-950/40 border border-slate-800/50 rounded-2xl p-5 group/code transition-all hover:border-amber-500/20">
+                                    <p className="text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-widest text-center">학생 접속 세션 코드</p>
+                                    <div className="flex items-center justify-center gap-3">
+                                        <p className="text-2xl font-black font-mono tracking-[0.2em] text-amber-500 select-all">
                                             {cls.sessionCode}
                                         </p>
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="h-8 w-8"
+                                            className="h-10 w-10 bg-slate-900/50 group-hover/code:bg-amber-500/10 rounded-xl transition-all"
                                             onClick={() => copyToClipboard(cls.sessionCode, cls.id)}
                                         >
-                                            {copiedId === cls.id ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                                            {copiedId === cls.id ? <Check className="h-5 w-5 text-emerald-500" /> : <Copy className="h-5 w-5 text-slate-400 transition-colors group-hover/code:text-amber-400" />}
                                         </Button>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-1 gap-2">
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <Button variant="outline" className="text-xs font-bold" onClick={() => router.push(`/dashboard/students?classId=${cls.id}`)}>
+
+                                <div className="space-y-3">
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <Button
+                                            variant="ghost"
+                                            className="h-12 bg-slate-800/40 hover:bg-slate-800/60 text-slate-200 font-bold rounded-2xl border border-slate-800/50"
+                                            onClick={() => router.push(`/dashboard/students?classId=${cls.id}`)}
+                                        >
                                             학생 명렬표
                                         </Button>
-                                        <Button variant="default" className="text-xs font-bold" onClick={() => router.push(`/dashboard/status?classId=${cls.id}`)}>
+                                        <Button
+                                            variant="ghost"
+                                            className="h-12 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 font-bold rounded-2xl border border-amber-500/20"
+                                            onClick={() => router.push(`/dashboard/status?classId=${cls.id}`)}
+                                        >
                                             성찰 현황판
                                         </Button>
                                     </div>
-                                    <Button variant="secondary" className="text-xs font-bold w-full" onClick={() => router.push(`/dashboard/logs?classId=${cls.id}`)}>
-                                        전체 로그 다운로드 (Excel)
+                                    <Button
+                                        variant="ghost"
+                                        className="w-full h-12 bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-500 font-bold rounded-2xl border border-emerald-500/10"
+                                        onClick={() => router.push(`/dashboard/logs?classId=${cls.id}`)}
+                                    >
+                                        통합 로그 리포트 (Excel)
                                     </Button>
                                 </div>
                             </CardContent>
@@ -248,26 +269,26 @@ export default function DashboardPage() {
             )}
 
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent className="sm:max-w-[425px] bg-slate-950 border-slate-800 rounded-3xl p-8">
                     <DialogHeader>
-                        <DialogTitle>학급 정보 수정</DialogTitle>
-                        <DialogDescription>
+                        <DialogTitle className="text-2xl font-black text-slate-100 gold-gradient-text uppercase">학급 정보 수정</DialogTitle>
+                        <DialogDescription className="text-slate-400 font-medium">
                             학급 이름과 세션 코드를 변경합니다. 세션 코드를 바꾸면 학생들도 바뀐 코드로 접속해야 합니다.
                         </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleUpdateClass}>
-                        <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="edit-name" className="text-right">학급 이름</Label>
-                                <Input id="edit-name" value={editName} onChange={(e) => setEditName(e.target.value)} className="col-span-3" />
+                        <div className="grid gap-6 py-6">
+                            <div className="space-y-2">
+                                <Label htmlFor="edit-name" className="text-sm text-slate-400 font-bold ml-1">학급 이름</Label>
+                                <Input id="edit-name" value={editName} onChange={(e) => setEditName(e.target.value)} className="bg-slate-900/50 border-slate-700 rounded-xl h-12 focus:ring-amber-500" />
                             </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="edit-code" className="text-right">세션 코드</Label>
-                                <Input id="edit-code" value={editCode} onChange={(e) => setEditCode(e.target.value)} className="col-span-3 font-mono font-bold" />
+                            <div className="space-y-2">
+                                <Label htmlFor="edit-code" className="text-sm text-slate-400 font-bold ml-1">세션 코드 (접속 코드)</Label>
+                                <Input id="edit-code" value={editCode} onChange={(e) => setEditCode(e.target.value)} className="bg-slate-900/50 border-slate-700 rounded-xl h-12 focus:ring-amber-500 font-mono font-bold tracking-widest uppercase" />
                             </div>
                         </div>
                         <DialogFooter>
-                            <Button type="submit">저장하기</Button>
+                            <Button type="submit" className="h-14 w-full rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black shadow-lg shadow-amber-500/20 transition-all active:scale-95">정보 업데이트</Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>

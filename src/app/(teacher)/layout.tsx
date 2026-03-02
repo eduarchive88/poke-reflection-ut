@@ -58,52 +58,62 @@ export default function TeacherLayout({
     }
 
     return (
-        <div className="flex flex-col md:flex-row min-h-[80vh] gap-6">
-            {/* Sidebar */}
-            <aside className="w-full md:w-64 bg-card rounded-xl border border-border p-4 flex flex-col gap-2">
-                <div className="mb-6 px-2">
-                    <h2 className="text-xl font-bold text-primary">교사 대시보드</h2>
-                    <p className="text-sm text-muted-foreground mt-1 text-ellipsis overflow-hidden">
-                        {teacherName || user.email} 선생님
+        <div className="flex flex-col md:flex-row min-h-[85vh] gap-8">
+            {/* Premium Sidebar */}
+            <aside className="w-full md:w-72 bg-slate-900/40 backdrop-blur-xl border border-slate-800/60 rounded-3xl p-6 flex flex-col gap-6 shadow-2xl overflow-hidden relative group">
+                {/* Decorative Elements */}
+                <div className="absolute -top-10 -left-10 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl group-hover:bg-amber-500/20 transition-all duration-700"></div>
+
+                <div className="relative z-10 px-2 space-y-1">
+                    <h2 className="text-2xl font-black tracking-tighter bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 bg-clip-text text-transparent">
+                        교사 대시보드
+                    </h2>
+                    <p className="text-xs font-medium text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        {teacherName || user.email?.split('@')[0]} 선생님
                     </p>
                 </div>
 
-                <nav className="flex-1 space-y-2">
+                <nav className="flex-1 space-y-3 relative z-10">
                     <Link href="/dashboard">
-                        <Button variant="ghost" className="w-full justify-start gap-3">
-                            <Presentation className="h-5 w-5" />
-                            학급 관리
+                        <Button variant="ghost" className="w-full justify-start gap-4 h-12 rounded-2xl hover:bg-amber-500/10 hover:text-amber-400 transition-all group/btn">
+                            <Presentation className="h-5 w-5 text-slate-400 group-hover/btn:text-amber-400" />
+                            <span className="font-bold">학급 관리</span>
                         </Button>
                     </Link>
                     <Link href="/dashboard/students">
-                        <Button variant="ghost" className="w-full justify-start gap-3">
-                            <Users className="h-5 w-5" />
-                            학생 명렬표
+                        <Button variant="ghost" className="w-full justify-start gap-4 h-12 rounded-2xl hover:bg-amber-500/10 hover:text-amber-400 transition-all group/btn">
+                            <Users className="h-5 w-5 text-slate-400 group-hover/btn:text-amber-400" />
+                            <span className="font-bold">학생 명렬표</span>
                         </Button>
                     </Link>
                     <Link href="/dashboard/status">
-                        <Button variant="ghost" className="w-full justify-start gap-3">
-                            <FileText className="h-5 w-5" />
-                            성찰 현황판
+                        <Button variant="ghost" className="w-full justify-start gap-4 h-12 rounded-2xl hover:bg-amber-500/10 hover:text-amber-400 transition-all group/btn">
+                            <FileText className="h-5 w-5 text-slate-400 group-hover/btn:text-amber-400" />
+                            <span className="font-bold">성찰 현황판</span>
                         </Button>
                     </Link>
                 </nav>
 
-                <div className="mt-auto pt-4 border-t border-border">
+                <div className="mt-auto pt-6 border-t border-slate-800/60 relative z-10">
                     <Button
-                        variant="destructive"
-                        className="w-full justify-start gap-3"
+                        variant="ghost"
+                        className="w-full justify-start gap-4 h-12 rounded-2xl text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all"
                         onClick={handleLogout}
                     >
                         <LogOut className="h-5 w-5" />
-                        로그아웃
+                        <span className="font-bold">시스템 로그아웃</span>
                     </Button>
                 </div>
             </aside>
 
-            {/* Main Content */}
-            <main className="flex-1 bg-card rounded-xl border border-border p-6 shadow-sm">
-                {children}
+            {/* Premium Main Content */}
+            <main className="flex-1 bg-slate-900/20 backdrop-blur-sm rounded-3xl border border-slate-800/40 p-8 shadow-inner relative overflow-hidden min-h-[600px]">
+                {/* Subtle background glow */}
+                <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+                <div className="relative z-10">
+                    {children}
+                </div>
             </main>
         </div>
     );

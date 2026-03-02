@@ -225,11 +225,24 @@ function StudentsContent() {
                 "name"?: string;
             }
 
-            for (const row of jsonData as ExcelRow[]) {
-                const grade = parseInt(String(row["학년"] || row["grade"] || 0));
-                const classNum = parseInt(String(row["반"] || row["classNum"] || row["class"] || 0));
-                const number = parseInt(String(row["번호"] || row["number"] || 0));
-                const name = row["이름"] || row["name"] || "";
+            for (const row of jsonData as any[]) {
+                // 대소문자 무관, 공백 무관하게 컬럼 매칭
+                const findValue = (keys: string[]) => {
+                    const foundKey = Object.keys(row).find(k =>
+                        keys.some(key => k.replace(/\s/g, '').toLowerCase() === key.toLowerCase())
+                    );
+                    return foundKey ? row[foundKey] : null;
+                };
+
+                const gradeVal = findValue(["학년", "grade", "gr", "year"]);
+                const classVal = findValue(["반", "class", "classnum", "cl"]);
+                const numberVal = findValue(["번호", "number", "no", "num"]);
+                const nameVal = findValue(["이름", "name", "nm"]);
+
+                const grade = parseInt(String(gradeVal || 0));
+                const classNum = parseInt(String(classVal || 0));
+                const number = parseInt(String(numberVal || 0));
+                const name = String(nameVal || "").trim();
 
                 if (grade && classNum && number && name) {
                     const sessionCode = targetClass.sessionCode;
@@ -268,62 +281,62 @@ function StudentsContent() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h2 className="text-3xl font-bold tracking-tight">학생 명렬표</h2>
-                    <p className="text-muted-foreground mt-2">
-                        학급별 학생 명단을 확인하고 엑셀로 일괄 등록하세요.
-                    </p>
+        <div className="space-y-8 pb-12">
+            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
+                <div className="space-y-1">
+                    <h2 className="text-4xl font-black tracking-tighter gold-gradient-text">학생 명렬표 관리</h2>
+                    <p className="text-slate-400 font-medium tracking-tight">학급별 학생 명단을 확인하고 엑셀로 일괄 등록 및 개별 관리를 수행합니다.</p>
                 </div>
 
                 {classes.length > 0 && (
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
                         <Select value={selectedClassId} onValueChange={setSelectedClassId}>
-                            <SelectTrigger className="w-[180px]">
+                            <SelectTrigger className="w-full sm:w-[200px] h-12 rounded-2xl bg-slate-800/40 border-slate-700/50 text-slate-300 font-bold focus:ring-amber-500">
                                 <SelectValue placeholder="학급 선택" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="bg-slate-900 border-slate-800 rounded-2xl shadow-2xl">
                                 {classes.map((cls) => (
-                                    <SelectItem key={cls.id} value={cls.id}>{cls.className}</SelectItem>
+                                    <SelectItem key={cls.id} value={cls.id} className="rounded-xl focus:bg-amber-500/10 focus:text-amber-400">{cls.className}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
 
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 w-full sm:w-auto">
                             <Dialog open={isAddIndividualOpen} onOpenChange={setIsAddIndividualOpen}>
                                 <DialogTrigger asChild>
-                                    <Button variant="outline" className="gap-2">
-                                        <UserPlus className="h-4 w-4" />
+                                    <Button variant="outline" className="h-12 flex-1 sm:flex-none px-6 rounded-2xl bg-slate-800/40 border-slate-700/50 hover:bg-slate-700/60 text-slate-300 font-bold transition-all gap-2">
+                                        <UserPlus className="h-5 w-5 text-amber-500" />
                                         개별 추가
                                     </Button>
                                 </DialogTrigger>
-                                <DialogContent className="sm:max-w-[425px]">
+                                <DialogContent className="sm:max-w-[425px] bg-slate-950 border-slate-800 rounded-3xl p-8">
                                     <DialogHeader>
-                                        <DialogTitle>학생 개별 등록</DialogTitle>
-                                        <DialogDescription>
+                                        <DialogTitle className="text-2xl font-black text-slate-100">학생 개별 등록</DialogTitle>
+                                        <DialogDescription className="text-slate-400 font-medium">
                                             학생의 정보를 직접 입력하여 등록합니다. 번호가 중복되면 기존 정보가 갱신됩니다.
                                         </DialogDescription>
                                     </DialogHeader>
-                                    <form onSubmit={handleAddIndividual} className="grid gap-4 py-4">
+                                    <form onSubmit={handleAddIndividual} className="grid gap-6 py-6">
                                         <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="grade" className="text-right">학년</Label>
-                                            <Input id="grade" type="number" value={newStudent.grade} onChange={e => setNewStudent({ ...newStudent, grade: e.target.value })} className="col-span-3" />
+                                            <Label htmlFor="grade" className="text-right text-slate-400 font-bold">학년</Label>
+                                            <Input id="grade" type="number" value={newStudent.grade} onChange={e => setNewStudent({ ...newStudent, grade: e.target.value })} className="col-span-3 bg-slate-900/50 border-slate-700 rounded-xl h-12 focus:ring-amber-500" />
                                         </div>
                                         <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="classNum" className="text-right">반</Label>
-                                            <Input id="classNum" type="number" value={newStudent.classNum} onChange={e => setNewStudent({ ...newStudent, classNum: e.target.value })} className="col-span-3" />
+                                            <Label htmlFor="classNum" className="text-right text-slate-400 font-bold">반</Label>
+                                            <Input id="classNum" type="number" value={newStudent.classNum} onChange={e => setNewStudent({ ...newStudent, classNum: e.target.value })} className="col-span-3 bg-slate-900/50 border-slate-700 rounded-xl h-12 focus:ring-amber-500" />
                                         </div>
                                         <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="number" className="text-right">번호</Label>
-                                            <Input id="number" type="number" value={newStudent.number} onChange={e => setNewStudent({ ...newStudent, number: e.target.value })} className="col-span-3" />
+                                            <Label htmlFor="number" className="text-right text-slate-400 font-bold">번호</Label>
+                                            <Input id="number" type="number" value={newStudent.number} onChange={e => setNewStudent({ ...newStudent, number: e.target.value })} className="col-span-3 bg-slate-900/50 border-slate-700 rounded-xl h-12 focus:ring-amber-500" />
                                         </div>
                                         <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="name" className="text-right">이름</Label>
-                                            <Input id="name" value={newStudent.name} onChange={e => setNewStudent({ ...newStudent, name: e.target.value })} className="col-span-3" />
+                                            <Label htmlFor="name" className="text-right text-slate-400 font-bold">이름</Label>
+                                            <Input id="name" value={newStudent.name} onChange={e => setNewStudent({ ...newStudent, name: e.target.value })} className="col-span-3 bg-slate-900/50 border-slate-700 rounded-xl h-12 focus:ring-amber-500" />
                                         </div>
                                         <DialogFooter>
-                                            <Button type="submit" disabled={uploading}>{uploading ? "등록 중..." : "등록하기"}</Button>
+                                            <Button type="submit" disabled={uploading} className="h-12 w-full rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black shadow-lg shadow-amber-500/20 transition-all active:scale-95">
+                                                {uploading ? "등록 중..." : "학생 저장"}
+                                            </Button>
                                         </DialogFooter>
                                     </form>
                                 </DialogContent>
@@ -331,40 +344,44 @@ function StudentsContent() {
 
                             <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
                                 <DialogTrigger asChild>
-                                    <Button variant="default" className="gap-2">
-                                        <Upload className="h-4 w-4" />
+                                    <Button variant="default" className="h-12 flex-1 sm:flex-none px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black shadow-lg shadow-emerald-500/20 transition-all active:scale-95 gap-2">
+                                        <Upload className="h-5 w-5" />
                                         일괄 등록
                                     </Button>
                                 </DialogTrigger>
-                                <DialogContent className="sm:max-w-[425px]">
+                                <DialogContent className="sm:max-w-[425px] bg-slate-950 border-slate-800 rounded-3xl p-8">
                                     <DialogHeader>
-                                        <DialogTitle>엑셀 명렬표 업로드</DialogTitle>
-                                        <DialogDescription>
+                                        <DialogTitle className="text-2xl font-black text-slate-100">엑셀 명렬표 업로드</DialogTitle>
+                                        <DialogDescription className="text-slate-400 font-medium">
                                             &quot;학년&quot;, &quot;반&quot;, &quot;번호&quot;, &quot;이름&quot; 열이 포함된 파일을 선택해주세요.
                                         </DialogDescription>
                                     </DialogHeader>
-                                    <div className="grid gap-4 py-4">
-                                        <Button variant="outline" className="gap-2 mb-2" onClick={downloadTemplate}>
-                                            <Download className="h-4 w-4" />
-                                            샘플 양식 다운로드
+                                    <div className="grid gap-6 py-6">
+                                        <Button variant="outline" className="h-12 w-full rounded-2xl bg-slate-800/40 border-slate-700/50 hover:bg-slate-700/60 text-slate-300 font-bold transition-all gap-2" onClick={downloadTemplate}>
+                                            <Download className="h-5 w-5 text-amber-500" />
+                                            작성 양식 받기 (Excel)
                                         </Button>
-                                        <div className="flex items-center gap-4">
-                                            <Label htmlFor="file" className="w-[80px] text-right">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="file" className="text-sm text-slate-400 font-bold ml-1">
                                                 파일 선택
                                             </Label>
                                             <Input
                                                 id="file"
                                                 type="file"
                                                 accept=".xlsx, .xls, .csv"
-                                                className="flex-1"
+                                                className="bg-slate-900/50 border-slate-700 rounded-xl h-12 focus:ring-amber-500 file:bg-slate-800 file:text-slate-300 file:border-0 file:rounded-lg file:mr-4 file:h-8 hover:file:bg-slate-700"
                                                 onChange={handleFileUpload}
                                                 disabled={uploading}
                                             />
                                         </div>
                                     </div>
                                     <DialogFooter>
-                                        <Button onClick={processExcelAndUpload} disabled={!uploadFile || uploading}>
-                                            {uploading ? "업로드 중..." : "등록하기"}
+                                        <Button
+                                            onClick={processExcelAndUpload}
+                                            disabled={!uploadFile || uploading}
+                                            className="h-14 w-full rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
+                                        >
+                                            {uploading ? "데이터 분석 및 업로드 중..." : "명단 일괄 등록하기"}
                                         </Button>
                                     </DialogFooter>
                                 </DialogContent>
@@ -374,47 +391,59 @@ function StudentsContent() {
                 )}
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>{classes.find(c => c.id === selectedClassId)?.className || "학급 미지정"}</CardTitle>
-                    <CardDescription>총 학생 수: {students.length}명</CardDescription>
+            <Card className="premium-card overflow-hidden border-slate-800/80 rounded-3xl">
+                <CardHeader className="bg-slate-950/40 border-b border-slate-800/60 p-6">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div>
+                            <CardTitle className="text-xl font-black text-slate-100 flex items-center gap-3">
+                                {classes.find(c => c.id === selectedClassId)?.className || "학급 미지정"}
+                            </CardTitle>
+                            <CardDescription className="text-slate-400 font-medium">총 학생 수: <span className="text-amber-500 font-black">{students.length}</span>명</CardDescription>
+                        </div>
+                        <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-950/50 px-3 py-1 rounded-lg border border-slate-800/50">
+                            STUDENT DIRECTORY MATRIX
+                        </div>
+                    </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-0 overflow-x-auto">
                     {loading ? (
-                        <div className="text-center py-6 text-muted-foreground">목록 갱신 중...</div>
+                        <div className="p-32 text-center text-slate-500 font-bold animate-pulse tracking-tighter text-xl">데이터베이스 동기화 중...</div>
                     ) : students.length === 0 ? (
-                        <div className="text-center py-12 text-muted-foreground border border-dashed rounded-lg bg-secondary/20">
-                            명단이 비어있습니다.
+                        <div className="text-center py-24 text-slate-500 font-medium border-2 border-dashed border-slate-800/50 rounded-3xl bg-slate-900/20 m-6">
+                            등록된 학생 데이터가 없습니다. 상단 버튼을 통해 등록해주세요.
                         </div>
                     ) : (
-                        <div className="border rounded-md">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="w-[100px] text-center">학년</TableHead>
-                                        <TableHead className="w-[100px] text-center">반</TableHead>
-                                        <TableHead className="w-[100px] text-center">번호</TableHead>
-                                        <TableHead>이름</TableHead>
-                                        <TableHead className="w-[100px] text-center">관리</TableHead>
+                        <Table>
+                            <TableHeader className="bg-slate-950/60">
+                                <TableRow className="border-slate-800/80 hover:bg-transparent">
+                                    <TableHead className="w-[100px] text-center font-black text-slate-400 uppercase text-[10px] tracking-widest">GRADE</TableHead>
+                                    <TableHead className="w-[100px] text-center font-black text-slate-400 uppercase text-[10px] tracking-widest">CLASS</TableHead>
+                                    <TableHead className="w-[100px] text-center font-black text-slate-400 uppercase text-[10px] tracking-widest">NUMBER</TableHead>
+                                    <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">NAME</TableHead>
+                                    <TableHead className="w-[100px] text-center font-black text-slate-400 uppercase text-[10px] tracking-widest">ACTIONS</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {students.map((student) => (
+                                    <TableRow key={student.id} className="border-slate-800/40 hover:bg-slate-800/20 transition-colors group">
+                                        <TableCell className="text-center font-mono font-bold text-slate-400">{student.grade}</TableCell>
+                                        <TableCell className="text-center font-mono font-bold text-slate-400">{student.classNum}</TableCell>
+                                        <TableCell className="text-center font-mono font-bold text-slate-400">{student.number}</TableCell>
+                                        <TableCell className="font-black text-slate-100 text-base">{student.name}</TableCell>
+                                        <TableCell className="text-center">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => deleteStudent(student.id)}
+                                                className="h-9 w-9 text-slate-500 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </TableCell>
                                     </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {students.map((student) => (
-                                        <TableRow key={student.id}>
-                                            <TableCell className="text-center font-medium">{student.grade}</TableCell>
-                                            <TableCell className="text-center">{student.classNum}</TableCell>
-                                            <TableCell className="text-center">{student.number}</TableCell>
-                                            <TableCell className="font-medium">{student.name}</TableCell>
-                                            <TableCell className="text-center">
-                                                <Button variant="ghost" size="icon" onClick={() => deleteStudent(student.id)} className="h-8 w-8 text-red-500 hover:bg-red-50">
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </div>
+                                ))}
+                            </TableBody>
+                        </Table>
                     )}
                 </CardContent>
             </Card>

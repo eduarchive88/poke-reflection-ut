@@ -190,69 +190,74 @@ function StatusContent() {
     };
 
     return (
-        <div className="space-y-6 pb-12">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={() => router.push("/dashboard")}>
+        <div className="space-y-8 pb-12">
+            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
+                <div className="flex items-center gap-6">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => router.push("/dashboard")}
+                        className="h-12 w-12 rounded-2xl bg-slate-800/40 border border-slate-700/50 hover:bg-slate-700/60 text-slate-300 transition-all hover:-translate-x-1"
+                    >
                         <ChevronLeft className="h-6 w-6" />
                     </Button>
-                    <div>
-                        <h2 className="text-3xl font-black tracking-tight">{className} 성찰 현황판</h2>
-                        <p className="text-muted-foreground mt-1 text-sm">학생들의 성찰 기록과 포켓몬 수집 상태를 관리합니다.</p>
+                    <div className="space-y-1">
+                        <h2 className="text-4xl font-black tracking-tighter gold-gradient-text">{className} 성찰 현황판</h2>
+                        <p className="text-slate-400 font-medium tracking-tight">학생들의 성찰 기록과 포켓몬 수집 상태를 한눈에 관리합니다.</p>
                     </div>
                 </div>
-                <div className="flex gap-2">
-                    <div className="flex items-center gap-2 bg-secondary/20 px-3 py-1 rounded-lg border">
-                        <Search className="h-4 w-4 text-muted-foreground" />
+                <div className="flex flex-wrap gap-3 w-full xl:w-auto">
+                    <div className="flex items-center gap-3 bg-slate-800/40 px-4 py-2 rounded-2xl border border-slate-700/50 flex-1 sm:flex-none">
+                        <Search className="h-5 w-5 text-slate-500" />
                         <Input
                             placeholder="학생 이름 검색..."
-                            className="border-none bg-transparent h-8 w-40 focus-visible:ring-0"
+                            className="border-none bg-transparent h-8 w-full sm:w-40 focus-visible:ring-0 text-slate-200 font-medium placeholder:text-slate-600"
                             value={searchStudent}
                             onChange={(e) => setSearchStudent(e.target.value)}
                         />
                     </div>
                     <Select value={filterDays} onValueChange={setFilterDays}>
-                        <SelectTrigger className="w-[120px] h-10">
-                            <Filter className="h-4 w-4 mr-2" />
+                        <SelectTrigger className="w-full sm:w-[150px] h-12 rounded-2xl bg-slate-800/40 border-slate-700/50 text-slate-300 font-bold focus:ring-amber-500">
+                            <Filter className="h-4 w-4 mr-2 text-amber-500" />
                             <SelectValue placeholder="기간 선택" />
                         </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="7">최근 7일</SelectItem>
-                            <SelectItem value="14">최근 14일</SelectItem>
-                            <SelectItem value="30">최근 30일</SelectItem>
-                            <SelectItem value="100">최근 100일</SelectItem>
+                        <SelectContent className="bg-slate-900 border-slate-800 rounded-2xl shadow-2xl">
+                            <SelectItem value="7" className="rounded-xl focus:bg-amber-500/10 focus:text-amber-400">최근 7일</SelectItem>
+                            <SelectItem value="14" className="rounded-xl focus:bg-amber-500/10 focus:text-amber-400">최근 14일</SelectItem>
+                            <SelectItem value="30" className="rounded-xl focus:bg-amber-500/10 focus:text-amber-400">최근 30일</SelectItem>
+                            <SelectItem value="100" className="rounded-xl focus:bg-amber-500/10 focus:text-amber-400">최근 100일</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Button onClick={exportToExcel} className="gap-2 bg-green-600 hover:bg-green-700">
-                        <Download className="h-4 w-4" /> 엑셀 다운로드
+                    <Button onClick={exportToExcel} className="h-12 w-full sm:w-auto px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black shadow-lg shadow-emerald-500/20 transition-all active:scale-95 gap-2">
+                        <Download className="h-5 w-5" /> 엑셀 리포트
                     </Button>
                 </div>
             </div>
 
-            <Card className="overflow-hidden border-2">
-                <CardHeader className="bg-secondary/10 border-b">
-                    <div className="flex items-center justify-between">
-                        <CardTitle className="text-lg flex items-center gap-2">
-                            <Calendar className="h-5 w-5 text-primary" />
-                            작성 현황 (O/X)
+            <Card className="premium-card overflow-hidden border-slate-800/80 rounded-3xl">
+                <CardHeader className="bg-slate-950/40 border-b border-slate-800/60 p-6">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <CardTitle className="text-xl font-black text-slate-100 flex items-center gap-3">
+                            <Calendar className="h-6 w-6 text-amber-500" />
+                            작성 현황 트래킹
                         </CardTitle>
-                        <div className="flex items-center gap-4 text-xs font-bold">
-                            <div className="flex items-center gap-1 text-green-600"><CheckCircle2 className="h-3 w-3" /> 작성 완료</div>
-                            <div className="flex items-center gap-1 text-red-500"><XCircle className="h-3 w-3" /> 미작성</div>
+                        <div className="flex items-center gap-6 text-[11px] font-black uppercase tracking-widest bg-slate-950/50 px-4 py-2 rounded-xl border border-slate-800/50">
+                            <div className="flex items-center gap-2 text-emerald-500"><CheckCircle2 className="h-4 w-4" /> COMPLETED</div>
+                            <div className="flex items-center gap-2 text-slate-600"><XCircle className="h-4 w-4" /> PENDING</div>
                         </div>
                     </div>
                 </CardHeader>
                 <CardContent className="p-0 overflow-x-auto">
                     {loading ? (
-                        <div className="p-12 text-center text-muted-foreground animate-pulse">데이터 분석 중...</div>
+                        <div className="p-32 text-center text-slate-500 font-bold animate-pulse tracking-tighter text-xl">데이터 매트릭스 동기화 중...</div>
                     ) : (
                         <Table>
-                            <TableHeader className="bg-secondary/5">
-                                <TableRow>
-                                    <TableHead className="w-[80px] text-center font-bold">번호</TableHead>
-                                    <TableHead className="w-[120px] font-bold">이름</TableHead>
+                            <TableHeader className="bg-slate-950/60">
+                                <TableRow className="border-slate-800/80 hover:bg-transparent">
+                                    <TableHead className="w-[80px] text-center font-black text-slate-400 uppercase text-[10px] tracking-widest">ID</TableHead>
+                                    <TableHead className="w-[180px] font-black text-slate-400 uppercase text-[10px] tracking-widest">Student</TableHead>
                                     {dates.map(date => (
-                                        <TableHead key={date} className="text-center font-mono text-[10px] min-w-[80px]">
+                                        <TableHead key={date} className="text-center font-black text-slate-500 text-[10px] min-w-[90px] uppercase tracking-tighter">
                                             {date.split('-').slice(1).join('/')}
                                         </TableHead>
                                     ))}
@@ -260,16 +265,16 @@ function StatusContent() {
                             </TableHeader>
                             <TableBody>
                                 {filteredStudents.map((student) => (
-                                    <TableRow key={student.id} className="hover:bg-secondary/5">
-                                        <TableCell className="text-center font-medium">{student.number}</TableCell>
-                                        <TableCell className="font-bold">
-                                            <div className="flex justify-between items-center group/btn">
-                                                <span>{student.name}</span>
-                                                <div className="flex gap-1">
+                                    <TableRow key={student.id} className="border-slate-800/40 hover:bg-slate-800/20 transition-colors">
+                                        <TableCell className="text-center font-mono font-bold text-slate-500">{student.number}</TableCell>
+                                        <TableCell>
+                                            <div className="flex justify-between items-center group/row">
+                                                <span className="font-black text-slate-100 text-base">{student.name}</span>
+                                                <div className="flex gap-1 opacity-0 group-hover/row:opacity-100 transition-all translate-x-2 group-hover/row:translate-x-0">
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="h-8 w-8 text-blue-500 hover:bg-blue-50"
+                                                        className="h-9 w-9 bg-slate-800/60 text-amber-500 hover:bg-amber-500 hover:text-slate-950 rounded-xl transition-all shadow-lg"
                                                         title="도감 보기"
                                                         onClick={() => fetchInventory(student)}
                                                     >
@@ -278,7 +283,7 @@ function StatusContent() {
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="h-8 w-8 text-primary hover:bg-primary/10"
+                                                        className="h-9 w-9 bg-slate-800/60 text-emerald-500 hover:bg-emerald-500 hover:text-slate-950 rounded-xl transition-all shadow-lg"
                                                         title="전설 지급"
                                                         onClick={() => {
                                                             setSelectedStudent(student);
@@ -293,12 +298,18 @@ function StatusContent() {
                                         {dates.map(date => {
                                             const hasReflection = checkReflection(student.id, date);
                                             return (
-                                                <TableCell key={date} className="text-center">
-                                                    {hasReflection ? (
-                                                        <CheckCircle2 className="h-5 w-5 text-green-600 mx-auto" />
-                                                    ) : (
-                                                        <XCircle className="h-5 w-5 text-red-200 mx-auto" />
-                                                    )}
+                                                <TableCell key={date} className="text-center p-2">
+                                                    <div className="flex items-center justify-center">
+                                                        {hasReflection ? (
+                                                            <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                                                                <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                                                            </div>
+                                                        ) : (
+                                                            <div className="w-8 h-8 rounded-full bg-slate-900/50 flex items-center justify-center border border-slate-800/50 opacity-20">
+                                                                <XCircle className="h-5 w-5 text-slate-500" />
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </TableCell>
                                             );
                                         })}

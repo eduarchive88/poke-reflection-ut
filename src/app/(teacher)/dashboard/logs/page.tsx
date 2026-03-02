@@ -117,93 +117,93 @@ function LogsContent() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8 pb-12">
-            <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => router.push("/dashboard")}>
+        <div className="max-w-5xl mx-auto space-y-10 pb-12">
+            <div className="flex items-center gap-6">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => router.push("/dashboard")}
+                    className="h-12 w-12 rounded-2xl bg-slate-800/40 border border-slate-700/50 hover:bg-slate-700/60 text-slate-300 transition-all hover:-translate-x-1"
+                >
                     <ChevronLeft className="h-6 w-6" />
                 </Button>
-                <div>
-                    <h2 className="text-3xl font-black tracking-tight">통합 데이터 로그</h2>
-                    <p className="text-muted-foreground mt-1">{className} 학급의 모든 활동 기록을 관리합니다.</p>
+                <div className="space-y-1">
+                    <h2 className="text-4xl font-black tracking-tighter gold-gradient-text">데이터 매트릭스 로그</h2>
+                    <p className="text-slate-400 font-medium tracking-tight">{className} 학급의 모든 성찰 및 전투 기록을 아카이브합니다.</p>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="border-2">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">누적 성찰 기록</CardTitle>
-                        <MessageSquare className="h-4 w-4 text-primary" />
+                <Card className="premium-card overflow-hidden border-slate-800/80 rounded-3xl group">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                        <CardTitle className="text-xs font-black text-slate-500 uppercase tracking-widest">누적 성찰 기록</CardTitle>
+                        <MessageSquare className="h-5 w-5 text-amber-500 group-hover:scale-110 transition-transform" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stats.reflections}건</div>
-                        <p className="text-xs text-muted-foreground mt-1">학생들이 작성한 모든 성찰 일지</p>
+                        <div className="text-4xl font-black gold-gradient-text">{stats.reflections.toLocaleString()} <span className="text-sm font-medium text-slate-500 ml-1">LOGS</span></div>
+                        <p className="text-[11px] font-bold text-slate-600 uppercase tracking-tighter mt-2">DATA ARCHIVE COMPLETED</p>
                     </CardContent>
                 </Card>
-                <Card className="border-2">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">누적 배틀 결과</CardTitle>
-                        <Swords className="h-4 w-4 text-red-500" />
+                <Card className="premium-card overflow-hidden border-slate-800/80 rounded-3xl group">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                        <CardTitle className="text-xs font-black text-slate-500 uppercase tracking-widest">누적 배틀 데이터</CardTitle>
+                        <Swords className="h-5 w-5 text-red-500 group-hover:scale-110 transition-transform" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stats.battles}건</div>
-                        <p className="text-xs text-muted-foreground mt-1">스타디움에서 진행된 모든 경기 결과</p>
+                        <div className="text-4xl font-black text-slate-100">{stats.battles.toLocaleString()} <span className="text-sm font-medium text-slate-500 ml-1">MATCHES</span></div>
+                        <p className="text-[11px] font-bold text-slate-600 uppercase tracking-tighter mt-2">REAL-TIME BATTLE SYNC ACTIVE</p>
                     </CardContent>
                 </Card>
             </div>
 
-            <Card className="border-2 border-primary/20 bg-primary/5">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <FileSpreadsheet className="h-5 w-5 text-green-600" />
-                        엑셀 추출 서비스
-                    </CardTitle>
-                    <CardDescription>
-                        성찰 일지와 배틀 결과를 시트별로 구분하여 하나의 엑셀 파일로 생성합니다.
+            <Card className="premium-card overflow-hidden border-slate-800/80 rounded-[2.5rem] bg-gradient-to-br from-slate-900/60 to-slate-950/80">
+                <CardHeader className="p-10 pb-0">
+                    <div className="flex items-center gap-4 mb-2">
+                        <div className="bg-emerald-500/10 p-2 rounded-xl border border-emerald-500/20">
+                            <FileSpreadsheet className="h-6 w-6 text-emerald-500" />
+                        </div>
+                        <CardTitle className="text-2xl font-black text-slate-100">엑셀 통합 리포트 추출</CardTitle>
+                    </div>
+                    <CardDescription className="text-slate-400 font-medium text-base">
+                        모든 성찰 일지와 배틀 결과를 시트별로 구분하여 하나의 프리미엄 데이터 파일로 생성합니다.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col items-center py-12 text-center">
-                    <div className="bg-white p-6 rounded-full shadow-sm border mb-6">
-                        <History className="h-12 w-12 text-blue-500 animate-pulse" />
+                <CardContent className="flex flex-col items-center py-16 text-center">
+                    <div className="relative mb-10">
+                        <div className="absolute inset-0 bg-amber-500/20 blur-[60px] rounded-full animate-pulse" />
+                        <div className="relative bg-slate-900/80 p-10 rounded-[2rem] border border-slate-700/50 shadow-2xl backdrop-blur-xl group hover:border-amber-500/50 transition-colors">
+                            <History className="h-20 w-20 text-amber-500 group-hover:rotate-12 transition-transform duration-500" />
+                        </div>
+                        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-slate-950 text-[10px] font-black px-3 py-1 rounded-full shadow-lg border-2 border-slate-950">
+                            SYSTEM READY
+                        </div>
                     </div>
-                    <div className="max-w-sm space-y-4">
-                        <h3 className="text-xl font-bold">기록 요약 다운로드</h3>
-                        <p className="text-sm text-muted-foreground">
-                            모든 학생들의 소중한 기록을 안전하게 보관하세요. <br />
-                            학기말 상담이나 평가 자료로 활용하기 좋습니다.
+                    <div className="max-w-md space-y-6">
+                        <p className="text-slate-400 font-medium leading-relaxed">
+                            학생들의 소중한 성장 기록과 대전 데이터를 안전하게 백업하세요. <br />
+                            상담용 근거 자료 및 학기말 생활기록부 작성에 최적화된 포맷입니다.
                         </p>
                         <Button
-                            className="w-full h-12 text-lg font-bold gap-2"
+                            className="w-full h-16 rounded-[1.25rem] text-xl font-black bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xl shadow-amber-500/20 transition-all active:scale-95 gap-3"
                             disabled={loading}
                             onClick={downloadAllLogs}
                         >
-                            {loading ? "데이터 추출 중..." : (
+                            {loading ? "데이터 암호화 및 추출 중..." : (
                                 <>
-                                    <Download className="h-5 w-5" /> 통합 로그 다운로드 (Excel)
+                                    <Download className="h-6 w-6" /> 통합 로그 리포트 다운로드
                                 </>
                             )}
                         </Button>
                     </div>
                 </CardContent>
             </Card>
-
-            <footer className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground space-y-2">
-                <p>만든 사람: 경기도 지구과학 교사 뀨짱</p>
-                <div className="flex justify-center gap-4">
-                    <a href="https://open.kakao.com/o/s7hVU65h" target="_blank" rel="noopener noreferrer" className="hover:text-primary underline transition-colors">
-                        문의: 카카오톡 오픈채팅
-                    </a>
-                    <a href="https://eduarchive.tistory.com/" target="_blank" rel="noopener noreferrer" className="hover:text-primary underline transition-colors">
-                        블로그: 뀨짱쌤의 교육자료 아카이브
-                    </a>
-                </div>
-            </footer>
         </div>
     );
 }
 
 export default function LogsPage() {
     return (
-        <Suspense fallback={<div className="p-12 text-center">로딩 중...</div>}>
+        <Suspense fallback={<div className="p-12 text-center text-slate-500 font-bold animate-pulse">로딩 중...</div>}>
             <LogsContent />
         </Suspense>
     );
