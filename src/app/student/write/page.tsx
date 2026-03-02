@@ -115,61 +115,59 @@ export default function WritePage() {
                 types: types
             };
 
-            // 캔디 계산 (50자당 1개, 최소 1개)
             const earnedCandies = Math.max(1, Math.floor(wordCount / 50));
 
-            // Firestore writeBatch를 사용하여 모든 작업을 원자적으로 처리 (성찰 일기 + 캔디/작성일 업데이트 + 포켓몬 지급)
-            const batch = writeBatch(db);
+            // Firestore runTransaction을 사용하여 모든 작업을 원자적으로 처리
+            await runTransaction(db, async (transaction) => {
+                // 1. 포켓몬 지급 또는 레벨업 확인
+                const inventoryRef = doc(db, "pokemon_inventory", `${session.studentId}_${randomPokeId}`);
+                const existing = await transaction.get(inventoryRef);
 
-            // 1. 성찰 일기 저장
-            const reflectionRef = doc(collection(db, "reflections"));
-            batch.set(reflectionRef, {
-                studentId: session.studentId,
-                classId: session.classId,
-                content: content.trim(),
-                wordCount: wordCount,
-                participationRating: rating,
-                earnedCandies: earnedCandies,
-                createdAt: serverTimestamp(),
-            });
-
-            // 2. 학생 정보 업데이트 (캔디 누적 및 마지막 작성일 갱신)
-            batch.update(studentRef, {
-                candies: increment(earnedCandies),
-                lastReflectedAt: serverTimestamp()
-            });
-
-            // 3. 포켓몬 지급 또는 레벨업 (인벤토리)
-            const inventoryRef = doc(db, "pokemon_inventory", `${session.studentId}_${randomPokeId}`);
-            const existing = await getDoc(inventoryRef);
-
-            if (existing.exists()) {
-                const currentData = existing.data();
-                batch.update(inventoryRef, {
-                    level: (currentData.level || 5) + 1,
-                    updatedAt: serverTimestamp()
-                });
-            } else {
-                const initialStats = getPokemonStats(randomPokeId, 5);
-                const initialSkills = getRandomSkills(pokemon.types);
-
-                batch.set(inventoryRef, {
+                // 2. 성찰 일기 저장 준비
+                const reflectionRef = doc(collection(db, "reflections"));
+                transaction.set(reflectionRef, {
                     studentId: session.studentId,
-                    pokemonId: randomPokeId,
-                    name: pokemon.name,
-                    koName: pokemon.koName,
-                    image: pokemon.image,
-                    types: pokemon.types,
-                    level: 5,
-                    exp: 0,
-                    stats: initialStats,
-                    skills: initialSkills,
-                    createdAt: serverTimestamp()
+                    classId: session.classId,
+                    content: content.trim(),
+                    wordCount: wordCount,
+                    participationRating: rating,
+                    earnedCandies: earnedCandies,
+                    createdAt: serverTimestamp(),
                 });
-            }
 
-            // 모든 변경 사항 일괄 커밋
-            await batch.commit();
+                // 3. 학생 정보 업데이트 (캔디 누적 및 마지막 작성일 갱신)
+                transaction.update(studentRef, {
+                    candies: increment(earnedCandies),
+                    lastReflectedAt: serverTimestamp()
+                });
+
+                // 4. 포켓몬 지급 또는 레벨업 실행
+                if (existing.exists()) {
+                    const currentData = existing.data();
+                    transaction.update(inventoryRef, {
+                        level: (currentData.level || 5) + 1,
+                        updatedAt: serverTimestamp()
+                    });
+                } else {
+                    const { getPokemonStats, getRandomSkills } = await import("@/lib/pokemonData");
+                    const initialStats = getPokemonStats(randomPokeId, 5);
+                    const initialSkills = getRandomSkills(types);
+
+                    transaction.set(inventoryRef, {
+                        studentId: session.studentId,
+                        pokemonId: randomPokeId,
+                        name: pokeData.name,
+                        koName: koName,
+                        image: pokemon.image,
+                        types: types,
+                        level: 5,
+                        exp: 0,
+                        stats: initialStats,
+                        skills: initialSkills,
+                        createdAt: serverTimestamp()
+                    });
+                }
+            });
 
             setRewardPokemon(pokemon);
             setHasAlreadyReflected(true);
@@ -291,22 +289,22 @@ export default function WritePage() {
                                 disabled={isSubmitting || hasAlreadyReflected}
                             />
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-sm font-medium">
-                                <div className="flex flex-col gap-1">
-                                    <span className={`whitespace-nowrap ${wordCount >= 10 ? "text-primary font-bold" : "text-muted-foreground"}`}>
-                                        📝 글자 수: <span className="text-lg">{wordCount}</span> / 10자 이상
+                                <div className="flex flex-col gap-1 w-full sm:w-auto">
+                                    <span className={`inline-flex items-center whitespace-nowrap ${wordCount >= 10 ? "text-primary font-bold" : "text-muted-foreground"}`}>
+                                        📝 글자 수: <span className="text-lg mx-1">{wordCount}</span> / 10자 이상
                                     </span>
-                                    <span className={`whitespace-nowrap ${rating > 0 ? "text-yellow-600 font-bold" : "text-muted-foreground"}`}>
-                                        ⭐ 참여도 별점: {rating > 0 ? `${rating}점 선택됨` : "미선택"}
+                                    <span className={`inline-flex items-center whitespace-nowrap ${rating > 0 ? "text-yellow-600 font-bold" : "text-muted-foreground"}`}>
+                                        ⭐ 참여도 별점: {rating > 0 ? <span className="ml-1">{rating}점 선택됨</span> : <span className="ml-1 text-slate-400 font-normal italic">미선택</span>}
                                     </span>
                                 </div>
                                 {isReady ? (
-                                    <div className="text-green-600 flex items-center gap-1 animate-pulse bg-green-500/10 px-4 py-2 rounded-full border-2 border-green-500/20">
-                                        <Sparkles className="h-4 w-4" /> 보상 획득 가능!
+                                    <div className="text-green-600 flex items-center gap-1 animate-pulse bg-green-500/10 px-4 py-2 rounded-full border-2 border-green-500/20 whitespace-nowrap">
+                                        <Sparkles className="h-4 w-4 shrink-0" /> 보상 획득 가능!
                                     </div>
                                 ) : (
-                                    <div className="text-muted-foreground bg-secondary/50 px-4 py-2 rounded-full flex items-center gap-2 border">
-                                        <Info className="h-4 w-4" />
-                                        {rating === 0 ? "별점을 먼저 선택해주세요" : (wordCount < 10 ? "내용을 조금 더 적어주세요" : "")}
+                                    <div className="text-muted-foreground bg-secondary/50 px-4 py-2 rounded-full flex items-center gap-2 border whitespace-nowrap">
+                                        <Info className="h-4 w-4 shrink-0" />
+                                        <span>{rating === 0 ? "별점을 먼저 선택해주세요" : (wordCount < 10 ? "내용을 조금 더 적어주세요" : "")}</span>
                                     </div>
                                 )}
                             </div>

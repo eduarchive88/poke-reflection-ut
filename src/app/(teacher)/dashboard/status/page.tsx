@@ -317,13 +317,15 @@ function StatusContent() {
                                             <TableCell>
                                                 <button
                                                     onClick={() => fetchStudentReflections(student)}
-                                                    className="font-black hover:text-primary hover:underline underline-offset-4 decoration-2 transition-all"
+                                                    className="font-black hover:text-primary hover:underline underline-offset-4 decoration-2 transition-all text-left"
                                                 >
                                                     {student.name}
                                                 </button>
                                             </TableCell>
-                                            <TableCell className="text-center font-black text-xl text-primary bg-primary/5">
-                                                {studentReflectionCount}회
+                                            <TableCell className="text-center bg-primary/5">
+                                                <div className="inline-flex items-center justify-center px-4 py-1 rounded-full bg-primary/10 text-primary font-black text-lg">
+                                                    {studentReflectionCount}회
+                                                </div>
                                             </TableCell>
                                             <TableCell className="text-right space-x-2">
                                                 <Button size="sm" variant="outline" className="rounded-full gap-1 border-2" onClick={() => fetchInventory(student)}>

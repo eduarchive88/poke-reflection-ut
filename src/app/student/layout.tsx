@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { PenTool, Archive, BookHeart, Swords, LogOut } from "lucide-react";
+import { PenTool, Archive, BookHeart, Swords, LogOut, Trophy, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 // TODO: Custom Session 관리 로직 임포트 필요
@@ -46,7 +46,8 @@ export default function StudentLayout({
         { name: "기록 (Write)", path: "/write", icon: <PenTool className="h-5 w-5" /> },
         { name: "보관함 (Archive)", path: "/archive", icon: <Archive className="h-5 w-5" /> },
         { name: "포켓몬 도감", path: "/pokedex", icon: <BookHeart className="h-5 w-5" /> },
-        { name: "배틀 스타디움", path: "/stadium", icon: <Swords className="h-5 w-5" /> },
+        { name: "체육관 (Gym)", path: "/gym", icon: <Trophy className="h-5 w-5" /> },
+        { name: "친선 경기", path: "/friendly", icon: <Users className="h-5 w-5" /> },
     ];
 
     if (!isLogged) return <div className="flex justify-center items-center h-[50vh]">인증 확인 중...</div>;
@@ -70,8 +71,8 @@ export default function StudentLayout({
                             <Button
                                 variant="ghost"
                                 className={`w-full flex-col md:flex-row gap-2 h-auto py-3 md:py-4 md:justify-start rounded-full md:rounded-2xl transition-all duration-300 border-2 ${isActive
-                                        ? "bg-[#ffde00]/10 border-[#ffde00]/40 text-[#ffde00] shadow-[0_0_15px_rgba(255,222,0,0.2)]"
-                                        : "border-transparent text-slate-400 hover:bg-[#3b4cca]/10 hover:border-[#3b4cca]/30 hover:text-slate-200"
+                                    ? "bg-[#ffde00]/10 border-[#ffde00]/40 text-[#ffde00] shadow-[0_0_15px_rgba(255,222,0,0.2)]"
+                                    : "border-transparent text-slate-400 hover:bg-[#3b4cca]/10 hover:border-[#3b4cca]/30 hover:text-slate-200"
                                     }`}
                             >
                                 <div className={`${isActive ? "animate-bounce" : ""}`}>{item.icon}</div>
