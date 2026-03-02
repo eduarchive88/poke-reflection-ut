@@ -55,19 +55,21 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.45 0.15 220);
-  /* Deep Blue/Indigo */
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --primary: #3b4cca;
+  /* Pokemon Blue */
+  --primary-foreground: #ffffff;
+  --secondary: #ffde00;
+  /* Pokemon Yellow */
+  --secondary-foreground: #3b4cca;
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.45 0 0);
+  --accent: #ff0000;
+  /* Pokeball Red */
+  --accent-foreground: #ffffff;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: oklch(0.9 0 0);
+  --input: oklch(0.9 0 0);
+  --ring: #3b4cca;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -75,19 +77,19 @@
   --chart-5: oklch(0.769 0.188 70.08);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-primary: #3b4cca;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ffde00;
+  --sidebar-accent-foreground: #3b4cca;
+  --sidebar-border: oklch(0.9 0 0);
+  --sidebar-ring: #3b4cca;
 }
 
 .dark {
   --background: #001233;
-  /* Dark Navy Blue base */
+  /* Deep Dark Navy */
   --foreground: #f8fafc;
-  --card: rgba(0, 20, 50, 0.7);
+  --card: rgba(0, 20, 50, 0.85);
   --card-foreground: #f8fafc;
   --popover: #001233;
   --popover-foreground: #f8fafc;
@@ -103,9 +105,8 @@
   --accent: #ff0000;
   /* Pokeball Red */
   --accent-foreground: #ffffff;
-  --destructive: #ff0000;
+  --destructive: #ff4444;
   --border: rgba(59, 76, 202, 0.4);
-  /* Blue border */
   --input: rgba(59, 76, 202, 0.4);
   --ring: #ffde00;
   --sidebar: #001233;

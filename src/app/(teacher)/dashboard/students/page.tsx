@@ -414,28 +414,28 @@ function StudentsContent() {
                         </div>
                     ) : (
                         <Table>
-                            <TableHeader className="bg-slate-950/60">
+                            <TableHeader className="bg-slate-950/60 font-black">
                                 <TableRow className="border-slate-800/80 hover:bg-transparent">
-                                    <TableHead className="w-[100px] text-center font-black text-slate-400 uppercase text-[10px] tracking-widest">GRADE</TableHead>
-                                    <TableHead className="w-[100px] text-center font-black text-slate-400 uppercase text-[10px] tracking-widest">CLASS</TableHead>
-                                    <TableHead className="w-[100px] text-center font-black text-slate-400 uppercase text-[10px] tracking-widest">NUMBER</TableHead>
-                                    <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">NAME</TableHead>
-                                    <TableHead className="w-[100px] text-center font-black text-slate-400 uppercase text-[10px] tracking-widest">ACTIONS</TableHead>
+                                    <TableHead className="w-[100px] text-center font-black text-slate-300 uppercase text-[10px] tracking-widest">학년</TableHead>
+                                    <TableHead className="w-[100px] text-center font-black text-slate-300 uppercase text-[10px] tracking-widest">반</TableHead>
+                                    <TableHead className="w-[100px] text-center font-black text-slate-300 uppercase text-[10px] tracking-widest">번호</TableHead>
+                                    <TableHead className="font-black text-slate-300 uppercase text-[10px] tracking-widest">이름</TableHead>
+                                    <TableHead className="w-[100px] text-center font-black text-slate-300 uppercase text-[10px] tracking-widest">관리</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {students.map((student) => (
                                     <TableRow key={student.id} className="border-slate-800/40 hover:bg-slate-800/20 transition-colors group">
-                                        <TableCell className="text-center font-mono font-bold text-slate-400">{student.grade}</TableCell>
-                                        <TableCell className="text-center font-mono font-bold text-slate-400">{student.classNum}</TableCell>
-                                        <TableCell className="text-center font-mono font-bold text-slate-400">{student.number}</TableCell>
-                                        <TableCell className="font-black text-slate-100 text-base">{student.name}</TableCell>
+                                        <TableCell className="text-center font-mono font-black text-slate-300 group-hover:text-amber-400">{student.grade}</TableCell>
+                                        <TableCell className="text-center font-mono font-black text-slate-300 group-hover:text-amber-400">{student.classNum}</TableCell>
+                                        <TableCell className="text-center font-mono font-black text-slate-300 group-hover:text-amber-400">{student.number}</TableCell>
+                                        <TableCell className="font-black text-slate-100 group-hover:text-amber-300 text-base">{student.name}</TableCell>
                                         <TableCell className="text-center">
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
                                                 onClick={() => deleteStudent(student.id)}
-                                                className="h-9 w-9 text-slate-500 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+                                                className="h-9 w-9 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>

@@ -34,52 +34,73 @@ export default function WritePage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [rewardPokemon, setRewardPokemon] = useState<PokemonReward | null>(null);
     const [session, setSession] = useState<StudentSession | null>(null);
+    const [hasAlreadyReflected, setHasAlreadyReflected] = useState(false);
+    const [isLoadingStatus, setIsLoadingStatus] = useState(true);
 
     useEffect(() => {
-        const sessionStr = localStorage.getItem("poke_student_session");
-        if (!sessionStr) {
-            router.push("/login");
-            return;
-        }
-        setSession(JSON.parse(sessionStr));
+        const checkStatus = async () => {
+            const sessionStr = localStorage.getItem("poke_student_session");
+            if (!sessionStr) {
+                router.push("/login");
+                return;
+            }
+            const parsedSession = JSON.parse(sessionStr);
+            setSession(parsedSession);
+
+            // 오늘 이미 작성했는지 확인
+            try {
+                const studentDoc = await getDoc(doc(db, "students", parsedSession.studentId));
+                if (studentDoc.exists()) {
+                    const data = studentDoc.data();
+                    if (data.lastReflectedAt) {
+                        const lastDate = data.lastReflectedAt.toDate().toLocaleDateString();
+                        const todayDate = new Date().toLocaleDateString();
+                        if (lastDate === todayDate) {
+                            setHasAlreadyReflected(true);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Status check error:", error);
+            } finally {
+                setIsLoadingStatus(false);
+            }
+        };
+
+        checkStatus();
     }, [router]);
 
     const wordCount = content.trim() === "" ? 0 : content.trim().length;
-    const isReady = wordCount >= 10 && rating > 0; // 최소 10자 이상 + 별점 선택 필수
+    const isReady = wordCount >= 10 && rating > 0 && !hasAlreadyReflected;
 
     const handleSubmit = async () => {
         if (!isReady || isSubmitting || !session) return;
 
         setIsSubmitting(true);
         try {
-            // 1. 성찰 일기 저장
-            await addDoc(collection(db, "reflections"), {
-                studentId: session.studentId,
-                classId: session.classId,
-                content: content.trim(),
-                wordCount: wordCount,
-                participationRating: rating,
-                createdAt: serverTimestamp()
-            });
-
-            // 캔디 계산 (50자당 1개, 최소 1개)
-            const earnedCandies = Math.max(1, Math.floor(wordCount / 50));
-
-            // 학생 정보 업데이트 (캔디 추가)
+            // 0. 학생 정보 재확인 (중복 방지)
             const studentRef = doc(db, "students", session.studentId);
-            await updateDoc(studentRef, {
-                candies: increment(earnedCandies),
-                lastReflectedAt: serverTimestamp()
-            });
+            const studentSnap = await getDoc(studentRef);
+            if (studentSnap.exists()) {
+                const data = studentSnap.data();
+                if (data.lastReflectedAt) {
+                    const lastDate = data.lastReflectedAt.toDate().toLocaleDateString();
+                    const todayDate = new Date().toLocaleDateString();
+                    if (lastDate === todayDate) {
+                        toast.error("이미 오늘은 성찰 일기를 작성했습니다.");
+                        setHasAlreadyReflected(true);
+                        setIsSubmitting(false);
+                        return;
+                    }
+                }
+            }
 
-            // 2. 랜덤 포켓몬 결정 (1~151번 중 하나)
+            // 1. 랜덤 포켓몬 결정 및 데이터 가져오기 (실패 가능성이 있는 외부 API 호출 먼저)
             const randomPokeId = Math.floor(Math.random() * 151) + 1;
-
-            // PokeAPI로부터 정보 가져오기 (이미지)
             const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${randomPokeId}`);
+            if (!response.ok) throw new Error("포켓몬 정보를 가져오는데 실패했습니다.");
             const pokeData = await response.json();
 
-            // 한글 이름 및 데이터 가져오기
             const { POKEMON_KR_NAMES, getPokemonStats, getRandomSkills } = await import("@/lib/pokemonData");
             const koName = POKEMON_KR_NAMES[randomPokeId] || pokeData.name;
             const types = pokeData.types.map((t: { type: { name: string } }) => t.type.name);
@@ -94,7 +115,27 @@ export default function WritePage() {
                 types: types
             };
 
-            // 3. 인벤토리에 추가
+            // 캔디 계산 (50자당 1개, 최소 1개)
+            const earnedCandies = Math.max(1, Math.floor(wordCount / 50));
+
+            // DB 작업 순서 최적화 (일기 먼저 저장 후 학생 정보 갱신)
+            // 2. 성찰 일기 저장
+            await addDoc(collection(db, "reflections"), {
+                studentId: session.studentId,
+                classId: session.classId,
+                content: content.trim(),
+                wordCount: wordCount,
+                participationRating: rating,
+                createdAt: serverTimestamp()
+            });
+
+            // 3. 학생 정보 업데이트 (캔디 추가 및 날짜 갱신)
+            await updateDoc(studentRef, {
+                candies: increment(earnedCandies),
+                lastReflectedAt: serverTimestamp()
+            });
+
+            // 4. 인벤토리에 추가
             const inventoryRef = doc(db, "pokemon_inventory", `${session.studentId}_${randomPokeId}`);
             const existing = await getDoc(inventoryRef);
 
@@ -103,7 +144,6 @@ export default function WritePage() {
                 await setDoc(inventoryRef, {
                     ...currentData,
                     level: (currentData.level || 5) + 1,
-                    // 기존 포켓몬이라도 스탯 업데이트 로직 필요 시 추가
                     updatedAt: serverTimestamp()
                 }, { merge: true });
             } else {
@@ -123,10 +163,11 @@ export default function WritePage() {
             }
 
             setRewardPokemon(pokemon);
+            setHasAlreadyReflected(true);
             toast.success(`${earnedCandies}개의 캔디를 획득했습니다! 성찰 일기가 저장되었습니다.`);
         } catch (error) {
             console.error(error);
-            toast.error("저장 중 오류가 발생했습니다.");
+            toast.error("저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
         } finally {
             setIsSubmitting(false);
         }
@@ -202,8 +243,8 @@ export default function WritePage() {
                 </CardContent>
             </Card>
 
-            <Card className="border-2">
-                <CardHeader className="pb-4">
+            <Card className="border-2 overflow-hidden shadow-lg">
+                <CardHeader className="pb-4 bg-muted/30">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
                             <CardTitle className="text-lg">수업 참여도 평가</CardTitle>
@@ -214,8 +255,9 @@ export default function WritePage() {
                                 <button
                                     key={star}
                                     type="button"
-                                    onClick={() => setRating(star)}
-                                    className={`p-1 transition-all ${rating >= star ? 'text-yellow-400 scale-110' : 'text-muted-foreground/20 hover:scale-105'}`}
+                                    onClick={() => !hasAlreadyReflected && setRating(star)}
+                                    className={`p-1 transition-all ${rating >= star ? 'text-yellow-400 scale-110' : 'text-muted-foreground/20 hover:scale-105'} ${hasAlreadyReflected ? 'cursor-not-allowed opacity-50' : ''}`}
+                                    disabled={hasAlreadyReflected}
                                 >
                                     <Star className={`h-10 w-10 ${rating >= star ? 'fill-current' : ''}`} />
                                 </button>
@@ -223,47 +265,59 @@ export default function WritePage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                    <Textarea
-                        placeholder="오늘 무엇을 배웠나요? 즐거웠던 일이나 반성할 점은 무엇인가요? (상단 가이드 질문을 참고하여 10자 이상 작성해주세요)"
-                        className="min-h-[300px] text-lg leading-relaxed focus-visible:ring-primary border-2"
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        disabled={isSubmitting}
-                    />
-                    <div className="flex justify-between items-center text-sm font-medium">
-                        <div className="flex flex-col gap-1">
-                            <span className={wordCount >= 10 ? "text-primary font-bold" : "text-muted-foreground"}>
-                                📝 글자 수: <span className="text-lg">{wordCount}</span> / 10자 이상
-                            </span>
-                            <span className={rating > 0 ? "text-yellow-600 font-bold" : "text-muted-foreground"}>
-                                ⭐ 참여도 별점: {rating > 0 ? `${rating}점 선택됨` : "미선택"}
-                            </span>
+                <CardContent className="space-y-4 pt-6">
+                    {hasAlreadyReflected ? (
+                        <div className="bg-amber-500/10 border-2 border-amber-500/20 rounded-2xl p-8 text-center space-y-4 animate-pulse">
+                            <Info className="h-12 w-12 text-amber-500 mx-auto" />
+                            <h3 className="text-xl font-bold text-amber-600">오늘의 성찰을 이미 마쳤습니다!</h3>
+                            <p className="text-muted-foreground">내일 다시 새로운 포켓몬을 만나러 오세요.</p>
                         </div>
-                        {isReady ? (
-                            <div className="text-green-500 flex items-center gap-1 animate-pulse bg-green-50 px-3 py-1 rounded-full border border-green-200">
-                                <Sparkles className="h-4 w-4" /> 보상 획득 가능!
+                    ) : (
+                        <>
+                            <Textarea
+                                placeholder="오늘 무엇을 배웠나요? 즐거웠던 일이나 반성할 점은 무엇인가요? (상단 가이드 질문을 참고하여 10자 이상 작성해주세요)"
+                                className="min-h-[300px] text-lg leading-relaxed focus-visible:ring-primary border-2 rounded-2xl"
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
+                                disabled={isSubmitting || hasAlreadyReflected}
+                            />
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-sm font-medium">
+                                <div className="flex flex-col gap-1">
+                                    <span className={wordCount >= 10 ? "text-primary font-bold" : "text-muted-foreground"}>
+                                        📝 글자 수: <span className="text-lg">{wordCount}</span> / 10자 이상
+                                    </span>
+                                    <span className={rating > 0 ? "text-yellow-600 font-bold" : "text-muted-foreground"}>
+                                        ⭐ 참여도 별점: {rating > 0 ? `${rating}점 선택됨` : "미선택"}
+                                    </span>
+                                </div>
+                                {isReady ? (
+                                    <div className="text-green-600 flex items-center gap-1 animate-pulse bg-green-500/10 px-4 py-2 rounded-full border-2 border-green-500/20">
+                                        <Sparkles className="h-4 w-4" /> 보상 획득 가능!
+                                    </div>
+                                ) : (
+                                    <div className="text-muted-foreground bg-secondary/50 px-4 py-2 rounded-full flex items-center gap-2 border">
+                                        <Info className="h-4 w-4" />
+                                        {rating === 0 ? "별점을 먼저 선택해주세요" : (wordCount < 10 ? "내용을 조금 더 적어주세요" : "")}
+                                    </div>
+                                )}
                             </div>
-                        ) : (
-                            <div className="text-muted-foreground bg-secondary/20 px-3 py-1 rounded-full flex items-center gap-2">
-                                <Info className="h-4 w-4" />
-                                {rating === 0 ? "별점을 먼저 선택해주세요" : "내용을 조금 더 적어주세요"}
-                            </div>
-                        )}
-                    </div>
+                        </>
+                    )}
                 </CardContent>
-                <CardFooter className="border-t bg-secondary/10 pt-6">
+                <CardFooter className="border-t bg-muted/20 pt-6">
                     <Button
                         size="lg"
-                        className="w-full text-lg h-14"
-                        disabled={!isReady || isSubmitting}
+                        className={`w-full text-xl h-16 rounded-2xl font-black shadow-lg transition-all ${isReady ? 'hover:scale-[1.02] active:scale-95' : ''}`}
+                        disabled={!isReady || isSubmitting || hasAlreadyReflected}
                         onClick={handleSubmit}
                     >
                         {isSubmitting ? (
                             <>
-                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                <Loader2 className="mr-2 h-6 w-6 animate-spin" />
                                 포켓몬을 부르는 중...
                             </>
+                        ) : hasAlreadyReflected ? (
+                            <>작성 완료 (내일 다시 기록해주세요)</>
                         ) : (
                             <>기록 완료하고 보상 받기</>
                         )}

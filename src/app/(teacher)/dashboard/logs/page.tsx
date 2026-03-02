@@ -58,21 +58,33 @@ function LogsContent() {
         try {
             toast.loading("데이터를 추출하는 중입니다...");
 
-            // 1. 성찰 일지 가져오기
+            // 1. 성찰 일지 및 학생 데이터 가져오기
             const refQ = query(
                 collection(db, "reflections"),
                 where("classId", "==", classId),
                 orderBy("createdAt", "desc")
             );
-            const refSnap = await getDocs(refQ);
+            const studentQ = query(collection(db, "students"), where("classId", "==", classId));
+
+            const [refSnap, studentSnap] = await Promise.all([getDocs(refQ), getDocs(studentQ)]);
+
+            const studentMap: Record<string, { name: string, number: number }> = {};
+            studentSnap.docs.forEach(doc => {
+                const d = doc.data();
+                studentMap[doc.id] = { name: d.name, number: d.number };
+            });
+
             const refData = refSnap.docs.map(doc => {
                 const data = doc.data();
+                const studentInfo = studentMap[data.studentId] || { name: data.studentName || "알 수 없음", number: data.studentNumber || 0 };
                 return {
                     "작성일시": data.createdAt?.toDate().toLocaleString() || "",
                     "학생ID": data.studentId,
+                    "번호": studentInfo.number,
+                    "이름": studentInfo.name,
                     "오늘의 성찰": data.content,
-                    "번호": data.studentNumber || "",
-                    "이름": data.studentName || ""
+                    "참여도(별점)": data.participationRating || 0,
+                    "글자수": data.wordCount || 0
                 };
             });
 
@@ -90,7 +102,8 @@ function LogsContent() {
                     "승자(학생)": data.winnerName,
                     "승자 포켓몬": data.winnerPoke,
                     "패자": data.loserName,
-                    "패자 포켓몬": data.loserPoke
+                    "패자 포켓몬": data.loserPoke,
+                    "배틀 타입": data.battleType || "일반"
                 };
             });
 
@@ -140,8 +153,8 @@ function LogsContent() {
                         <MessageSquare className="h-5 w-5 text-amber-500 group-hover:scale-110 transition-transform" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-4xl font-black gold-gradient-text">{stats.reflections.toLocaleString()} <span className="text-sm font-medium text-slate-500 ml-1">LOGS</span></div>
-                        <p className="text-[11px] font-bold text-slate-600 uppercase tracking-tighter mt-2">DATA ARCHIVE COMPLETED</p>
+                        <div className="text-4xl font-black gold-gradient-text">{stats.reflections.toLocaleString()} <span className="text-sm font-medium text-slate-500 ml-1">건</span></div>
+                        <p className="text-[11px] font-bold text-slate-600 uppercase tracking-tighter mt-2">데이터 아카이브 완료</p>
                     </CardContent>
                 </Card>
                 <Card className="premium-card overflow-hidden border-slate-800/80 rounded-3xl group">
@@ -150,8 +163,8 @@ function LogsContent() {
                         <Swords className="h-5 w-5 text-red-500 group-hover:scale-110 transition-transform" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-4xl font-black text-slate-100">{stats.battles.toLocaleString()} <span className="text-sm font-medium text-slate-500 ml-1">MATCHES</span></div>
-                        <p className="text-[11px] font-bold text-slate-600 uppercase tracking-tighter mt-2">REAL-TIME BATTLE SYNC ACTIVE</p>
+                        <div className="text-4xl font-black text-slate-100">{stats.battles.toLocaleString()} <span className="text-sm font-medium text-slate-500 ml-1">회</span></div>
+                        <p className="text-[11px] font-bold text-slate-600 uppercase tracking-tighter mt-2">실시간 배틀 동기화 활성</p>
                     </CardContent>
                 </Card>
             </div>
@@ -175,7 +188,7 @@ function LogsContent() {
                             <History className="h-20 w-20 text-amber-500 group-hover:rotate-12 transition-transform duration-500" />
                         </div>
                         <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-slate-950 text-[10px] font-black px-3 py-1 rounded-full shadow-lg border-2 border-slate-950">
-                            SYSTEM READY
+                            시스템 준비 완료
                         </div>
                     </div>
                     <div className="max-w-md space-y-6">
