@@ -49,12 +49,15 @@ export default function ArchivePage() {
         try {
             const q = query(
                 collection(db, "reflections"),
-                where("studentId", "==", studentId),
-                orderBy("createdAt", "desc")
+                where("studentId", "==", studentId)
             );
             const snapshots = await getDocs(q);
             const list: ReflectionItem[] = [];
             snapshots.forEach(doc => list.push({ id: doc.id, ...doc.data() } as ReflectionItem));
+
+            // 인덱스 에러 방지를 위해 클라이언트에서 정렬
+            list.sort((a, b) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
+
             setReflections(list);
         } catch (error) {
             console.error(error);

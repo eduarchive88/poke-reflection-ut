@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp, doc, setDoc, getDoc } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, doc, setDoc, getDoc, updateDoc, increment } from "firebase/firestore";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -62,22 +62,39 @@ export default function WritePage() {
                 createdAt: serverTimestamp()
             });
 
+            // 캔디 계산 (50자당 1개, 최소 1개)
+            const earnedCandies = Math.max(1, Math.floor(wordCount / 50));
+
+            // 학생 정보 업데이트 (캔디 추가)
+            const studentRef = doc(db, "students", session.studentId);
+            await updateDoc(studentRef, {
+                candies: increment(earnedCandies),
+                lastReflectedAt: serverTimestamp()
+            });
+
             // 2. 랜덤 포켓몬 결정 (1~151번 중 하나)
             const randomPokeId = Math.floor(Math.random() * 151) + 1;
 
-            // PokeAPI로부터 정보 가져오기 (이미지 및 이름 가공)
+            // PokeAPI로부터 정보 가져오기 (이미지)
             const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${randomPokeId}`);
             const pokeData = await response.json();
 
-            const pokemon: PokemonReward = {
+            // 한글 이름 및 데이터 가져오기
+            const { POKEMON_KR_NAMES, getPokemonStats, getRandomSkills } = await import("@/lib/pokemonData");
+            const koName = POKEMON_KR_NAMES[randomPokeId] || pokeData.name;
+            const types = pokeData.types.map((t: { type: { name: string } }) => t.type.name);
+            const initialStats = getPokemonStats(randomPokeId, 5);
+            const initialSkills = getRandomSkills(types);
+
+            const pokemon: PokemonReward & { koName: string } = {
                 id: randomPokeId,
-                name: pokeData.name, // 한글 이름은 나중에 매핑 테이블 추가 필요 (PokeAPI는 영어 위주)
+                name: pokeData.name,
+                koName: koName,
                 image: pokeData.sprites.other["official-artwork"].front_default || pokeData.sprites.front_default,
-                types: pokeData.types.map((t: { type: { name: string } }) => t.type.name)
+                types: types
             };
 
-            // 3. 인벤토리에 추가 (중복 획득 시 레벨업 혹은 중복 보유 로직 필요, 일단 추가)
-            // Document ID: studentId_pokemonId 조합으로 고유성 유지 시도하거나 자동 생성
+            // 3. 인벤토리에 추가
             const inventoryRef = doc(db, "pokemon_inventory", `${session.studentId}_${randomPokeId}`);
             const existing = await getDoc(inventoryRef);
 
@@ -85,7 +102,8 @@ export default function WritePage() {
                 const currentData = existing.data();
                 await setDoc(inventoryRef, {
                     ...currentData,
-                    level: (currentData.level || 5) + 1, // 중복 획득 시 레벨업 보너스
+                    level: (currentData.level || 5) + 1,
+                    // 기존 포켓몬이라도 스탯 업데이트 로직 필요 시 추가
                     updatedAt: serverTimestamp()
                 }, { merge: true });
             } else {
@@ -93,16 +111,19 @@ export default function WritePage() {
                     studentId: session.studentId,
                     pokemonId: randomPokeId,
                     name: pokemon.name,
+                    koName: pokemon.koName,
                     image: pokemon.image,
                     types: pokemon.types,
                     level: 5,
                     exp: 0,
+                    stats: initialStats,
+                    skills: initialSkills,
                     createdAt: serverTimestamp()
                 });
             }
 
             setRewardPokemon(pokemon);
-            toast.success("성찰 일기가 저장되었습니다!");
+            toast.success(`${earnedCandies}개의 캔디를 획득했습니다! 성찰 일기가 저장되었습니다.`);
         } catch (error) {
             console.error(error);
             toast.error("저장 중 오류가 발생했습니다.");
