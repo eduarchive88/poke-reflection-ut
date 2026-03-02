@@ -1,0 +1,261 @@
+﻿node.exe : Retrieving
+ project??Deploying e
+duarchive88s-projects
+/poke-reflection-ut
+위치 줄:1 문자:1
++ & "C:\Program Files
+\nodejs/node.exe" "C:
+\Program Files\nodejs
+/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~
+    + CategoryInfo   
+           : NotSpeci
+fi    ed: (Retrieving
+ pr    oj...e-reflect
+ion-    ut:String) []
+, Rem    oteException
+    + FullyQualifiedE
+r    rorId : NativeCo
+mm    andError
+ 
+Uploading [----------
+----------] (0.0B/98.
+3KB)
+Uploading [=====-----
+----------] (26.7KB/9
+8.3KB)
+Uploading [==========
+==--------] (62.4KB/9
+8.3KB)
+Uploading [==========
+=====-----] (75.9KB/9
+8.3KB)
+Uploading [==========
+==========] (98.3KB/9
+8.3KB)
+Inspect: https://verc
+el.com/eduarchive88s-
+projects/poke-reflect
+ion-ut/FitoWAp1oZycpo
+DnMYpXxRzKyJiy [3s]
+Production: https://p
+oke-reflection-o0a25s
+2zj-eduarchive88s-pro
+jects.vercel.app [3s]
+Building...
+Building...
+Building: Running bui
+ld in Washington, D.C
+., USA (East) ??iad1
+Building: Build machi
+ne configuration: 2 c
+ores, 8 GB
+Building: Retrieving 
+list of deployment fi
+les...
+Building: Previous bu
+ild caches not availa
+ble.
+Building: Downloading
+ 60 deployment files.
+..
+Building: Warning: De
+tected "engines": { "
+node": ">=20" } in yo
+ur `package.json` tha
+t will automatically 
+upgrade when a new ma
+jor Node.js Version i
+s released. Learn Mor
+e: https://vercel.lin
+k/node-version
+Building: Running "ve
+rcel build"
+Building: Vercel CLI 
+50.23.2
+Building: Warning: De
+tected "engines": { "
+node": ">=20" } in yo
+ur `package.json` tha
+t will automatically 
+upgrade when a new ma
+jor Node.js Version i
+s released. Learn Mor
+e: https://vercel.lin
+k/node-version
+Building: Installing 
+dependencies...
+Building: npm warn de
+precated node-domexce
+ption@1.0.0: Use your
+ platform's native DO
+MException instead
+Building: npm warn de
+precated next@15.1.7:
+ This version has a s
+ecurity vulnerability
+. Please upgrade to a
+ patched version. See
+ https://nextjs.org/b
+log/CVE-2025-66478 fo
+r more details.
+Building: added 811 p
+ackages in 19s
+Building: 238 package
+s are looking for fun
+ding
+Building: run `npm fu
+nd` for details
+Building: Detected Ne
+xt.js version: 15.1.7
+Building: Running "np
+m run build"
+Building: > poke-refl
+ection-ut@0.1.0 build
+Building: > next buil
+d
+Building: Attention: 
+Next.js now collects 
+completely anonymous 
+telemetry regarding u
+sage.
+Building: This inform
+ation is used to shap
+e Next.js' roadmap an
+d prioritize features
+.
+Building: You can lea
+rn more, including ho
+w to opt-out if you'd
+ not like to particip
+ate in this anonymous
+ program, by visiting
+ the following URL:
+Building: https://nex
+tjs.org/telemetry
+Building: ??Next.js 1
+5.1.7
+Building: Creating an
+ optimized production
+ build ...
+Building: ??Compiled 
+successfully
+Building: Skipping va
+lidation of types
+Building: Skipping li
+nting
+Building: Collecting 
+page data ...
+Building: Generating 
+static pages (0/13) .
+..
+Building: [Firebase] 
+?썳截?Build-time Mockin
+g enabled.
+Building: Generating 
+static pages (3/13)
+Building: Generating 
+static pages (6/13)
+Building: Generating 
+static pages (9/13)
+Building: ??Generatin
+g static pages (13/13
+)
+Building: Finalizing 
+page optimization ...
+Building: Collecting 
+build traces ...
+Building: Route (app)
+                     
+         Size     Fir
+st Load JS
+Building: ??? /      
+                     
+         42 kB       
+    182 kB
+Building: ????/_not-f
+ound                 
+         979 B       
+    106 kB
+Building: ????/dashbo
+ard                  
+         5.3 kB      
+    420 kB
+Building: ????/dashbo
+ard/status           
+         6.13 kB     
+    538 kB
+Building: ????/dashbo
+ard/students         
+         6.87 kB     
+    579 kB
+Building: ????/login 
+                     
+         9.29 kB     
+    416 kB
+Building: ????/studen
+t                    
+         3.92 kB     
+    419 kB
+Building: ????/studen
+t/archive            
+         4.04 kB     
+    386 kB
+Building: ????/studen
+t/pokedex            
+         3.99 kB     
+    425 kB
+Building: ????/studen
+t/stadium            
+         6.74 kB     
+    428 kB
+Building: ????/studen
+t/write              
+         7.08 kB     
+    428 kB
+Building: + First Loa
+d JS shared by all   
+         105 kB
+Building: ??chunks/4b
+d1b696-a80d660d6c9319
+3d.js  52.9 kB
+Building: ??chunks/51
+7-3917ccf7355a759d.js
+       50.5 kB
+Building: ??other sha
+red chunks (total)   
+       1.91 kB
+Building: ?? (Static)
+   prerendered as sta
+tic content
+Building: ?  (Dynamic
+)  server-rendered on
+ demand
+Building: Traced Next
+.js server files in: 
+118.6ms
+Building: Created all
+ serverless functions
+ in: 135.828ms
+Building: Collected s
+tatic files (public/,
+ static/, .next/stati
+c): 6.903ms
+Building: Build Compl
+eted in /vercel/outpu
+t [1m]
+Building: Error: Vuln
+erable version of Nex
+t.js detected, please
+ update immediately. 
+Learn More: https://v
+ercel.link/CVE-2025-6
+6478
+Error: Vulnerable ver
+sion of Next.js detec
+ted, please update im
+mediately.
+https://poke-reflection-o0a25s2zj-eduarchive88s-projects.vercel.app

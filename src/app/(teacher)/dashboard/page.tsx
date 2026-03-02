@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
-import { collection, query, where, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { nanoid } from "nanoid";
+import { Edit2, Trash2, Copy, Check } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
@@ -28,6 +29,14 @@ export default function DashboardPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [newClassName, setNewClassName] = useState("");
     const [currentUserUid, setCurrentUserUid] = useState<string | null>(null);
+
+    // 수정용 상태
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [editingClass, setEditingClass] = useState<ClassData | null>(null);
+    const [editName, setEditName] = useState("");
+    const [editCode, setEditCode] = useState("");
+
+    const [copiedId, setCopiedId] = useState<string | null>(null);
 
     const fetchClasses = async (uid: string) => {
         try {
@@ -60,9 +69,7 @@ export default function DashboardPage() {
         e.preventDefault();
         if (!newClassName.trim() || !currentUserUid) return;
 
-        // 8자리 영숫자 랜덤 세션 코드 생성 (충돌 방지를 위해 좀 더 정밀하게 할 수 있으나 일단 고유 생성)
         const newSessionCode = nanoid(8).toUpperCase();
-
         try {
             const docRef = await addDoc(collection(db, "classes"), {
                 teacherId: currentUserUid,
@@ -78,6 +85,43 @@ export default function DashboardPage() {
         } catch (error) {
             toast.error("학급 생성에 실패했습니다.");
         }
+    };
+
+    const handleUpdateClass = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingClass || !editName.trim() || !editCode.trim()) return;
+
+        try {
+            const classRef = doc(db, "classes", editingClass.id);
+            await updateDoc(classRef, {
+                className: editName.trim(),
+                sessionCode: editCode.trim().toUpperCase()
+            });
+
+            setClasses(classes.map(c => c.id === editingClass.id ? { ...c, className: editName.trim(), sessionCode: editCode.trim().toUpperCase() } : c));
+            setIsEditOpen(false);
+            toast.success("학급 정보가 수정되었습니다.");
+        } catch (error) {
+            toast.error("수정에 실패했습니다.");
+        }
+    };
+
+    const handleDeleteClass = async (classId: string) => {
+        if (!confirm("정말로 이 학급을 삭제하시겠습니까? 학생 명단은 별도로 삭제해야 합니다.")) return;
+        try {
+            await deleteDoc(doc(db, "classes", classId));
+            setClasses(classes.filter(c => c.id !== classId));
+            toast.success("학급이 삭제되었습니다.");
+        } catch (error) {
+            toast.error("삭제에 실패했습니다.");
+        }
+    };
+
+    const copyToClipboard = (text: string, id: string) => {
+        navigator.clipboard.writeText(text);
+        setCopiedId(id);
+        toast.info("세션 코드가 복사되었습니다.");
+        setTimeout(() => setCopiedId(null), 2000);
     };
 
     return (
@@ -137,24 +181,64 @@ export default function DashboardPage() {
             ) : (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {classes.map((cls) => (
-                        <Card key={cls.id}>
+                        <Card key={cls.id} className="relative group overflow-hidden border-2 hover:border-primary/50 transition-colors">
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-xl">{cls.className}</CardTitle>
-                                <CardDescription>학생 수: 0명 (임시)</CardDescription>
+                                <div className="flex justify-between items-start">
+                                    <CardTitle className="text-xl">{cls.className}</CardTitle>
+                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 text-muted-foreground"
+                                            onClick={() => {
+                                                setEditingClass(cls);
+                                                setEditName(cls.className);
+                                                setEditCode(cls.sessionCode);
+                                                setIsEditOpen(true);
+                                            }}
+                                        >
+                                            <Edit2 className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-red-50"
+                                            onClick={() => handleDeleteClass(cls.id)}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                                <CardDescription>모험의 무대</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="bg-secondary/50 rounded-md p-3 mb-4 mt-2">
+                                <div className="bg-secondary/50 rounded-md p-3 mb-4 mt-2 relative">
                                     <p className="text-xs text-muted-foreground mb-1">학생 접속 세션 코드 (복사 및 공유)</p>
-                                    <p className="text-lg font-mono font-bold tracking-widest text-primary text-center my-1 select-all">
-                                        {cls.sessionCode}
-                                    </p>
+                                    <div className="flex items-center justify-center gap-2">
+                                        <p className="text-lg font-mono font-bold tracking-widest text-primary my-1 select-all">
+                                            {cls.sessionCode}
+                                        </p>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8"
+                                            onClick={() => copyToClipboard(cls.sessionCode, cls.id)}
+                                        >
+                                            {copiedId === cls.id ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                                        </Button>
+                                    </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <Button variant="outline" className="text-xs" onClick={() => router.push(`/dashboard/students?classId=${cls.id}`)}>
-                                        학생 명렬표
-                                    </Button>
-                                    <Button variant="default" className="text-xs" onClick={() => router.push(`/dashboard/status?classId=${cls.id}`)}>
-                                        성찰 현황판
+                                <div className="grid grid-cols-1 gap-2">
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <Button variant="outline" className="text-xs font-bold" onClick={() => router.push(`/dashboard/students?classId=${cls.id}`)}>
+                                            학생 명렬표
+                                        </Button>
+                                        <Button variant="default" className="text-xs font-bold" onClick={() => router.push(`/dashboard/status?classId=${cls.id}`)}>
+                                            성찰 현황판
+                                        </Button>
+                                    </div>
+                                    <Button variant="secondary" className="text-xs font-bold w-full" onClick={() => router.push(`/dashboard/logs?classId=${cls.id}`)}>
+                                        전체 로그 다운로드 (Excel)
                                     </Button>
                                 </div>
                             </CardContent>
@@ -162,6 +246,44 @@ export default function DashboardPage() {
                     ))}
                 </div>
             )}
+
+            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>학급 정보 수정</DialogTitle>
+                        <DialogDescription>
+                            학급 이름과 세션 코드를 변경합니다. 세션 코드를 바꾸면 학생들도 바뀐 코드로 접속해야 합니다.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleUpdateClass}>
+                        <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="edit-name" className="text-right">학급 이름</Label>
+                                <Input id="edit-name" value={editName} onChange={(e) => setEditName(e.target.value)} className="col-span-3" />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="edit-code" className="text-right">세션 코드</Label>
+                                <Input id="edit-code" value={editCode} onChange={(e) => setEditCode(e.target.value)} className="col-span-3 font-mono font-bold" />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button type="submit">저장하기</Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            <footer className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground space-y-2">
+                <p>만든 사람: 경기도 지구과학 교사 뀨짱</p>
+                <div className="flex justify-center gap-4">
+                    <a href="https://open.kakao.com/o/s7hVU65h" target="_blank" rel="noopener noreferrer" className="hover:text-primary underline transition-colors">
+                        문의: 카카오톡 오픈채팅
+                    </a>
+                    <a href="https://eduarchive.tistory.com/" target="_blank" rel="noopener noreferrer" className="hover:text-primary underline transition-colors">
+                        뀨짱쌤의 교육자료 아카이브
+                    </a>
+                </div>
+            </footer>
         </div>
     );
 }

@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
-import { collection, query, where, getDocs, doc, writeBatch, serverTimestamp } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, setDoc, writeBatch, serverTimestamp } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import * as XLSX from "xlsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +14,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Upload } from "lucide-react";
+import { Upload, Download, UserPlus, Trash2 } from "lucide-react";
+import { deleteDoc } from "firebase/firestore";
 
 export const dynamic = 'force-dynamic';
 
@@ -51,8 +52,17 @@ function StudentsContent() {
     const [loading, setLoading] = useState(true);
 
     const [isUploadOpen, setIsUploadOpen] = useState(false);
+    const [isAddIndividualOpen, setIsAddIndividualOpen] = useState(false);
     const [uploadFile, setUploadFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
+
+    // 개별 등록용 상태
+    const [newStudent, setNewStudent] = useState({
+        grade: "",
+        classNum: "",
+        number: "",
+        name: ""
+    });
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -106,6 +116,70 @@ function StudentsContent() {
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
             setUploadFile(e.target.files[0]);
+        }
+    };
+
+    const downloadTemplate = () => {
+        const templateData = [
+            { "학년": 3, "반": 2, "번호": 1, "이름": "홍길동" },
+            { "학년": 3, "반": 2, "번호": 2, "이름": "성춘향" }
+        ];
+        const worksheet = XLSX.utils.json_to_sheet(templateData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "학생명단양식");
+        XLSX.writeFile(workbook, "포켓몬성찰_학생일괄등록_양식.xlsx");
+        toast.info("양식 파일이 다운로드되었습니다.");
+    };
+
+    const handleAddIndividual = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selectedClassId) return;
+        const { grade, classNum, number, name } = newStudent;
+        if (!grade || !classNum || !number || !name) {
+            toast.error("모든 정보를 입력해주세요.");
+            return;
+        }
+
+        const targetClass = classes.find(c => c.id === selectedClassId);
+        if (!targetClass) return;
+
+        setUploading(true);
+        try {
+            const g = parseInt(grade);
+            const c = parseInt(classNum);
+            const n = parseInt(number);
+            const docId = `${targetClass.sessionCode}_${g}_${c}_${n}`;
+            const studentRef = doc(collection(db, "students"), docId);
+
+            await setDoc(studentRef, {
+                classId: selectedClassId,
+                grade: g,
+                classNum: c,
+                number: n,
+                name: name.trim(),
+                createdAt: serverTimestamp()
+            }, { merge: true });
+
+            toast.success("학생이 성공적으로 등록되었습니다.");
+            setIsAddIndividualOpen(false);
+            setNewStudent({ grade: "", classNum: "", number: "", name: "" });
+            fetchStudents(selectedClassId);
+        } catch (error) {
+            console.error(error);
+            toast.error("학생 등록에 실패했습니다.");
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const deleteStudent = async (studentId: string) => {
+        if (!confirm("정말로 이 학생을 삭제하시겠습니까? 관련 데이터가 모두 보이지 않게 됩니다.")) return;
+        try {
+            await deleteDoc(doc(db, "students", studentId));
+            toast.success("학생이 성공적으로 삭제되었습니다.");
+            fetchStudents(selectedClassId);
+        } catch (error) {
+            toast.error("삭제 중 오류가 발생했습니다.");
         }
     };
 
@@ -216,42 +290,86 @@ function StudentsContent() {
                             </SelectContent>
                         </Select>
 
-                        <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
-                            <DialogTrigger asChild>
-                                <Button variant="default" className="gap-2">
-                                    <Upload className="h-4 w-4" />
-                                    일괄 등록
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                    <DialogTitle>엑셀 명렬표 업로드</DialogTitle>
-                                    <DialogDescription>
-                                        &quot;학년&quot;, &quot;반&quot;, &quot;번호&quot;, &quot;이름&quot; 열이 포함된 .xlsx 또는 .csv 파일을 선택해주세요.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="grid gap-4 py-4">
-                                    <div className="flex items-center gap-4">
-                                        <Label htmlFor="file" className="w-[80px] text-right">
-                                            파일 선택
-                                        </Label>
-                                        <Input
-                                            id="file"
-                                            type="file"
-                                            accept=".xlsx, .xls, .csv"
-                                            className="flex-1"
-                                            onChange={handleFileUpload}
-                                            disabled={uploading}
-                                        />
-                                    </div>
-                                </div>
-                                <DialogFooter>
-                                    <Button onClick={processExcelAndUpload} disabled={!uploadFile || uploading}>
-                                        {uploading ? "업로드 중..." : "등록하기"}
+                        <div className="flex gap-2">
+                            <Dialog open={isAddIndividualOpen} onOpenChange={setIsAddIndividualOpen}>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline" className="gap-2">
+                                        <UserPlus className="h-4 w-4" />
+                                        개별 추가
                                     </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px]">
+                                    <DialogHeader>
+                                        <DialogTitle>학생 개별 등록</DialogTitle>
+                                        <DialogDescription>
+                                            학생의 정보를 직접 입력하여 등록합니다. 번호가 중복되면 기존 정보가 갱신됩니다.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <form onSubmit={handleAddIndividual} className="grid gap-4 py-4">
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label htmlFor="grade" className="text-right">학년</Label>
+                                            <Input id="grade" type="number" value={newStudent.grade} onChange={e => setNewStudent({ ...newStudent, grade: e.target.value })} className="col-span-3" />
+                                        </div>
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label htmlFor="classNum" className="text-right">반</Label>
+                                            <Input id="classNum" type="number" value={newStudent.classNum} onChange={e => setNewStudent({ ...newStudent, classNum: e.target.value })} className="col-span-3" />
+                                        </div>
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label htmlFor="number" className="text-right">번호</Label>
+                                            <Input id="number" type="number" value={newStudent.number} onChange={e => setNewStudent({ ...newStudent, number: e.target.value })} className="col-span-3" />
+                                        </div>
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label htmlFor="name" className="text-right">이름</Label>
+                                            <Input id="name" value={newStudent.name} onChange={e => setNewStudent({ ...newStudent, name: e.target.value })} className="col-span-3" />
+                                        </div>
+                                        <DialogFooter>
+                                            <Button type="submit" disabled={uploading}>{uploading ? "등록 중..." : "등록하기"}</Button>
+                                        </DialogFooter>
+                                    </form>
+                                </DialogContent>
+                            </Dialog>
+
+                            <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
+                                <DialogTrigger asChild>
+                                    <Button variant="default" className="gap-2">
+                                        <Upload className="h-4 w-4" />
+                                        일괄 등록
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px]">
+                                    <DialogHeader>
+                                        <DialogTitle>엑셀 명렬표 업로드</DialogTitle>
+                                        <DialogDescription>
+                                            &quot;학년&quot;, &quot;반&quot;, &quot;번호&quot;, &quot;이름&quot; 열이 포함된 파일을 선택해주세요.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="grid gap-4 py-4">
+                                        <Button variant="outline" className="gap-2 mb-2" onClick={downloadTemplate}>
+                                            <Download className="h-4 w-4" />
+                                            샘플 양식 다운로드
+                                        </Button>
+                                        <div className="flex items-center gap-4">
+                                            <Label htmlFor="file" className="w-[80px] text-right">
+                                                파일 선택
+                                            </Label>
+                                            <Input
+                                                id="file"
+                                                type="file"
+                                                accept=".xlsx, .xls, .csv"
+                                                className="flex-1"
+                                                onChange={handleFileUpload}
+                                                disabled={uploading}
+                                            />
+                                        </div>
+                                    </div>
+                                    <DialogFooter>
+                                        <Button onClick={processExcelAndUpload} disabled={!uploadFile || uploading}>
+                                            {uploading ? "업로드 중..." : "등록하기"}
+                                        </Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+                        </div>
                     </div>
                 )}
             </div>
@@ -277,7 +395,7 @@ function StudentsContent() {
                                         <TableHead className="w-[100px] text-center">반</TableHead>
                                         <TableHead className="w-[100px] text-center">번호</TableHead>
                                         <TableHead>이름</TableHead>
-                                        <TableHead className="text-right">상태</TableHead>
+                                        <TableHead className="w-[100px] text-center">관리</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -286,8 +404,12 @@ function StudentsContent() {
                                             <TableCell className="text-center font-medium">{student.grade}</TableCell>
                                             <TableCell className="text-center">{student.classNum}</TableCell>
                                             <TableCell className="text-center">{student.number}</TableCell>
-                                            <TableCell>{student.name}</TableCell>
-                                            <TableCell className="text-right text-muted-foreground text-sm">연동됨</TableCell>
+                                            <TableCell className="font-medium">{student.name}</TableCell>
+                                            <TableCell className="text-center">
+                                                <Button variant="ghost" size="icon" onClick={() => deleteStudent(student.id)} className="h-8 w-8 text-red-500 hover:bg-red-50">
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -296,6 +418,18 @@ function StudentsContent() {
                     )}
                 </CardContent>
             </Card>
+
+            <footer className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground space-y-2">
+                <p>만든 사람: 경기도 지구과학 교사 뀨짱</p>
+                <div className="flex justify-center gap-4">
+                    <a href="https://open.kakao.com/o/s7hVU65h" target="_blank" rel="noopener noreferrer" className="hover:text-primary underline transition-colors">
+                        문의: 카카오톡 오픈채팅
+                    </a>
+                    <a href="https://eduarchive.tistory.com/" target="_blank" rel="noopener noreferrer" className="hover:text-primary underline transition-colors">
+                        뀨짱쌤의 교육자료 아카이브
+                    </a>
+                </div>
+            </footer>
         </div>
     );
 }

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { collection, query, where, getDocs, limit } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc, serverTimestamp, limit } from "firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -127,16 +127,52 @@ export default function StadiumPage() {
             if (playerEff > 1) logs.push("효과가 굉장했다!");
             if (playerEff < 1) logs.push("효과가 별로인 듯하다...");
 
-            setTimeout(() => {
+            setTimeout(async () => {
+                let battleWinnerId = "";
+                let battleWinnerName = "";
+                let battleLoserId = "";
+                let battleLoserName = "";
+                let winnerPoke = "";
+                let loserPoke = "";
+
                 if (playerPower >= enemyPower) {
                     setWinner("player");
                     logs.push(`${enemy.name}이(가) 쓰러졌다!`);
                     logs.push("당신의 승리!");
+                    battleWinnerId = player.studentId;
+                    battleWinnerName = session?.name || "나";
+                    battleLoserId = enemy.studentId;
+                    battleLoserName = "상대"; // 실제 상대 이름을 가져오려면 스키마 수정 필요하나 일단 이렇게 기록
+                    winnerPoke = player.name;
+                    loserPoke = enemy.name;
                 } else {
                     setWinner("enemy");
                     logs.push(`${player.name}이(가) 지쳤다...`);
                     logs.push("상대의 승리!");
+                    battleWinnerId = enemy.studentId;
+                    battleWinnerName = "상대";
+                    battleLoserId = player.studentId;
+                    battleLoserName = session?.name || "나";
+                    winnerPoke = enemy.name;
+                    loserPoke = player.name;
                 }
+
+                // Firestore에 배틀 로그 저장
+                try {
+                    await addDoc(collection(db, "battle_logs"), {
+                        classId: session?.classId,
+                        winnerId: battleWinnerId,
+                        winnerName: battleWinnerName,
+                        loserId: battleLoserId,
+                        loserName: battleLoserName,
+                        winnerPoke: winnerPoke,
+                        loserPoke: loserPoke,
+                        createdAt: serverTimestamp()
+                    });
+                } catch (e) {
+                    console.error("배틀 로그 저장 실패:", e);
+                }
+
                 setBattleLog(logs);
                 setTimeout(() => setGameState("result"), 1000);
             }, 1000);
@@ -269,6 +305,18 @@ export default function StadiumPage() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <footer className="mt-12 pt-8 border-t text-center text-sm text-neutral-400 space-y-2">
+                <p>만든 사람: 경기도 지구과학 교사 뀨짱</p>
+                <div className="flex justify-center gap-4">
+                    <a href="https://open.kakao.com/o/s7hVU65h" target="_blank" rel="noopener noreferrer" className="hover:text-primary underline transition-colors">
+                        문의: 카카오톡 오픈채팅
+                    </a>
+                    <a href="https://eduarchive.tistory.com/" target="_blank" rel="noopener noreferrer" className="hover:text-primary underline transition-colors">
+                        뀨짱쌤의 교육자료 아카이브
+                    </a>
+                </div>
+            </footer>
         </div>
     );
 }

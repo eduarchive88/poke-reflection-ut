@@ -8,8 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { ChevronLeft, Download, Calendar, CheckCircle2, XCircle, Gift, Info } from "lucide-react";
+import { ChevronLeft, Download, Calendar, CheckCircle2, XCircle, Gift, Info, Search, Filter, BookOpen } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import * as XLSX from "xlsx";
 
 export const dynamic = 'force-dynamic';
@@ -44,6 +46,13 @@ function StatusContent() {
     const [isRewardDialogOpen, setIsRewardDialogOpen] = useState(false);
     const [isRewarding, setIsRewarding] = useState(false);
 
+    // 필터 및 도감용 상태
+    const [searchStudent, setSearchStudent] = useState("");
+    const [filterDays, setFilterDays] = useState("30"); // 기본 30일
+    const [isPokedexOpen, setIsPokedexOpen] = useState(false);
+    const [studentInventory, setStudentInventory] = useState<any[]>([]);
+    const [loadingInventory, setLoadingInventory] = useState(false);
+
     const LEGENDARY_POKEMON = [
         { id: 150, name: "뮤츠", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/150.png", types: ["psychic"] },
         { id: 151, name: "뮤", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/151.png", types: ["psychic"] },
@@ -56,17 +65,28 @@ function StatusContent() {
             return;
         }
 
-        // 최근 7일 날짜 생성 (오늘 포함)
+        const initialDays = parseInt(filterDays) || 30;
+        updateDates(initialDays);
+        fetchData();
+    }, [classId]);
+
+    const updateDates = (days: number) => {
         const dateList: string[] = [];
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < days; i++) {
             const d = new Date();
             d.setDate(d.getDate() - i);
             dateList.push(d.toISOString().split('T')[0]);
         }
-        setDates(dateList.reverse()); // 오래된 날짜부터
+        setDates(dateList.reverse());
+    };
 
-        fetchData();
-    }, [classId]);
+    useEffect(() => {
+        if (filterDays === "all") {
+            updateDates(100);
+        } else {
+            updateDates(parseInt(filterDays));
+        }
+    }, [filterDays]);
 
     const fetchData = async () => {
         if (!classId) return;
@@ -85,7 +105,7 @@ function StatusContent() {
             studentSnap.forEach(doc => studentList.push({ id: doc.id, ...doc.data() } as StudentData));
             setStudents(studentList.sort((a, b) => a.number - b.number));
 
-            // 3. 성찰 일기 내역 (최근 7일 부근)
+            // 3. 성찰 일기 내역
             const reflectionQ = query(collection(db, "reflections"), where("classId", "==", classId));
             const reflectionSnap = await getDocs(reflectionQ);
             const reflectionList: ReflectionData[] = [];
@@ -107,8 +127,27 @@ function StatusContent() {
         });
     };
 
+    const fetchInventory = async (student: StudentData) => {
+        setSelectedStudent(student);
+        setLoadingInventory(true);
+        setIsPokedexOpen(true);
+        try {
+            const q = query(collection(db, "pokemon_inventory"), where("studentId", "==", student.id));
+            const snap = await getDocs(q);
+            const inv: any[] = [];
+            snap.forEach(doc => inv.push({ id: doc.id, ...doc.data() }));
+            setStudentInventory(inv);
+        } catch (error) {
+            toast.error("도감을 가져오는데 실패했습니다.");
+        } finally {
+            setLoadingInventory(false);
+        }
+    };
+
+    const filteredStudents = students.filter(s => s.name.includes(searchStudent));
+
     const exportToExcel = () => {
-        const data = students.map(s => {
+        const data = filteredStudents.map(s => {
             const row: Record<string, string | number> = { "번호": s.number, "이름": s.name };
             dates.forEach(d => {
                 row[d] = checkReflection(s.id, d) ? "O" : "X";
@@ -134,7 +173,7 @@ function StatusContent() {
                 name: pokeName,
                 image: image,
                 types: types,
-                level: 50, // 전설은 레벨 50부터 시작
+                level: 50,
                 exp: 0,
                 isLegendary: true,
                 givenByTeacher: true,
@@ -159,12 +198,35 @@ function StatusContent() {
                     </Button>
                     <div>
                         <h2 className="text-3xl font-black tracking-tight">{className} 성찰 현황판</h2>
-                        <p className="text-muted-foreground mt-1 text-sm">최근 7일간의 학생별 작성 여부를 확인합니다.</p>
+                        <p className="text-muted-foreground mt-1 text-sm">학생들의 성찰 기록과 포켓몬 수집 상태를 관리합니다.</p>
                     </div>
                 </div>
-                <Button onClick={exportToExcel} className="gap-2 bg-green-600 hover:bg-green-700">
-                    <Download className="h-4 w-4" /> 엑셀 다운로드
-                </Button>
+                <div className="flex gap-2">
+                    <div className="flex items-center gap-2 bg-secondary/20 px-3 py-1 rounded-lg border">
+                        <Search className="h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="학생 이름 검색..."
+                            className="border-none bg-transparent h-8 w-40 focus-visible:ring-0"
+                            value={searchStudent}
+                            onChange={(e) => setSearchStudent(e.target.value)}
+                        />
+                    </div>
+                    <Select value={filterDays} onValueChange={setFilterDays}>
+                        <SelectTrigger className="w-[120px] h-10">
+                            <Filter className="h-4 w-4 mr-2" />
+                            <SelectValue placeholder="기간 선택" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="7">최근 7일</SelectItem>
+                            <SelectItem value="14">최근 14일</SelectItem>
+                            <SelectItem value="30">최근 30일</SelectItem>
+                            <SelectItem value="100">최근 100일</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Button onClick={exportToExcel} className="gap-2 bg-green-600 hover:bg-green-700">
+                        <Download className="h-4 w-4" /> 엑셀 다운로드
+                    </Button>
+                </div>
             </div>
 
             <Card className="overflow-hidden border-2">
@@ -197,23 +259,35 @@ function StatusContent() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {students.map((student) => (
+                                {filteredStudents.map((student) => (
                                     <TableRow key={student.id} className="hover:bg-secondary/5">
                                         <TableCell className="text-center font-medium">{student.number}</TableCell>
                                         <TableCell className="font-bold">
-                                            <div className="flex items-center gap-2">
-                                                {student.name}
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-6 w-6 text-primary hover:text-primary hover:bg-primary/10"
-                                                    onClick={() => {
-                                                        setSelectedStudent(student);
-                                                        setIsRewardDialogOpen(true);
-                                                    }}
-                                                >
-                                                    <Gift className="h-4 w-4" />
-                                                </Button>
+                                            <div className="flex justify-between items-center group/btn">
+                                                <span>{student.name}</span>
+                                                <div className="flex gap-1">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-blue-500 hover:bg-blue-50"
+                                                        title="도감 보기"
+                                                        onClick={() => fetchInventory(student)}
+                                                    >
+                                                        <BookOpen className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-primary hover:bg-primary/10"
+                                                        title="전설 지급"
+                                                        onClick={() => {
+                                                            setSelectedStudent(student);
+                                                            setIsRewardDialogOpen(true);
+                                                        }}
+                                                    >
+                                                        <Gift className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
                                             </div>
                                         </TableCell>
                                         {dates.map(date => {
@@ -260,6 +334,54 @@ function StatusContent() {
                     </div>
                 </DialogContent>
             </Dialog>
+
+            <Dialog open={isPokedexOpen} onOpenChange={setIsPokedexOpen}>
+                <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-black text-primary flex items-center gap-2">
+                            <BookOpen className="h-6 w-6" />
+                            {selectedStudent?.name} 학생의 포켓몬 도감
+                        </DialogTitle>
+                        <DialogDescription>
+                            현재까지 수집한 포켓몬 목록입니다. (총 {studentInventory.length}마리)
+                        </DialogDescription>
+                    </DialogHeader>
+                    {loadingInventory ? (
+                        <div className="py-20 text-center animate-pulse text-muted-foreground font-bold">도감을 가져오는 중...</div>
+                    ) : studentInventory.length === 0 ? (
+                        <div className="py-20 text-center text-muted-foreground border-dashed border-2 rounded-xl">
+                            아직 수집한 포켓몬이 없습니다.
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 py-4">
+                            {studentInventory.map((item) => (
+                                <Card key={item.id} className="relative overflow-hidden group hover:border-primary transition-all">
+                                    <div className={`absolute top-0 right-0 p-1 text-[10px] font-bold ${item.isLegendary ? 'bg-yellow-400 text-black' : 'bg-secondary text-muted-foreground'}`}>
+                                        {item.isLegendary ? "LEGEND" : `#${item.pokemonId}`}
+                                    </div>
+                                    <CardContent className="p-3 text-center">
+                                        <img src={item.image} alt={item.name} className="w-16 h-16 mx-auto group-hover:scale-110 transition-transform" />
+                                        <p className="font-bold mt-2 text-sm capitalize">{item.name}</p>
+                                        <p className="text-[10px] text-muted-foreground">Lv.{item.level}</p>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
+
+            <footer className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground space-y-2">
+                <p>만든 사람: 경기도 지구과학 교사 뀨짱</p>
+                <div className="flex justify-center gap-4">
+                    <a href="https://open.kakao.com/o/s7hVU65h" target="_blank" rel="noopener noreferrer" className="hover:text-primary underline transition-colors">
+                        문의: 카카오톡 오픈채팅
+                    </a>
+                    <a href="https://eduarchive.tistory.com/" target="_blank" rel="noopener noreferrer" className="hover:text-primary underline transition-colors">
+                        뀨짱쌤의 교육자료 아카이브
+                    </a>
+                </div>
+            </footer>
         </div>
     );
 }
