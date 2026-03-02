@@ -128,22 +128,22 @@ export default function DashboardPage() {
         <div className="space-y-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                 <div className="space-y-1">
-                    <h2 className="text-4xl font-black tracking-tighter gold-gradient-text">학급 관리</h2>
-                    <p className="text-slate-400 font-medium tracking-tight">
+                    <h2 className="text-4xl font-black tracking-tighter pokemon-gradient-text">학급 관리</h2>
+                    <p className="text-slate-400 font-bold tracking-tight">
                         선생님의 학급 및 접속 세션 코드를 관리하세요.
                     </p>
                 </div>
 
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-8 h-12 rounded-2xl shadow-lg shadow-amber-500/20 transition-all hover:scale-105 active:scale-95">
+                        <Button className="bg-[#ff0000] hover:bg-[#cc0000] text-white font-black px-8 h-12 rounded-2xl shadow-lg shadow-[#ff0000]/20 transition-all hover:scale-105 active:scale-95 border-2 border-[#3b4cca]">
                             새 학급 생성
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px] bg-slate-900 border-slate-800 rounded-3xl">
+                    <DialogContent className="sm:max-w-[425px] bg-[#001233] border-2 border-[#3b4cca]/40 rounded-3xl">
                         <DialogHeader>
-                            <DialogTitle className="text-2xl font-bold gold-gradient-text uppercase">새 학급 생성</DialogTitle>
-                            <DialogDescription className="text-slate-400">
+                            <DialogTitle className="text-2xl font-black pokemon-gradient-text uppercase italic">새 학급 생성</DialogTitle>
+                            <DialogDescription className="text-slate-400 font-bold">
                                 학급 이름을 입력하세요. 접속용 세션 코드가 자동으로 발급됩니다.
                             </DialogDescription>
                         </DialogHeader>
@@ -155,14 +155,14 @@ export default function DashboardPage() {
                                         id="name"
                                         value={newClassName}
                                         onChange={(e) => setNewClassName(e.target.value)}
-                                        className="bg-slate-800/50 border-slate-700 h-12 rounded-xl focus:ring-amber-500"
+                                        className="bg-[#0a285f]/50 border-[#3b4cca]/50 h-12 rounded-xl focus:ring-[#ffde00]"
                                         placeholder="예: 3학년 2반"
                                         autoComplete="off"
                                     />
                                 </div>
                             </div>
                             <DialogFooter>
-                                <Button type="submit" className="w-full h-12 bg-amber-500 text-slate-950 font-bold rounded-xl">생성하기</Button>
+                                <Button type="submit" className="w-full h-12 bg-[#ffde00] text-[#3b4cca] font-black rounded-xl hover:bg-[#ffcb05]">생성하기</Button>
                             </DialogFooter>
                         </form>
                     </DialogContent>
@@ -186,13 +186,13 @@ export default function DashboardPage() {
                     {classes.map((cls) => (
                         <Card key={cls.id} className="premium-card relative group overflow-hidden flex flex-col h-full rounded-3xl">
                             {/* Card Accent Glow */}
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl group-hover:bg-amber-500/10 transition-all duration-500"></div>
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-[#ffde00]/5 rounded-full blur-3xl group-hover:bg-[#ffde00]/10 transition-all duration-500"></div>
 
                             <CardHeader className="pb-4 relative z-10">
                                 <div className="flex justify-between items-start">
                                     <div className="space-y-1">
                                         <CardTitle className="text-2xl font-black text-slate-100 tracking-tight">{cls.className}</CardTitle>
-                                        <CardDescription className="text-amber-500/70 font-bold text-xs uppercase tracking-widest">Adventure Stage</CardDescription>
+                                        <CardDescription className="text-[#ffde00]/70 font-bold text-xs uppercase tracking-widest">Adventure Stage</CardDescription>
                                     </div>
                                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
                                         <Button
@@ -220,19 +220,19 @@ export default function DashboardPage() {
                                 </div>
                             </CardHeader>
                             <CardContent className="flex-1 flex flex-col justify-between relative z-10 space-y-6">
-                                <div className="bg-slate-950/40 border border-slate-800/50 rounded-2xl p-5 group/code transition-all hover:border-amber-500/20">
+                                <div className="bg-[#0a285f]/40 border-2 border-[#3b4cca]/30 rounded-2xl p-5 group/code transition-all hover:border-[#ffde00]/30 shadow-inner">
                                     <p className="text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-widest text-center">학생 접속 세션 코드</p>
                                     <div className="flex items-center justify-center gap-3">
-                                        <p className="text-2xl font-black font-mono tracking-[0.2em] text-amber-500 select-all">
+                                        <p className="text-2xl font-black font-mono tracking-[0.2em] text-[#ffde00] select-all drop-shadow-[0_0_5px_rgba(255,222,0,0.3)]">
                                             {cls.sessionCode}
                                         </p>
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="h-10 w-10 bg-slate-900/50 group-hover/code:bg-amber-500/10 rounded-xl transition-all"
+                                            className="h-10 w-10 bg-[#001233]/50 group-hover/code:bg-[#ffde00]/10 rounded-xl transition-all"
                                             onClick={() => copyToClipboard(cls.sessionCode, cls.id)}
                                         >
-                                            {copiedId === cls.id ? <Check className="h-5 w-5 text-emerald-500" /> : <Copy className="h-5 w-5 text-slate-400 transition-colors group-hover/code:text-amber-400" />}
+                                            {copiedId === cls.id ? <Check className="h-5 w-5 text-[#ffde00]" /> : <Copy className="h-5 w-5 text-slate-400 transition-colors group-hover/code:text-[#ffde00]" />}
                                         </Button>
                                     </div>
                                 </div>
@@ -241,14 +241,14 @@ export default function DashboardPage() {
                                     <div className="grid grid-cols-2 gap-3">
                                         <Button
                                             variant="ghost"
-                                            className="h-12 bg-slate-800/40 hover:bg-slate-800/60 text-slate-200 font-bold rounded-2xl border border-slate-800/50"
+                                            className="h-12 bg-[#0a285f]/40 hover:bg-[#3b4cca]/20 text-slate-200 font-bold rounded-2xl border-2 border-[#3b4cca]/20"
                                             onClick={() => router.push(`/dashboard/students?classId=${cls.id}`)}
                                         >
                                             학생 명렬표
                                         </Button>
                                         <Button
                                             variant="ghost"
-                                            className="h-12 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 font-bold rounded-2xl border border-amber-500/20"
+                                            className="h-12 bg-[#ffde00]/10 hover:bg-[#ffde00]/20 text-[#ffde00] font-bold rounded-2xl border-2 border-[#ffde00]/20"
                                             onClick={() => router.push(`/dashboard/status?classId=${cls.id}`)}
                                         >
                                             성찰 현황판
@@ -256,7 +256,7 @@ export default function DashboardPage() {
                                     </div>
                                     <Button
                                         variant="ghost"
-                                        className="w-full h-12 bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-500 font-bold rounded-2xl border border-emerald-500/10"
+                                        className="w-full h-12 bg-[#ff0000]/5 hover:bg-[#ff0000]/10 text-[#ff0000] font-bold rounded-2xl border-2 border-[#ff0000]/10"
                                         onClick={() => router.push(`/dashboard/logs?classId=${cls.id}`)}
                                     >
                                         통합 로그 리포트 (Excel)

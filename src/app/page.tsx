@@ -8,7 +8,8 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[75vh] text-center space-y-12 relative overflow-hidden">
       {/* Background Decorative Elements */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-amber-500/5 rounded-full blur-[120px] -z-10 animate-pulse"></div>
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#3b4cca]/10 rounded-full blur-[120px] -z-10 animate-pulse"></div>
+      <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-[#ffde00]/5 rounded-full blur-[100px] -z-10 animate-pulse"></div>
 
       <div className="space-y-6 max-w-4xl px-4">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/40 border border-slate-700/50 backdrop-blur-xl mb-4 animate-bounce">
@@ -16,9 +17,9 @@ export default function Home() {
           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">The Ultimate Experience</span>
         </div>
 
-        <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-tight">
-          <span className="text-slate-100">Poke-Reflection</span><br />
-          <span className="gold-gradient-text">Ultimate Edition</span>
+        <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-tight drop-shadow-2xl">
+          <span className="text-white">Poke-Reflection</span><br />
+          <span className="pokemon-gradient-text italic">Ultimate Edition</span>
         </h1>
 
         <p className="text-lg md:text-2xl text-slate-400 font-medium max-w-2xl mx-auto leading-relaxed tracking-tight">
@@ -27,11 +28,11 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-6 pt-4 w-full max-w-md px-6">
+      <div className="flex flex-col sm:flex-row gap-6 pt-4 w-full max-w-sm px-6">
         <Link href="/login" className="flex-1">
-          <Button size="lg" className="h-16 w-full text-xl font-black rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xl shadow-amber-500/20 transition-all hover:scale-105 active:scale-95 group">
+          <Button size="lg" className="pokeball-button h-20 w-full text-2xl shadow-[0_10px_30px_rgba(255,0,0,0.4)]">
             로그인하여 시작하기
-            <ArrowRight className="ml-2 h-6 w-6 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="ml-3 h-8 w-8 group-hover:translate-x-1 transition-transform" />
           </Button>
         </Link>
       </div>

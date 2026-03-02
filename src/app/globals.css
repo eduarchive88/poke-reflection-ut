@@ -84,39 +84,38 @@
 }
 
 .dark {
-  --background: #020617;
-  /* slate-950 */
+  --background: #001233;
+  /* Dark Navy Blue base */
   --foreground: #f8fafc;
-  /* slate-50 */
-  --card: rgba(15, 23, 42, 0.6);
-  /* slate-900 with transparency */
+  --card: rgba(0, 20, 50, 0.7);
   --card-foreground: #f8fafc;
-  --popover: #0f172a;
+  --popover: #001233;
   --popover-foreground: #f8fafc;
-  --primary: #f59e0b;
-  /* amber-500 (Gold) */
-  --primary-foreground: #020617;
-  --secondary: #1e293b;
-  /* slate-800 */
-  --secondary-foreground: #f8fafc;
-  --muted: #1e293b;
+  --primary: #ffde00;
+  /* Pokemon Yellow */
+  --primary-foreground: #3b4cca;
+  /* Pokemon Blue */
+  --secondary: #3b4cca;
+  /* Pokemon Blue */
+  --secondary-foreground: #ffffff;
+  --muted: #0a285f;
   --muted-foreground: #94a3b8;
-  /* slate-400 */
-  --accent: #1e293b;
-  --accent-foreground: #f8fafc;
-  --destructive: #ef4444;
-  --border: rgba(51, 65, 85, 0.4);
-  /* slate-700 with transparency */
-  --input: rgba(51, 65, 85, 0.4);
-  --ring: #f59e0b;
-  --sidebar: #020617;
+  --accent: #ff0000;
+  /* Pokeball Red */
+  --accent-foreground: #ffffff;
+  --destructive: #ff0000;
+  --border: rgba(59, 76, 202, 0.4);
+  /* Blue border */
+  --input: rgba(59, 76, 202, 0.4);
+  --ring: #ffde00;
+  --sidebar: #001233;
   --sidebar-foreground: #f8fafc;
-  --sidebar-primary: #f59e0b;
-  --sidebar-primary-foreground: #020617;
-  --sidebar-accent: #1e293b;
-  --sidebar-accent-foreground: #f8fafc;
-  --sidebar-border: #1e293b;
-  --sidebar-ring: #f59e0b;
+  --sidebar-primary: #ffde00;
+  --sidebar-primary-foreground: #3b4cca;
+  --sidebar-accent: #3b4cca;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #0a285f;
+  --sidebar-ring: #ffde00;
 }
 
 @layer base {

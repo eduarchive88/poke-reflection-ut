@@ -237,7 +237,7 @@ function StudentsContent() {
                 const gradeVal = findValue(["학년", "grade", "gr", "year"]);
                 const classVal = findValue(["반", "class", "classnum", "cl"]);
                 const numberVal = findValue(["번호", "number", "no", "num"]);
-                const nameVal = findValue(["이름", "name", "nm"]);
+                const nameVal = findValue(["성명", "이름", "name", "nm"]);
 
                 const grade = parseInt(String(gradeVal || 0));
                 const classNum = parseInt(String(classVal || 0));
