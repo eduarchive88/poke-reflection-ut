@@ -1,6 +1,8 @@
-// This file handles Firebase initialization with strict build-time safety for Vercel.
+// This file handles Firebase initialization.
 
-const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build' || (typeof process !== 'undefined' && process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_FIREBASE_API_KEY);
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyDummyKey_1234567890abcdefghijklm",
@@ -12,32 +14,9 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Define Mocks
-const noop = () => { };
-const asyncNoop = () => Promise.resolve({});
-const mockAuth = new Proxy({}, { get: (t, p) => p === 'onAuthStateChanged' ? () => noop : asyncNoop });
-const mockDb = new Proxy({}, { get: (t, p) => () => mockDb });
-
-let app: any;
-let auth: any = mockAuth;
-let db: any = mockDb;
-
-if (!isBuildPhase) {
-  try {
-    // Only import and initialize at runtime
-    const { initializeApp, getApps } = require("firebase/app");
-    const { getAuth } = require("firebase/auth");
-    const { getFirestore } = require("firebase/firestore");
-
-    app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-  } catch (e) {
-    console.error("[Firebase] Runtime initialization failed:", e);
-  }
-} else {
-  console.log("[Firebase] 🛡️ Build-time Mocking enabled.");
-  app = { options: {} };
-}
+// Initialize Firebase
+const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 export { app, auth, db };
