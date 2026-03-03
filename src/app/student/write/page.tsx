@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Loader2, Star, Info, PenTool, ChevronLeft } from "lucide-react";
+import { PokemonImage } from "@/components/PokemonImage";
 
 export const dynamic = 'force-dynamic';
 
@@ -225,10 +226,10 @@ export default function WritePage() {
                             <CardContent className="flex flex-col items-center py-8">
                                 <div className="relative group">
                                     <div className="absolute inset-0 bg-primary/20 rounded-full blur-3xl group-hover:bg-primary/30 transition-all duration-500"></div>
-                                    <img
-                                        src={rewardPokemon.image}
-                                        alt={rewardPokemon.name}
-                                        className="w-48 h-48 relative z-10 drop-shadow-xl animate-bounce"
+                                    <PokemonImage
+                                        id={rewardPokemon.id}
+                                        name={rewardPokemon.name}
+                                        className="w-48 h-48 relative z-10 animate-bounce"
                                     />
                                 </div>
                                 <h3 className="text-3xl font-bold mt-4 capitalize">{rewardPokemon.name}</h3>

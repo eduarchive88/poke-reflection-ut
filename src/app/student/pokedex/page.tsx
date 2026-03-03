@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { toast } from "sonner";
 import { Sparkles, Trophy, ChevronRight, Info, Zap, Shield, Heart, ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
+import { PokemonImage } from "@/components/PokemonImage";
 
 export const dynamic = 'force-dynamic';
 
@@ -240,15 +241,10 @@ export default function PokedexPage() {
                                 >
                                     <div className="relative w-32 h-32 flex items-center justify-center">
                                         <div className="absolute inset-0 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
-                                        <img
-                                            src={poke.image}
-                                            alt={poke.name}
-                                            className="w-full h-full object-contain relative z-10 drop-shadow-md group-hover:scale-110 transition-transform duration-300"
-                                            onError={(e) => {
-                                                const target = e.target as HTMLImageElement;
-                                                target.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
-                                                target.className = "w-16 h-16 opacity-50 grayscale";
-                                            }}
+                                        <PokemonImage
+                                            id={poke.pokemonId}
+                                            name={poke.koName || poke.name}
+                                            className="w-full h-full relative z-10 group-hover:scale-110 transition-transform duration-300"
                                         />
                                     </div>
                                     <div className="flex gap-2 mt-4">
@@ -295,16 +291,15 @@ export default function PokedexPage() {
                                 <div className="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full text-xs font-bold italic">
                                     Lv.{selectedPokemon.level}
                                 </div>
-                                <img
-                                    src={selectedPokemon.image}
-                                    alt={selectedPokemon.name}
-                                    className="w-48 h-48 object-contain drop-shadow-2xl animate-pulse"
-                                    onError={(e) => {
-                                        const target = e.target as HTMLImageElement;
-                                        target.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
-                                        target.className = "w-24 h-24 opacity-50 grayscale";
-                                    }}
-                                />
+                                <div className="flex flex-col items-center gap-6 py-6">
+                                    <div className="relative w-48 h-48 bg-primary/5 rounded-full flex items-center justify-center border-2 border-primary/20">
+                                        <PokemonImage
+                                            id={selectedPokemon.pokemonId}
+                                            name={selectedPokemon.koName || selectedPokemon.name}
+                                            className="w-40 h-40"
+                                        />
+                                    </div>
+                                </div>
                                 <h3 className="text-3xl font-black mt-4">{selectedPokemon.koName || selectedPokemon.name}</h3>
                                 <div className="flex gap-2 mt-2">
                                     {selectedPokemon.types.map(type => (

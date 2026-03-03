@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Users, Swords, User, Shield, Zap, Heart, RefreshCcw, Send, Check, X, Timer, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { PokemonImage } from "@/components/PokemonImage";
 
 interface Student {
     id: string;

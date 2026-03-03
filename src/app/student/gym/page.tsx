@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Trophy, Swords, Shield, Heart, Zap, RefreshCcw, User, Crown, Info, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { PokemonImage } from "@/components/PokemonImage";
 
 // 상성 데이터 (lib/stadium 등의 로직과 동기화 필요 시 유틸리티화 권장)
 const TYPE_CHART: Record<string, Record<string, number>> = {
@@ -49,6 +50,7 @@ const getEffectiveness = (moveTypes: string[], targetTypes: string[]) => {
 interface PokemonData {
     id: string;
     studentId: string;
+    pokemonId: number;
     name: string;
     koName?: string;
     image: string;
@@ -361,7 +363,11 @@ export default function GymPage() {
                                                     transition={{ repeat: Infinity, duration: 4 }}
                                                     className="absolute inset-0 bg-yellow-400/30 rounded-full blur-3xl"
                                                 ></motion.div>
-                                                <img src={gym.pokemon?.image} className="w-56 h-56 object-contain relative z-10 drop-shadow-[0_20px_40px_rgba(0,0,0,0.3)]" alt="master-poke" />
+                                                <PokemonImage
+                                                    id={gym.pokemon?.pokemonId || 0}
+                                                    name={gym.pokemon?.koName || gym.pokemon?.name}
+                                                    className="w-56 h-56 relative z-10"
+                                                />
                                             </div>
                                             <p className="text-xl font-black text-muted-foreground capitalize">{gym.pokemon?.koName || gym.pokemon?.name} <span className="text-sm">Lv.{gym.pokemon?.level}</span></p>
 
@@ -391,8 +397,19 @@ export default function GymPage() {
                                     )}
                                 </CardContent>
                                 <CardFooter className="flex justify-center p-10 mt-4">
-                                    <Button size="lg" className="rounded-full w-full max-w-sm font-black text-xl gap-3 h-16 shadow-xl hover:scale-105 transition-transform bg-yellow-500 hover:bg-yellow-600 border-none text-yellow-950" onClick={() => setGameState("select")}>
-                                        <Swords className="h-7 w-7" /> 도전하기
+                                    <Button
+                                        size="lg"
+                                        className="rounded-full w-full max-w-sm font-black text-xl gap-3 h-16 shadow-xl hover:scale-105 transition-transform bg-yellow-500 hover:bg-yellow-600 border-none text-yellow-950"
+                                        onClick={() => {
+                                            console.log("Challenge button clicked, myPokemon count:", myPokemon.length);
+                                            if (myPokemon.length === 0) {
+                                                toast.error("대결 가능한 포켓몬이 없습니다. 도감에서 레벨업을 먼저 해주세요!");
+                                            }
+                                            setGameState("select");
+                                        }}
+                                        disabled={loading}
+                                    >
+                                        <Swords className="h-7 w-7" /> {loading ? "로딩 중..." : "도전하기"}
                                     </Button>
                                 </CardFooter>
                             </Card>
