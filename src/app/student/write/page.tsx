@@ -111,7 +111,10 @@ export default function WritePage() {
                 id: randomPokeId,
                 name: pokeData.name,
                 koName: koName,
-                image: pokeData.sprites.other["official-artwork"].front_default || pokeData.sprites.front_default,
+                image: pokeData.sprites.other["official-artwork"]?.front_default ||
+                    pokeData.sprites.other["home"]?.front_default ||
+                    pokeData.sprites.other["dream_world"]?.front_default ||
+                    pokeData.sprites.front_default,
                 types: types
             };
 

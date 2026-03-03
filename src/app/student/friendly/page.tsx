@@ -257,10 +257,14 @@ export default function FriendlyMatchPage() {
             const unsubscribe = onSnapshot(doc(db, "battle_requests", reqId), (snapshot) => {
                 const data = snapshot.data();
                 if (data?.fromPokes && data?.toPokes) {
-                    setOpponentTeam(activeRequest ? data.toPokes : data.fromPokes);
+                    const myTeamData = activeRequest ? data.fromPokes : data.toPokes;
+                    const opponentTeamData = activeRequest ? data.toPokes : data.fromPokes;
+
+                    setSelectedTeam(myTeamData);
+                    setOpponentTeam(opponentTeamData);
                     setGameState("battle");
                     unsubscribe();
-                    run3v3Battle(selectedTeam, activeRequest ? data.toPokes : data.fromPokes);
+                    run3v3Battle(myTeamData, opponentTeamData);
                 }
             });
         } catch (e) {

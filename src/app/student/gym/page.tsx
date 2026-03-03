@@ -290,7 +290,7 @@ export default function GymPage() {
         try {
             const newGymData = {
                 leaderId: session.studentId,
-                leaderName: session.studentInfo.name,
+                leaderName: session.name || session.studentInfo?.name || "익명 학생",
                 pokemon: player,
                 occupiedAt: serverTimestamp(),
                 lastRewardAt: serverTimestamp()
@@ -392,7 +392,7 @@ export default function GymPage() {
                                 </CardContent>
                                 <CardFooter className="flex justify-center p-10 mt-4">
                                     <Button size="lg" className="rounded-full w-full max-w-sm font-black text-xl gap-3 h-16 shadow-xl hover:scale-105 transition-transform bg-yellow-500 hover:bg-yellow-600 border-none text-yellow-950" onClick={() => setGameState("select")}>
-                                        <Swords className="h-7 w-7" /> 도 전자 도 전 !
+                                        <Swords className="h-7 w-7" /> 도전하기
                                     </Button>
                                 </CardFooter>
                             </Card>
