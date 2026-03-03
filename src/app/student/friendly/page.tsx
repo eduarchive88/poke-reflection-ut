@@ -142,9 +142,19 @@ export default function FriendlyMatchPage() {
                 const data = { id: change.doc.id, ...change.doc.data() } as BattleRequest;
                 if (change.type === "added" || change.type === "modified") {
                     setActiveRequest(data);
-                    if (data.status === "accepted") {
-                        toast.success("상대방이 대결을 수락했습니다!");
-                        setGameState("select");
+                    if (data.status === "accepted" || data.status === "battling") {
+                        if (data.status === "accepted") toast.success("상대방이 대결을 수락했습니다!");
+                        if (gameState === "lobby") setGameState("select");
+
+                        // 이미 배틀 중이면(데이터 존재 시) 바로 시작
+                        if (data.fromPokes && data.toPokes && gameState !== "battle") {
+                            const myTeamData = data.fromId === studentId ? data.fromPokes : data.toPokes;
+                            const oppTeamData = data.fromId === studentId ? data.toPokes : data.fromPokes;
+                            setSelectedTeam(myTeamData);
+                            setOpponentTeam(oppTeamData);
+                            setGameState("battle");
+                            run3v3Battle(myTeamData, oppTeamData);
+                        }
                     } else if (data.status === "declined") {
                         toast.error("상대방이 대결을 거절했습니다.");
                         deleteDoc(doc(db, "battle_requests", data.id));
@@ -256,7 +266,15 @@ export default function FriendlyMatchPage() {
 
             const unsubscribe = onSnapshot(doc(db, "battle_requests", reqId), (snapshot) => {
                 const data = snapshot.data();
-                if (data?.fromPokes && data?.toPokes) {
+                if (!data) return;
+
+                // 둘 다 선택 완료되었는지 확인
+                if (data.fromPokes && data.toPokes) {
+                    // 상태가 이미 'battling'이 아니라면 한쪽(먼저 감지한 쪽)이 업데이트
+                    if (data.status !== 'battling') {
+                        updateDoc(doc(db, "battle_requests", reqId), { status: 'battling' }).catch(() => { });
+                    }
+
                     const myTeamData = activeRequest ? data.fromPokes : data.toPokes;
                     const opponentTeamData = activeRequest ? data.toPokes : data.fromPokes;
 

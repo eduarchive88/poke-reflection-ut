@@ -295,7 +295,7 @@ export default function GymPage() {
                 occupiedAt: serverTimestamp(),
                 lastRewardAt: serverTimestamp()
             };
-            await updateDoc(doc(db, "gyms", session.classId), newGymData);
+            await setDoc(doc(db, "gyms", session.classId), newGymData);
             setGym(newGymData as any);
             toast.success("체육관을 점령했습니다! '포켓몬 마스터'가 되신 것을 축하합니다!");
         } catch (e) {
