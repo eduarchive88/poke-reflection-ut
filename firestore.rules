@@ -41,5 +41,10 @@ service cloud.firestore {
     match /battle_requests/{requestId} {
       allow read, write, delete: if true;
     }
+
+    // 배틀 로그(Battle Logs) 컬렉션:
+    match /battle_logs/{logId} {
+      allow read, create: if true;
+    }
   }
 }

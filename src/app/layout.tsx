@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Footer } from "@/components/shared/footer";
 import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
@@ -28,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-background text-foreground`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background text-foreground`}
       >
         <ThemeProvider
           attribute="class"
@@ -36,10 +35,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 md:px-8 pt-8">
-            {children}
-          </main>
-          <Footer />
+          {children}
           <Toaster />
         </ThemeProvider>
       </body>

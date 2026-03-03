@@ -48,18 +48,18 @@
 }
 
 :root {
-  --radius: 1rem;
-  --background: #fdfdfd;
-  --foreground: #1a1a2e;
-  --card: #ffffff;
-  --card-foreground: #1a1a2e;
+  --radius: 1.25rem;
+  --background: #f8fafc;
+  --foreground: #1e293b;
+  --card: rgba(255, 255, 255, 0.85);
+  --card-foreground: #1e293b;
   --popover: #ffffff;
-  --popover-foreground: #1a1a2e;
+  --popover-foreground: #1e293b;
   --primary: #3b4cca;
   /* Pokemon Blue */
   --primary-foreground: #ffffff;
-  --secondary: #ffde00;
-  /* Pokemon Yellow */
+  --secondary: #ffcb05;
+  /* Pokemon Yellow - Adjusted to a more standard yellow */
   --secondary-foreground: #3b4cca;
   --muted: #f1f5f9;
   --muted-foreground: #64748b;
@@ -70,48 +70,47 @@
   --border: #e2e8f0;
   --input: #e2e8f0;
   --ring: #3b4cca;
-  --sidebar: #fdfdfd;
-  --sidebar-foreground: #1a1a2e;
+  --sidebar: #f8fafc;
+  --sidebar-foreground: #1e293b;
   --sidebar-primary: #3b4cca;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #ffde00;
+  --sidebar-accent: #ffcb05;
   --sidebar-accent-foreground: #3b4cca;
   --sidebar-border: #e2e8f0;
   --sidebar-ring: #3b4cca;
 }
 
 .dark {
-  --background: #001233;
-  /* Deep Dark Navy */
+  --background: #000c1f;
+  /* Deep Midnight Blue */
   --foreground: #f8fafc;
-  --card: rgba(0, 20, 50, 0.85);
+  --card: rgba(0, 18, 51, 0.7);
   --card-foreground: #f8fafc;
-  --popover: #001233;
+  --popover: #000c1f;
   --popover-foreground: #f8fafc;
-  --primary: #ffde00;
-  /* Pokemon Yellow */
+  --primary: #ffcb05;
+  /* Pokemon Yellow for dark mode accent */
   --primary-foreground: #3b4cca;
-  /* Pokemon Blue */
   --secondary: #3b4cca;
   /* Pokemon Blue */
   --secondary-foreground: #ffffff;
   --muted: #0a285f;
   --muted-foreground: #94a3b8;
-  --accent: #ff0000;
-  /* Pokeball Red */
+  --accent: #ff3e3e;
+  /* Brighter Red for dark mode */
   --accent-foreground: #ffffff;
   --destructive: #ff4444;
-  --border: rgba(59, 76, 202, 0.4);
-  --input: rgba(59, 76, 202, 0.4);
-  --ring: #ffde00;
-  --sidebar: #001233;
+  --border: rgba(59, 76, 202, 0.3);
+  --input: rgba(59, 76, 202, 0.3);
+  --ring: #ffcb05;
+  --sidebar: #000c1f;
   --sidebar-foreground: #f8fafc;
-  --sidebar-primary: #ffde00;
+  --sidebar-primary: #ffcb05;
   --sidebar-primary-foreground: #3b4cca;
   --sidebar-accent: #3b4cca;
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #0a285f;
-  --sidebar-ring: #ffde00;
+  --sidebar-ring: #ffcb05;
 }
 
 @layer base {
@@ -122,8 +121,8 @@
   body {
     @apply bg-background text-foreground transition-colors duration-300 relative min-h-screen overflow-x-hidden;
     background-image:
-      radial-gradient(circle at 10% 20%, rgba(59, 76, 202, 0.03) 0%, transparent 40%),
-      radial-gradient(circle at 90% 80%, rgba(255, 222, 0, 0.05) 0%, transparent 40%);
+      radial-gradient(circle at 10% 20%, rgba(59, 76, 202, 0.05) 0%, transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(255, 222, 0, 0.07) 0%, transparent 40%);
   }
 
   body::before {
@@ -136,33 +135,54 @@
 
 @layer components {
   .glass {
-    @apply bg-[#001233]/60 backdrop-blur-xl border-2 border-[#3b4cca]/30 rounded-[2.5rem];
-    box-shadow: 0 8px 32px rgba(59, 76, 202, 0.3);
+    @apply bg-background/60 backdrop-blur-xl border border-border/50 rounded-[2.5rem];
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
   }
 
   .premium-card {
-    @apply bg-[#001233]/80 backdrop-blur-md border-4 border-[#3b4cca]/40 rounded-[3rem] hover:border-[#ffde00]/60 transition-all duration-500 relative overflow-hidden;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    @apply bg-card backdrop-blur-md border border-border rounded-[2.5rem] hover:border-primary/50 transition-all duration-500 relative overflow-hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+  }
+
+  .dark .premium-card {
+    @apply bg-card/60 backdrop-blur-2xl border-border/20;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
   }
 
   .pokemon-gradient-text {
-    @apply bg-gradient-to-r from-[#ffde00] via-[#ffcb05] to-[#ffde00] bg-clip-text text-transparent font-black italic;
-    filter: drop-shadow(0 4px 4px rgba(59, 76, 202, 0.6));
+    @apply bg-gradient-to-r from-primary via-blue-500 to-primary dark:from-secondary dark:via-yellow-400 dark:to-secondary bg-clip-text text-transparent font-black italic;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
   }
 
   .pokeball-button {
-    @apply relative overflow-hidden bg-[#ff0000] text-white font-black rounded-full border-[6px] border-[#3b4cca] hover:bg-[#cc0000] active:scale-90 transition-all;
-    box-shadow: 0 10px 20px rgba(255, 0, 0, 0.3);
+    @apply relative overflow-hidden bg-accent text-accent-foreground font-black rounded-full border-4 border-primary hover:bg-accent/90 active:scale-95 transition-all text-center;
+    box-shadow: 0 8px 20px rgba(255, 0, 0, 0.25);
   }
 
   .pokeball-button:hover {
-    box-shadow: 0 15px 30px rgba(255, 0, 0, 0.5);
+    box-shadow: 0 12px 28px rgba(255, 0, 0, 0.35);
+  }
+
+  .back-button-premium {
+    @apply flex items-center gap-2 px-6 py-3 rounded-2xl bg-muted/50 border border-border hover:bg-background hover:border-primary/30 dark:hover:border-secondary/30 transition-all duration-300 font-bold text-muted-foreground hover:text-foreground;
+
+    & svg {
+      @apply w-5 h-5 transition-transform;
+    }
+
+    &:hover svg {
+      @apply -translate-x-1;
+    }
   }
 
   /* Cute Floating Dots */
   .cute-dots {
-    background-image: radial-gradient(#3b4cca 1px, transparent 1px);
-    background-size: 20px 20px;
-    @apply opacity-20 pointer-events-none;
+    background-image: radial-gradient(var(--primary) 1.5px, transparent 1.5px);
+    background-size: 30px 30px;
+    @apply opacity-[0.05] dark:opacity-[0.1] pointer-events-none absolute inset-0;
+  }
+
+  .stat-card-premium {
+    @apply bg-background/50 backdrop-blur-xl border border-border/50 rounded-3xl p-6 shadow-xl transition-all duration-300 hover:shadow-2xl hover:border-primary/20 dark:hover:border-secondary/20;
   }
 }

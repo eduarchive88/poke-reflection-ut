@@ -58,23 +58,23 @@ export default function TeacherLayout({
     }
 
     return (
-        <div className="min-h-screen bg-[#050b18] text-slate-100 flex flex-col font-sans">
+        <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
             {/* Elegant Teacher Header */}
-            <header className="px-6 py-4 flex justify-between items-center bg-[#0a1128]/80 backdrop-blur-xl border-b border-indigo-500/20 relative z-50 sticky top-0">
+            <header className="px-6 py-4 flex justify-between items-center bg-background/80 backdrop-blur-xl border-b border-border relative z-50 sticky top-0">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(79,70,229,0.3)] border border-indigo-400/30">
+                    <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg border border-indigo-400/30">
                         <Presentation className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-xl font-black text-indigo-100 tracking-tighter italic leading-none">TEACHER</h1>
-                        <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest leading-none mt-1">Management Console</p>
+                        <h1 className="text-xl font-black text-indigo-600 dark:text-indigo-400 tracking-tighter italic leading-none">TEACHER</h1>
+                        <p className="text-[10px] font-bold text-slate-500 dark:text-indigo-400/70 uppercase tracking-widest leading-none mt-1">Management Console</p>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-4">
                     <div className="hidden sm:block text-right mr-2">
                         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Logged in as</p>
-                        <p className="text-sm font-black text-white">{teacherName || user.email?.split("@")[0]} 선생님</p>
+                        <p className="text-sm font-black">{teacherName || user.email?.split("@")[0]} 선생님</p>
                     </div>
                     <Button
                         variant="ghost"
@@ -101,13 +101,13 @@ export default function TeacherLayout({
                 </div>
 
                 {/* Footer */}
-                <footer className="mt-auto py-10 text-center text-[10px] text-slate-500 relative z-10 border-t border-slate-800/30 bg-[#050b18]/50">
+                <footer className="mt-auto py-10 text-center text-[10px] text-slate-500 relative z-10 border-t border-border bg-background/50">
                     <div className="max-w-7xl mx-auto px-6">
-                        <p className="text-slate-400 font-medium">만든 사람: 경기도 지구과학 교사 뀨짱</p>
+                        <p className="text-slate-500 dark:text-slate-400 font-medium">만든 사람: 경기도 지구과학 교사 뀨짱</p>
                         <div className="mt-2 flex items-center justify-center gap-3 text-slate-500">
-                            <a href="https://open.kakao.com/o/s7hVU65h" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-400 transition-colors">카카오톡 오픈채팅</a>
-                            <span className="w-1 h-1 bg-slate-700 rounded-full"></span>
-                            <a href="https://eduarchive.tistory.com/" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-400 transition-colors">뀨짱쌤의 교육자료 아카이브</a>
+                            <a href="https://open.kakao.com/o/s7hVU65h" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">카카오톡 오픈채팅</a>
+                            <span className="w-1 h-1 bg-slate-300 dark:bg-slate-700 rounded-full"></span>
+                            <a href="https://eduarchive.tistory.com/" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">뀨짱쌤의 교육자료 아카이브</a>
                         </div>
                     </div>
                 </footer>
