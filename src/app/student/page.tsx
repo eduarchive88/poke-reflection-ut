@@ -39,9 +39,10 @@ export default function StudentDashboard() {
             // 이번 주 월요일 0시 기준 (주간 성찰 카운팅용)
             // 간단하게 최근 5개 중 이번 주 것만 필터링하거나, 쿼리 자체에 시간 조건 추가
             const now = new Date();
-            const day = now.getDay(); // 0(일) ~ 6(토)
-            const diff = now.getDate() - day + (day === 0 ? -6 : 1); // 이번 주 월요일
-            const monday = new Date(now.setDate(diff));
+            const day = now.getDay();
+            const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+            const monday = new Date(now);
+            monday.setDate(diff);
             monday.setHours(0, 0, 0, 0);
 
             const q = query(
