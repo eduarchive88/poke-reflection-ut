@@ -522,7 +522,22 @@ export default function FriendlyMatchPage() {
                 )}
 
                 {gameState === "select" && (
-                    <motion.div key="select" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+                    <motion.div key="select" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-secondary/10 p-6 rounded-[2.5rem] border-2">
+                            <div className="text-center sm:text-left">
+                                <h3 className="text-2xl font-black italic">포켓몬 선택 (3v3)</h3>
+                                <p className="text-sm text-muted-foreground font-bold">대결에 나갈 포켓몬 3마리를 순서대로 선택해주세요.</p>
+                            </div>
+                            <div className="flex gap-4">
+                                <Button variant="outline" size="lg" className="rounded-full px-8 border-2" onClick={quitBattle}>
+                                    대결 그만두기
+                                </Button>
+                                <Button size="lg" className="rounded-full px-8 font-bold shadow-xl shadow-primary/20" onClick={confirmSelection} disabled={selectedTeam.length === 0}>
+                                    대결 시작 ({selectedTeam.length}/3)
+                                </Button>
+                            </div>
+                        </div>
+
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             {myPokemon.map(poke => {
                                 const isSelected = selectedTeam.find(p => p.id === poke.id);
@@ -534,7 +549,7 @@ export default function FriendlyMatchPage() {
                                         onClick={() => togglePokeSelection(poke)}
                                     >
                                         {isSelected && (
-                                            <div className="absolute top-2 right-2 bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-black">
+                                            <div className="absolute top-2 right-2 bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-black shadow-lg">
                                                 {order}
                                             </div>
                                         )}
@@ -546,14 +561,6 @@ export default function FriendlyMatchPage() {
                                     </Card>
                                 );
                             })}
-                        </div>
-                        <div className="flex justify-center gap-4 mt-8">
-                            <Button variant="outline" size="lg" className="rounded-full px-12" onClick={quitBattle}>
-                                대결 그만두기
-                            </Button>
-                            <Button size="lg" className="rounded-full px-12 font-bold" onClick={confirmSelection} disabled={selectedTeam.length === 0}>
-                                선택 완료 ({selectedTeam.length}/3)
-                            </Button>
                         </div>
                     </motion.div>
                 )}

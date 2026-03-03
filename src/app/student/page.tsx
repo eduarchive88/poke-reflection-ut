@@ -36,11 +36,19 @@ export default function StudentDashboard() {
 
     const fetchData = async (studentId: string) => {
         try {
+            // 이번 주 월요일 0시 기준 (주간 성찰 카운팅용)
+            // 간단하게 최근 5개 중 이번 주 것만 필터링하거나, 쿼리 자체에 시간 조건 추가
+            const now = new Date();
+            const day = now.getDay(); // 0(일) ~ 6(토)
+            const diff = now.getDate() - day + (day === 0 ? -6 : 1); // 이번 주 월요일
+            const monday = new Date(now.setDate(diff));
+            monday.setHours(0, 0, 0, 0);
+
             const q = query(
                 collection(db, "reflections"),
                 where("studentId", "==", studentId),
-                orderBy("createdAt", "desc"),
-                limit(5)
+                where("createdAt", ">=", monday),
+                orderBy("createdAt", "desc")
             );
             const snapshots = await getDocs(q);
             const list: any[] = [];
@@ -133,9 +141,9 @@ export default function StudentDashboard() {
                         </motion.div>
 
                         <div className="space-y-4">
-                            <h2 className="text-5xl sm:text-7xl font-black tracking-tighter leading-[1] italic">
+                            <h2 className="text-5xl sm:text-7xl font-black tracking-tighter leading-tight italic py-2">
                                 Hello,<br />
-                                <span className="pokemon-gradient-text sm:text-7xl">
+                                <span className="pokemon-gradient-text sm:text-7xl whitespace-nowrap">
                                     {session.studentInfo?.name || "Trainer"}!
                                 </span>
                             </h2>
