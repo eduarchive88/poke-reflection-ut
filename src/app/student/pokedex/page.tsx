@@ -262,12 +262,8 @@ export default function PokedexPage() {
                                 <div className="p-4 bg-secondary/10 border-t flex gap-2">
                                     <Button
                                         variant="default"
-                                        koName={koName}
-                                        image={pokeData.sprites.other["official-artwork"]?.front_default ||
-                                            pokeData.sprites.other["home"]?.front_default ||
-                                            pokeData.sprites.other["dream_world"]?.front_default ||
-                                            pokeData.sprites.front_default}
-                                        types={types}
+                                        size="sm"
+                                        className="w-full text-xs font-bold gap-1 rounded-full"
                                         onClick={() => handleLevelUp(poke.id)}
                                     >
                                         레벨 업
