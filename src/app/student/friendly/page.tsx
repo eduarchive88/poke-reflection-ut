@@ -189,6 +189,17 @@ export default function FriendlyMatchPage() {
         }
     };
 
+    const cancelRequest = async () => {
+        if (!activeRequest) return;
+        try {
+            await deleteDoc(doc(db, "battle_requests", activeRequest.id));
+            setActiveRequest(null);
+            toast.info("대결 신청을 취소했습니다.");
+        } catch (e) {
+            toast.error("취소 실패");
+        }
+    };
+
     const acceptRequest = async () => {
         if (!incomingRequest) return;
         try {
@@ -254,6 +265,24 @@ export default function FriendlyMatchPage() {
             });
         } catch (e) {
             toast.error("선택 저장 실패");
+        }
+    };
+
+    const quitBattle = async () => {
+        const reqId = activeRequest?.id || incomingRequest?.id;
+        if (!reqId) {
+            setGameState("lobby");
+            return;
+        }
+        try {
+            await deleteDoc(doc(db, "battle_requests", reqId));
+            setActiveRequest(null);
+            setIncomingRequest(null);
+            setGameState("lobby");
+            setSelectedTeam([]);
+            toast.info("대결을 종료했습니다.");
+        } catch (e) {
+            setGameState("lobby");
         }
     };
 
@@ -478,6 +507,12 @@ export default function FriendlyMatchPage() {
                                     <p className="flex items-center gap-2"><Check className="h-4 w-4 text-green-400" /> 패배한 포켓몬은 12시간 동안 배틀이 불가합니다.</p>
                                     <p className="flex items-center gap-2"><Check className="h-4 w-4 text-green-400" /> 친선 경기는 경험치를 획득하지 않습니다.</p>
                                 </div>
+                                {activeRequest && activeRequest.status === 'pending' && (
+                                    <div className="mt-8 p-6 bg-primary/20 rounded-3xl border border-primary/30 flex flex-col items-center gap-3 animate-pulse">
+                                        <p className="text-sm font-bold text-primary-foreground">상대방의 수락을 기다리는 중...</p>
+                                        <Button variant="destructive" size="sm" onClick={cancelRequest} className="rounded-full">신청 취소</Button>
+                                    </div>
+                                )}
                                 <div className="mt-8 p-4 bg-white/5 rounded-2xl border border-white/10 text-xs italic text-center text-slate-400">
                                     상대방이 신청을 수락하면 포켓몬 선택 화면으로 이동합니다.
                                 </div>
@@ -511,6 +546,14 @@ export default function FriendlyMatchPage() {
                                     </Card>
                                 );
                             })}
+                        </div>
+                        <div className="flex justify-center gap-4 mt-8">
+                            <Button variant="outline" size="lg" className="rounded-full px-12" onClick={quitBattle}>
+                                대결 그만두기
+                            </Button>
+                            <Button size="lg" className="rounded-full px-12 font-bold" onClick={confirmSelection} disabled={selectedTeam.length === 0}>
+                                선택 완료 ({selectedTeam.length}/3)
+                            </Button>
                         </div>
                     </motion.div>
                 )}

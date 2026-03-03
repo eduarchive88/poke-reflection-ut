@@ -244,6 +244,11 @@ export default function PokedexPage() {
                                             src={poke.image}
                                             alt={poke.name}
                                             className="w-full h-full object-contain relative z-10 drop-shadow-md group-hover:scale-110 transition-transform duration-300"
+                                            onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                target.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
+                                                target.className = "w-16 h-16 opacity-50 grayscale";
+                                            }}
                                         />
                                     </div>
                                     <div className="flex gap-2 mt-4">
@@ -294,6 +299,11 @@ export default function PokedexPage() {
                                     src={selectedPokemon.image}
                                     alt={selectedPokemon.name}
                                     className="w-48 h-48 object-contain drop-shadow-2xl animate-pulse"
+                                    onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
+                                        target.className = "w-24 h-24 opacity-50 grayscale";
+                                    }}
                                 />
                                 <h3 className="text-3xl font-black mt-4">{selectedPokemon.koName || selectedPokemon.name}</h3>
                                 <div className="flex gap-2 mt-2">

@@ -185,7 +185,7 @@ export default function StudentDashboard() {
                                             <span className="text-7xl font-black text-foreground italic tracking-tighter">
                                                 {recentReflections.length}
                                             </span>
-                                            <span className="text-2xl font-bold text-muted-foreground">/ 5</span>
+                                            <span className="text-2xl font-bold text-muted-foreground">/ 3</span>
                                         </div>
                                     </div>
                                     <div className="p-5 bg-primary/10 rounded-[2rem] dark:bg-secondary/10 shadow-inner">
@@ -197,16 +197,16 @@ export default function StudentDashboard() {
                                     <div className="h-5 w-full bg-muted rounded-full p-1 overflow-hidden border-2 border-border/50">
                                         <motion.div
                                             initial={{ width: 0 }}
-                                            animate={{ width: `${Math.min(100, (recentReflections.length / 5) * 100)}%` }}
+                                            animate={{ width: `${Math.min(100, (recentReflections.length / 3) * 100)}%` }}
                                             className="h-full bg-gradient-to-r from-primary via-blue-400 to-primary dark:from-secondary dark:via-yellow-300 dark:to-secondary rounded-full shadow-[0_0_20px_rgba(59,76,202,0.4)] dark:shadow-[0_0_20px_rgba(255,222,0,0.4)]"
                                         />
                                     </div>
                                     <div className="flex justify-between items-center px-1">
                                         <span className="text-xs font-black text-muted-foreground uppercase tracking-[0.1em]">
-                                            {recentReflections.length >= 5 ? "CHAMPION STATUS ATTAINED! 🏆" : `${5 - recentReflections.length} More logs to go`}
+                                            {recentReflections.length >= 3 ? "CHAMPION STATUS ATTAINED! 🏆" : `${3 - recentReflections.length} More logs to go`}
                                         </span>
                                         <span className="text-lg font-black text-primary dark:text-secondary italic">
-                                            {Math.floor((recentReflections.length / 5) * 100)}%
+                                            {Math.floor((recentReflections.length / 3) * 100)}%
                                         </span>
                                     </div>
                                 </div>
