@@ -22,6 +22,8 @@ interface Student {
 
 interface PokemonData {
     id: string;
+    studentId: string;
+    pokemonId: number;
     name: string;
     koName?: string;
     image: string;
@@ -40,9 +42,12 @@ interface BattleRequest {
     fromId: string;
     fromName: string;
     toId: string;
-    status: 'pending' | 'accepted' | 'declined' | 'battling';
+    toName: string;
+    status: 'pending' | 'accepted' | 'declined' | 'battling' | 'finished';
     fromPokes?: PokemonData[];
     toPokes?: PokemonData[];
+    winnerId?: string;
+    createdAt: any;
 }
 
 export default function FriendlyMatchPage() {
@@ -555,8 +560,13 @@ export default function FriendlyMatchPage() {
                                 <Button variant="outline" size="lg" className="rounded-full px-8 border-2" onClick={quitBattle}>
                                     대결 그만두기
                                 </Button>
-                                <Button size="lg" className="rounded-full px-8 font-bold shadow-xl shadow-primary/20" onClick={confirmSelection} disabled={selectedTeam.length === 0}>
-                                    대결 시작 ({selectedTeam.length}/3)
+                                <Button
+                                    size="lg"
+                                    className="rounded-full px-8 font-bold shadow-xl shadow-primary/20"
+                                    onClick={confirmSelection}
+                                    disabled={selectedTeam.length < 3}
+                                >
+                                    {(activeRequest ? activeRequest.fromPokes : incomingRequest?.toPokes) ? "준비 완료!" : `준비 완료 (${selectedTeam.length}/3)`}
                                 </Button>
                             </div>
                         </div>
@@ -577,7 +587,11 @@ export default function FriendlyMatchPage() {
                                             </div>
                                         )}
                                         <div className="flex flex-col items-center">
-                                            <img src={poke.image} className="w-32 h-32 object-contain" alt={poke.name} />
+                                            <PokemonImage
+                                                id={poke.pokemonId}
+                                                name={poke.koName || poke.name}
+                                                className="w-32 h-32"
+                                            />
                                             <p className="font-bold mt-2">{poke.koName || poke.name}</p>
                                             <p className="text-xs text-muted-foreground font-medium">Lv.{poke.level}</p>
                                         </div>
@@ -598,34 +612,43 @@ export default function FriendlyMatchPage() {
                                         <div key={i} className={`w-10 rounded-full ${i < selectedTeam.length ? 'bg-blue-500' : 'bg-slate-300'}`} />
                                     ))}
                                 </div>
-                                <motion.img
-                                    animate={{ x: [0, 5, 0], rotate: [0, 2, 0] }}
-                                    transition={{ repeat: Infinity, duration: 1 }}
-                                    src={selectedTeam[0]?.image}
-                                    className="w-48 h-48 md:w-64 md:h-64 object-contain drop-shadow-2xl"
-                                />
-                                <p className="text-2xl font-black">{selectedTeam[0]?.koName || selectedTeam[0]?.name}</p>
+                                <div className="relative">
+                                    <PokemonImage
+                                        id={selectedTeam[0]?.pokemonId || 0}
+                                        name={selectedTeam[0]?.koName || selectedTeam[0]?.name}
+                                        className="w-48 h-48 md:w-64 md:h-64 relative z-10"
+                                    />
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-2xl font-black italic">{session.name || "나"}</p>
+                                    <p className="text-sm font-bold text-blue-400 capitalize">{selectedTeam[0]?.koName || selectedTeam[0]?.name}</p>
+                                </div>
                             </div>
 
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl font-black italic text-slate-200 pointer-events-none uppercase">vs</div>
+                            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                                <div className="text-6xl font-black italic text-slate-700/20 tracking-tighter">VS</div>
+                            </div>
 
                             {/* Opponent */}
                             <div className="flex flex-col items-center gap-6">
-                                <div className="flex gap-1 h-3 justify-end">
+                                <div className="flex gap-1 h-3">
                                     {[0, 1, 2].map(i => (
-                                        <div key={i} className={`w-10 rounded-full ${i < opponentTeam.length ? 'bg-red-500' : 'bg-slate-300'}`} />
+                                        <div key={i} className={`w-10 rounded-full ${i < (opponentTeam?.length || 0) ? 'bg-red-500' : 'bg-slate-300'}`} />
                                     ))}
                                 </div>
-                                <motion.img
-                                    animate={{ x: [0, -5, 0], rotate: [0, -2, 0] }}
-                                    transition={{ repeat: Infinity, duration: 1.2 }}
-                                    src={opponentTeam[0]?.image}
-                                    className="w-48 h-48 md:w-64 md:h-64 object-contain drop-shadow-2xl grayscale"
-                                />
-                                <p className="text-2xl font-black">{opponentTeam[0]?.koName || opponentTeam[0]?.name}</p>
+                                <div className="relative">
+                                    <PokemonImage
+                                        id={opponentTeam ? opponentTeam[0]?.pokemonId : 0}
+                                        name={opponentTeam ? (opponentTeam[0]?.koName || opponentTeam[0]?.name) : ""}
+                                        className="w-48 h-48 md:w-64 md:h-64 relative z-10 opacity-80"
+                                    />
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-2xl font-black italic">{activeRequest?.toName || incomingRequest?.fromName || "상대"}</p>
+                                    <p className="text-sm font-bold text-red-400 capitalize">{opponentTeam ? (opponentTeam[0]?.koName || opponentTeam[0]?.name) : "???"}</p>
+                                </div>
                             </div>
                         </div>
-
                         <Card className="w-full max-w-2xl bg-slate-900 p-8 rounded-[3rem] border-8 border-slate-800 shadow-2xl overflow-hidden min-h-[200px]">
                             <div className="space-y-3 font-mono">
                                 {battleLog.map((log, i) => (

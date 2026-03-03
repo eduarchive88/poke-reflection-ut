@@ -401,9 +401,9 @@ export default function GymPage() {
                                         size="lg"
                                         className="rounded-full w-full max-w-sm font-black text-xl gap-3 h-16 shadow-xl hover:scale-105 transition-transform bg-yellow-500 hover:bg-yellow-600 border-none text-yellow-950"
                                         onClick={() => {
-                                            console.log("Challenge button clicked, myPokemon count:", myPokemon.length);
                                             if (myPokemon.length === 0) {
                                                 toast.error("대결 가능한 포켓몬이 없습니다. 도감에서 레벨업을 먼저 해주세요!");
+                                                return;
                                             }
                                             setGameState("select");
                                         }}
@@ -475,7 +475,11 @@ export default function GymPage() {
                                         onClick={() => startChallenge(poke)}
                                     >
                                         <CardContent className="p-6 flex items-center gap-4">
-                                            <img src={poke.image} className="w-16 h-16 object-contain" alt={poke.name} />
+                                            <PokemonImage
+                                                id={poke.pokemonId}
+                                                name={poke.koName || poke.name}
+                                                className="w-16 h-16"
+                                            />
                                             <div>
                                                 <p className="font-black text-lg capitalize">{poke.koName || poke.name}</p>
                                                 <p className="text-xs font-bold text-muted-foreground">Lv.{poke.level} | {poke.types.join(", ")}</p>
@@ -505,11 +509,10 @@ export default function GymPage() {
                             <div className="text-5xl font-black italic text-muted-foreground/30 animate-pulse">VS</div>
                             <div className="flex flex-col items-center gap-4">
                                 <span className="bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase">Master</span>
-                                <motion.img
-                                    animate={{ y: [0, -10, 0], scale: 1.1 }}
-                                    transition={{ repeat: Infinity, duration: 2 }}
-                                    src={gym?.pokemon?.image}
-                                    className="w-40 h-40 md:w-56 md:h-56 object-contain drop-shadow-2xl opacity-80"
+                                <PokemonImage
+                                    id={gym?.pokemon?.pokemonId || 0}
+                                    name={gym?.pokemon?.koName || gym?.pokemon?.name}
+                                    className="w-40 h-40 md:w-56 md:h-56 relative z-10"
                                 />
                                 <p className="text-xl font-black capitalize">{gym?.pokemon?.koName || gym?.pokemon?.name}</p>
                             </div>
