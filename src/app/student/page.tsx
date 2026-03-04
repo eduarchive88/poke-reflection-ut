@@ -45,8 +45,7 @@ export default function StudentDashboard() {
             const q = query(
                 collection(db, "reflections"),
                 where("studentId", "==", studentId),
-                where("createdAt", ">=", monday),
-                orderBy("createdAt", "desc")
+                where("createdAt", ">=", monday)
             );
             const snapshots = await getDocs(q);
             const list: any[] = [];
@@ -245,7 +244,7 @@ export default function StudentDashboard() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-3">
+                                <div className="space-y-2">
                                     <div className="h-6 w-full bg-slate-200 dark:bg-slate-700 border-2 border-black p-0.5 shadow-[inset_2px_2px_0px_rgba(0,0,0,0.2)]">
                                         <motion.div
                                             initial={{ width: 0 }}
@@ -260,6 +259,12 @@ export default function StudentDashboard() {
                                         <span className="text-sm font-black text-blue-600 dark:text-blue-400 italic">
                                             {Math.floor((recentReflections.length / 3) * 100)}%
                                         </span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 pt-2 border-t border-slate-200 dark:border-slate-700">
+                                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse shrink-0" />
+                                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">
+                                            매주 월요일 00:00에 목표가 초기화됩니다.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -378,21 +383,6 @@ export default function StudentDashboard() {
                             </div>
                         </Card>
                     </motion.div>
-                </div>
-            </div>
-
-            {/* Footer */}
-            <div className="pt-12 mt-12 border-t-4 border-black border-dashed text-center space-y-2">
-                <p className="text-sm font-black tracking-widest text-slate-500 uppercase">
-                    만든 사람: 경기도 지구과학 교사 뀨짱
-                </p>
-                <div className="flex justify-center gap-6">
-                    <a href="https://open.kakao.com/o/s7hVU65h" target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-blue-600 hover:underline">
-                        문의: 카카오톡 오픈채팅
-                    </a>
-                    <a href="https://eduarchive.tistory.com/" target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-slate-600 hover:underline">
-                        블로그: 뀨짱쌤의 교육자료 아카이브
-                    </a>
                 </div>
             </div>
         </div>
