@@ -565,6 +565,43 @@ export default function FriendlyMatchPage() {
         setWinner(isWin ? "me" : "opponent");
         setBattleLog(prev => [...prev, isWin ? "▶ 최종 승리!" : "▶ 최종 패배..."]);
 
+        // 배틀 로그 기록
+        try {
+            const isChallenger = !!activeRequest;
+            const oppId = isChallenger ? activeRequest?.toId : incomingRequest?.fromId;
+            const oppName = isChallenger ? activeRequest?.toName : incomingRequest?.fromName;
+
+            const winnerId = isWin ? session?.studentId : oppId;
+            const winnerName = isWin ? session?.name : oppName;
+            const loserId = isWin ? oppId : session?.studentId;
+            const loserName = isWin ? oppName : session?.name;
+
+            // 대표 포켓몬 (첫번째 포켓몬)
+            const myFirstPoke = myTeam[0]?.koName || myTeam[0]?.name || "비어있음";
+            const oppFirstPoke = oppTeam[0]?.koName || oppTeam[0]?.name || "비어있음";
+            const winnerPoke = isWin ? myFirstPoke : oppFirstPoke;
+            const loserPoke = isWin ? oppFirstPoke : myFirstPoke;
+
+            await addDoc(collection(db, "battle_logs"), {
+                type: 'battle',
+                battleType: 'friendly',
+                challengerId: isChallenger ? session?.studentId : oppId,
+                challengerName: isChallenger ? session?.name : oppName,
+                defenderId: isChallenger ? oppId : session?.studentId,
+                defenderName: isChallenger ? oppName : session?.name,
+                winnerId,
+                winnerName,
+                loserId,
+                loserName,
+                winnerPoke,
+                loserPoke,
+                createdAt: serverTimestamp(),
+                classId: session?.classId
+            });
+        } catch (e) {
+            console.error("배틀 로그 기록 실패:", e);
+        }
+
         if (!isWin) {
             const retiredTime = new Date();
             retiredTime.setHours(retiredTime.getHours() + 12);

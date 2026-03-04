@@ -142,7 +142,9 @@ export default function WritePage() {
                 // 3. 학생 정보 업데이트 (캔디 누적 및 마지막 작성일 갱신)
                 transaction.update(studentRef, {
                     candies: increment(earnedCandies),
-                    lastReflectedAt: serverTimestamp()
+                    lastReflectedAt: serverTimestamp(),
+                    reflectionCount: increment(1),
+                    weeklyAchv: increment(1)
                 });
 
                 // 4. 포켓몬 지급 또는 레벨업 실행

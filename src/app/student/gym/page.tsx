@@ -6,7 +6,7 @@ import { db } from "@/lib/firebase";
 import {
     collection, query, where, getDocs, doc, getDoc,
     setDoc, updateDoc, serverTimestamp, increment,
-    writeBatch
+    writeBatch, addDoc
 } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -333,6 +333,31 @@ export default function GymPage() {
                 await updateDoc(doc(db, "pokemon_inventory", gym.pokemon.id), { retiredUntil: retiredTime });
             } catch (e) { console.error("기존 리더 포켓몬 리타이어 처리 실패:", e); }
         }
+
+        // 배틀 로그 기록
+        try {
+            if (session && session.classId) {
+                await addDoc(collection(db, "battle_logs"), {
+                    type: 'battle',
+                    battleType: 'gym',
+                    challengerId: session.studentId,
+                    challengerName: session.name || "익명 학생",
+                    defenderId: gym?.leaderId || "NPC",
+                    defenderName: gym?.leaderName || "체육관 마스터",
+                    winnerId: session.studentId,
+                    winnerName: session.name || "익명 학생",
+                    loserId: gym?.leaderId || "NPC",
+                    loserName: gym?.leaderName || "체육관 마스터",
+                    winnerPoke: player.koName || player.name || "비어있음",
+                    loserPoke: gym?.pokemon?.koName || gym?.pokemon?.name || "비어있음",
+                    createdAt: serverTimestamp(),
+                    classId: session.classId
+                });
+            }
+        } catch (e) {
+            console.error("체육관 배틀 로그 저장 실패:", e);
+        }
+
         await handleOccupy(player);
     };
 
@@ -346,8 +371,26 @@ export default function GymPage() {
             await updateDoc(doc(db, "pokemon_inventory", player.id), { retiredUntil: retiredTime });
             if (session && session.classId) {
                 await updateDoc(doc(db, "gyms", session.classId), { defenseCount: increment(1) });
+
+                // 배틀 로그 기록
+                await addDoc(collection(db, "battle_logs"), {
+                    type: 'battle',
+                    battleType: 'gym',
+                    challengerId: session.studentId,
+                    challengerName: session.name || "익명 학생",
+                    defenderId: gym?.leaderId || "NPC",
+                    defenderName: gym?.leaderName || "체육관 마스터",
+                    winnerId: gym?.leaderId || "NPC",
+                    winnerName: gym?.leaderName || "체육관 마스터",
+                    loserId: session.studentId,
+                    loserName: session.name || "익명 학생",
+                    winnerPoke: gym?.pokemon?.koName || gym?.pokemon?.name || "비어있음",
+                    loserPoke: player.koName || player.name || "비어있음",
+                    createdAt: serverTimestamp(),
+                    classId: session.classId
+                });
             }
-        } catch (e) { console.error("도전자 포켓몬 리타이어 처리 실패:", e); }
+        } catch (e) { console.error("도전자 포켓몬 리타이어 처리 및 로그 기록 실패:", e); }
     };
 
     // 체육관 점령 처리
