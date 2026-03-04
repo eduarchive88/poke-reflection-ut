@@ -398,17 +398,8 @@ export default function FriendlyMatchPage() {
         }
     };
 
-    // 대결 종료/나가기
-    const quitBattle = async () => {
-        const reqId = activeRequest?.id || incomingRequest?.id;
-        if (reqId) {
-            try {
-                await deleteDoc(doc(db, "battle_requests", reqId));
-            } catch (e) { /* ignore */ }
-        }
-        // 모든 상태 초기화
-        setActiveRequest(null);
-        setIncomingRequest(null);
+    // 모든 상태 초기화 (내부 전용)
+    const resetBattleState = () => {
         setGameState("lobby");
         setSelectedTeam([]);
         setOpponentTeam([]);
@@ -417,11 +408,27 @@ export default function FriendlyMatchPage() {
         setCurrentMyIdx(0);
         setCurrentOppIdx(0);
         setHitEffect("none");
+        setWinner(null);
+        setBattleLog([]);
         battleStartedRef.current = false;
         if (readyListenerRef.current) {
             readyListenerRef.current();
             readyListenerRef.current = null;
         }
+    };
+
+    // 대결 종료/나가기 (사용자 액션)
+    const quitBattle = async () => {
+        const reqId = activeRequest?.id || incomingRequest?.id;
+        if (reqId) {
+            try {
+                // 상태를 finished로 바꾸거나 삭제
+                await deleteDoc(doc(db, "battle_requests", reqId));
+            } catch (e) { /* ignore */ }
+        }
+        resetBattleState();
+        setActiveRequest(null);
+        setIncomingRequest(null);
         toast.info("대결을 종료했습니다.");
     };
 
@@ -563,12 +570,22 @@ export default function FriendlyMatchPage() {
 
         setTimeout(() => setGameState("result"), 2000);
 
-        // 요청 데이터 정리
+        // 요청 데이터 즉시 완료 처리 (상대방 리스너에서 상태를 해제할 수 있도록)
         const reqId = activeRequest?.id || incomingRequest?.id;
         if (reqId) {
-            setTimeout(() => {
-                deleteDoc(doc(db, "battle_requests", reqId)).catch(() => { });
-            }, 10000);
+            try {
+                await updateDoc(doc(db, "battle_requests", reqId), {
+                    status: 'finished',
+                    winnerId: isWin ? (session?.studentId || null) : (activeRequest?.toId || incomingRequest?.fromId || null)
+                });
+
+                // 어느 정도 대기 후 삭제 (데이터 클린업)
+                setTimeout(() => {
+                    deleteDoc(doc(db, "battle_requests", reqId)).catch(() => { });
+                }, 5000);
+            } catch (e) {
+                console.error("배틀 종료 업데이트 실패:", e);
+            }
         }
     };
 
@@ -955,7 +972,11 @@ export default function FriendlyMatchPage() {
                         <Button
                             size="lg"
                             className="pixel-button h-14 w-full max-w-xs text-black bg-yellow-400 hover:bg-yellow-500 text-lg shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-y-1 hover:translate-x-1"
-                            onClick={() => window.location.reload()}
+                            onClick={() => {
+                                resetBattleState();
+                                setActiveRequest(null);
+                                setIncomingRequest(null);
+                            }}
                         >
                             로비로 돌아가기
                         </Button>
