@@ -32,6 +32,7 @@ interface Pokemon {
         type: string;
         power: number;
     }[];
+    retiredUntil?: any; // Timestamp
 }
 
 export default function PokedexPage() {
@@ -48,6 +49,7 @@ export default function PokedexPage() {
     const [candies, setCandies] = useState(0);
     const [loading, setLoading] = useState(true);
     const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null);
+    const [now, setNow] = useState(new Date());
 
     useEffect(() => {
         const sessionStr = localStorage.getItem("poke_student_session");
@@ -58,6 +60,13 @@ export default function PokedexPage() {
         const sessionData = JSON.parse(sessionStr);
         setSession(sessionData);
         fetchData(sessionData.studentId);
+
+        // 휴식 시간 업데이트 타이머
+        const timer = setInterval(() => {
+            setNow(new Date());
+        }, 1000);
+
+        return () => clearInterval(timer);
     }, [router]);
 
     const fetchData = async (studentId: string) => {
@@ -212,70 +221,96 @@ export default function PokedexPage() {
                 </Card>
             ) : (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {myPokemon.map((poke) => (
-                        <motion.div
-                            key={poke.id}
-                            whileHover={{ y: -5 }}
-                            transition={{ duration: 0.2 }}
-                        >
-                            <Card className="overflow-hidden group border-2 hover:border-primary/50 transition-colors shadow-sm rounded-[2.5rem]">
-                                <CardHeader className="bg-secondary/30 pb-2 space-y-1">
-                                    <div className="flex justify-between items-start">
-                                        <span className="text-[10px] font-bold text-muted-foreground bg-background px-2 py-0.5 rounded-full border">
-                                            No.{poke.pokemonId.toString().padStart(3, '0')}
-                                        </span>
-                                        <div className="flex items-center gap-1 bg-primary/20 text-primary px-2 py-0.5 rounded-full">
-                                            <span className="text-xs font-black italic">Lv.{poke.level}</span>
+                    {myPokemon.map((poke) => {
+                        const retiredUserTime = poke.retiredUntil?.toDate() || null;
+                        const isRetired = retiredUserTime && retiredUserTime > now;
+                        let remainingTimeStr = "";
+
+                        if (isRetired) {
+                            const diffMs = retiredUserTime.getTime() - now.getTime();
+                            const diffM = Math.floor(diffMs / 60000);
+                            const diffS = Math.floor((diffMs % 60000) / 1000);
+                            remainingTimeStr = `${diffM}분 ${diffS}초`;
+                        }
+
+                        return (
+                            <motion.div
+                                key={poke.id}
+                                whileHover={{ y: -5 }}
+                                transition={{ duration: 0.2 }}
+                            >
+                                <Card className="overflow-hidden group border-2 hover:border-primary/50 transition-colors shadow-sm rounded-[2.5rem] relative">
+                                    {isRetired && (
+                                        <div className="absolute inset-0 z-20 bg-black/60 backdrop-blur-[1px] flex flex-col items-center justify-center rounded-[2.5rem] p-4 text-center">
+                                            <div className="bg-white/90 px-3 py-1.5 rounded-full mb-2 border-2 border-slate-300 shadow-sm flex items-center gap-1.5">
+                                                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                                                <span className="text-xs font-bold text-slate-700">휴식 필요</span>
+                                            </div>
+                                            <p className="text-white font-bold text-sm bg-black/50 px-3 py-1 rounded-full backdrop-blur-md border border-white/20 shadow-lg">
+                                                {remainingTimeStr}
+                                            </p>
                                         </div>
-                                    </div>
-                                    <CardTitle
-                                        className="text-xl font-bold text-center pt-2 cursor-pointer hover:text-primary transition-colors"
-                                        onClick={() => setSelectedPokemon(poke)}
-                                    >
-                                        {poke.koName || poke.name}
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent
-                                    className="flex flex-col items-center py-4 bg-gradient-to-b from-secondary/10 to-transparent cursor-pointer"
-                                    onClick={() => setSelectedPokemon(poke)}
-                                >
-                                    <div className="relative w-32 h-32 flex items-center justify-center">
-                                        <div className="absolute inset-0 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
-                                        <PokemonImage
-                                            id={poke.pokemonId}
-                                            name={poke.koName || poke.name}
-                                            className="w-full h-full relative z-10 group-hover:scale-110 transition-transform duration-300"
-                                        />
-                                    </div>
-                                    <div className="flex gap-2 mt-4">
-                                        {poke.types.map((type) => (
-                                            <span key={type} className="px-2 py-0.5 bg-background border text-[10px] font-bold rounded-md uppercase">
-                                                {type}
+                                    )}
+
+                                    <CardHeader className="bg-secondary/30 pb-2 space-y-1">
+                                        <div className="flex justify-between items-start">
+                                            <span className="text-[10px] font-bold text-muted-foreground bg-background px-2 py-0.5 rounded-full border">
+                                                No.{poke.pokemonId.toString().padStart(3, '0')}
                                             </span>
-                                        ))}
-                                    </div>
-                                </CardContent>
-                                <div className="p-4 bg-secondary/10 border-t flex gap-2">
-                                    <Button
-                                        variant="default"
-                                        size="sm"
-                                        className="w-full text-xs font-bold gap-1 rounded-full"
-                                        onClick={() => handleLevelUp(poke.id)}
-                                    >
-                                        레벨 업
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="w-full text-xs rounded-full"
+                                            <div className="flex items-center gap-1 bg-primary/20 text-primary px-2 py-0.5 rounded-full">
+                                                <span className="text-xs font-black italic">Lv.{poke.level}</span>
+                                            </div>
+                                        </div>
+                                        <CardTitle
+                                            className="text-xl font-bold text-center pt-2 cursor-pointer hover:text-primary transition-colors"
+                                            onClick={() => setSelectedPokemon(poke)}
+                                        >
+                                            {poke.koName || poke.name}
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent
+                                        className="flex flex-col items-center py-4 bg-gradient-to-b from-secondary/10 to-transparent cursor-pointer"
                                         onClick={() => setSelectedPokemon(poke)}
                                     >
-                                        정보 보기
-                                    </Button>
-                                </div>
-                            </Card>
-                        </motion.div>
-                    ))}
+                                        <div className="relative w-32 h-32 flex items-center justify-center">
+                                            <div className="absolute inset-0 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+                                            <PokemonImage
+                                                id={poke.pokemonId}
+                                                name={poke.koName || poke.name}
+                                                className={`w-full h-full relative z-10 group-hover:scale-110 transition-transform duration-300 ${isRetired ? 'grayscale sepia-[.3] contrast-75 brightness-75' : ''}`}
+                                            />
+                                        </div>
+                                        <div className="flex gap-2 mt-4">
+                                            {poke.types.map((type) => (
+                                                <span key={type} className="px-2 py-0.5 bg-background border text-[10px] font-bold rounded-md uppercase">
+                                                    {type}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </CardContent>
+                                    <div className="p-4 bg-secondary/10 border-t flex gap-2">
+                                        <Button
+                                            variant="default"
+                                            size="sm"
+                                            className="w-full text-xs font-bold gap-1 rounded-full relative z-30"
+                                            onClick={() => handleLevelUp(poke.id)}
+                                            disabled={isRetired}
+                                        >
+                                            레벨 업
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="w-full text-xs rounded-full relative z-30"
+                                            onClick={() => setSelectedPokemon(poke)}
+                                        >
+                                            정보 보기
+                                        </Button>
+                                    </div>
+                                </Card>
+                            </motion.div>
+                        );
+                    })}
                 </div>
             )}
 

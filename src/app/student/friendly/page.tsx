@@ -102,6 +102,11 @@ export default function FriendlyMatchPage() {
     const [isReady, setIsReady] = useState(false);
     const [opponentReady, setOpponentReady] = useState(false);
 
+    // Battle State
+    const [currentMyIdx, setCurrentMyIdx] = useState(0);
+    const [currentOppIdx, setCurrentOppIdx] = useState(0);
+    const [hitEffect, setHitEffect] = useState<"none" | "me" | "opponent">("none");
+
     // 배틀 시작 중복 방지 ref
     const battleStartedRef = useRef(false);
     // 리스너 해제 ref
@@ -395,6 +400,9 @@ export default function FriendlyMatchPage() {
         setOpponentTeam([]);
         setIsReady(false);
         setOpponentReady(false);
+        setCurrentMyIdx(0);
+        setCurrentOppIdx(0);
+        setHitEffect("none");
         battleStartedRef.current = false;
         if (readyListenerRef.current) {
             readyListenerRef.current();
@@ -416,33 +424,41 @@ export default function FriendlyMatchPage() {
     };
 
     // 3v3 배틀 실행
-    const run3v3Battle = (myTeam: PokemonData[], oppTeam: PokemonData[]) => {
+    const run3v3Battle = async (myTeam: PokemonData[], oppTeam: PokemonData[]) => {
         setBattleLog(["▶ 3v3 친선 경기 시작!", "▶ 양쪽 포켓몬이 입장합니다!"]);
 
         let myIdx = 0;
         let oppIdx = 0;
+        setCurrentMyIdx(0);
+        setCurrentOppIdx(0);
+        setHitEffect("none");
         const logs: string[] = ["▶ 배틀 시작!"];
 
         let currentMyHp = 0;
         let currentOppHp = 0;
 
-        const nextTurn = () => {
-            if (myIdx >= myTeam.length || oppIdx >= oppTeam.length) {
-                const isWin = myIdx < myTeam.length;
-                finish3v3Battle(isWin, myTeam, oppTeam);
-                return;
-            }
+        const wait = (ms: number) => new Promise(res => setTimeout(res, ms));
+        await wait(2000);
 
+        while (myIdx < myTeam.length && oppIdx < oppTeam.length) {
             const me = myTeam[myIdx];
             const opp = oppTeam[oppIdx];
 
+            let nextLogMsg = false;
             if (currentMyHp <= 0) {
                 currentMyHp = (me.stats?.hp || 100) + (me.level * 2);
                 logs.push(`▶ [나] ${me.koName || me.name} 출전!`);
+                nextLogMsg = true;
             }
             if (currentOppHp <= 0) {
                 currentOppHp = (opp.stats?.hp || 100) + (opp.level * 2);
                 logs.push(`▶ [상대] ${opp.koName || opp.name} 출전!`);
+                nextLogMsg = true;
+            }
+
+            if (nextLogMsg) {
+                setBattleLog([...logs.slice(-7)]);
+                await wait(1000);
             }
 
             const myEff = getEffectiveness(me.types, opp.types);
@@ -451,31 +467,46 @@ export default function FriendlyMatchPage() {
             const myDmg = Math.max(10, Math.floor(((me.level * 2 + (me.stats?.attack || 40) * myEff) / ((opp.stats?.defense || 40) * 0.5)) * 0.8));
             const oppDmg = Math.max(10, Math.floor(((opp.level * 2 + (opp.stats?.attack || 40) * oppEff) / ((me.stats?.defense || 40) * 0.5)) * 0.8));
 
+            // 내 턴 공격
+            setHitEffect("opponent");
             currentOppHp -= myDmg;
             logs.push(`▶ ${me.koName || me.name}의 공격! ${myDmg} 데미지!`);
             if (myEff > 1) logs.push("▶ 앗! 효과가 굉장했다!");
+            setBattleLog([...logs.slice(-7)]);
+            await wait(400); // 타격 이펙트 지속
+            setHitEffect("none");
+            await wait(600); // 턴 딜레이
 
+            // 상대 반격 (상대가 쓰러지지 않았을 때만)
             if (currentOppHp > 0) {
+                setHitEffect("me");
                 currentMyHp -= oppDmg;
                 logs.push(`▶ ${opp.koName || opp.name}의 반격! ${oppDmg} 데미지!`);
                 if (oppEff > 1) logs.push("▶ 앗! 효과가 굉장했다!");
+                setBattleLog([...logs.slice(-7)]);
+                await wait(400);
+                setHitEffect("none");
+                await wait(600);
             }
 
+            // 기절 판정
             if (currentOppHp <= 0) {
                 logs.push(`▶ 상대 ${opp.koName || opp.name} 쓰러짐!`);
                 oppIdx++;
+                setCurrentOppIdx(oppIdx);
                 currentOppHp = 0;
             } else if (currentMyHp <= 0) {
                 logs.push(`▶ 내 ${me.koName || me.name} 쓰러짐!`);
                 myIdx++;
+                setCurrentMyIdx(myIdx);
                 currentMyHp = 0;
             }
-
             setBattleLog([...logs.slice(-7)]);
-            setTimeout(nextTurn, 1500);
-        };
+            await wait(1000);
+        }
 
-        setTimeout(nextTurn, 2000);
+        const isWin = myIdx < myTeam.length;
+        finish3v3Battle(isWin, myTeam, oppTeam);
     };
 
     // 3v3 배틀 결과 처리
@@ -765,13 +796,18 @@ export default function FriendlyMatchPage() {
                                 </div>
                                 <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-48 md:h-48 relative drop-shadow-[0_8px_0_rgba(0,0,0,0.3)]">
                                     <PokemonImage
-                                        id={selectedTeam[0]?.pokemonId || 0}
-                                        name={selectedTeam[0]?.koName || selectedTeam[0]?.name}
-                                        className="w-full h-full object-contain pixelated [transform:scaleX(-1)]" // 아군 포켓몬은 오른쪽(상대방쪽)을 보게 반전
+                                        id={selectedTeam[Math.min(currentMyIdx, selectedTeam.length - 1)]?.pokemonId || 0}
+                                        name={selectedTeam[Math.min(currentMyIdx, selectedTeam.length - 1)]?.koName || selectedTeam[Math.min(currentMyIdx, selectedTeam.length - 1)]?.name}
+                                        className={`w-full h-full object-contain pixelated [transform:scaleX(-1)] transition-all ${hitEffect === "me" ? "opacity-50 blur-[2px] sepia" : "opacity-100"}`} // 아군 포켓몬은 오른쪽(상대방쪽)을 보게 반전
                                     />
+                                    {hitEffect === "me" && (
+                                        <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                                            <span className="text-6xl sm:text-7xl md:text-8xl animate-ping text-red-500 drop-shadow-[0_0_10px_rgba(255,0,0,1)]">💥</span>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="mt-2 bg-white border-2 border-black px-3 py-1 text-center w-full drop-shadow-sm max-w-[120px] md:max-w-none">
-                                    <p className="font-bold pixel-text text-[10px] md:text-sm truncate" title={selectedTeam[0]?.koName || selectedTeam[0]?.name}>{selectedTeam[0]?.koName || selectedTeam[0]?.name}</p>
+                                    <p className="font-bold pixel-text text-[10px] md:text-sm truncate" title={selectedTeam[Math.min(currentMyIdx, selectedTeam.length - 1)]?.koName || selectedTeam[Math.min(currentMyIdx, selectedTeam.length - 1)]?.name}>{selectedTeam[Math.min(currentMyIdx, selectedTeam.length - 1)]?.koName || selectedTeam[Math.min(currentMyIdx, selectedTeam.length - 1)]?.name}</p>
                                 </div>
                             </motion.div>
 
@@ -791,13 +827,18 @@ export default function FriendlyMatchPage() {
                                 </div>
                                 <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-48 md:h-48 relative drop-shadow-[0_8px_0_rgba(0,0,0,0.3)]">
                                     <PokemonImage
-                                        id={opponentTeam?.[0]?.pokemonId || 0}
-                                        name={opponentTeam?.[0]?.koName || opponentTeam?.[0]?.name}
-                                        className="w-full h-full object-contain pixelated"
+                                        id={opponentTeam?.[Math.min(currentOppIdx, opponentTeam.length - 1)]?.pokemonId || 0}
+                                        name={opponentTeam?.[Math.min(currentOppIdx, opponentTeam.length - 1)]?.koName || opponentTeam?.[Math.min(currentOppIdx, opponentTeam.length - 1)]?.name}
+                                        className={`w-full h-full object-contain pixelated transition-all ${hitEffect === "opponent" ? "opacity-50 blur-[2px] sepia" : "opacity-100"}`}
                                     />
+                                    {hitEffect === "opponent" && (
+                                        <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                                            <span className="text-6xl sm:text-7xl md:text-8xl animate-ping text-red-500 drop-shadow-[0_0_10px_rgba(255,0,0,1)]">💥</span>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="mt-2 bg-white border-2 border-black px-3 py-1 text-center w-full drop-shadow-sm max-w-[120px] md:max-w-none">
-                                    <p className="font-bold pixel-text text-[10px] md:text-sm truncate" title={opponentTeam?.[0]?.koName || opponentTeam?.[0]?.name}>{opponentTeam?.[0]?.koName || opponentTeam?.[0]?.name}</p>
+                                    <p className="font-bold pixel-text text-[10px] md:text-sm truncate" title={opponentTeam?.[Math.min(currentOppIdx, opponentTeam.length - 1)]?.koName || opponentTeam?.[Math.min(currentOppIdx, opponentTeam.length - 1)]?.name}>{opponentTeam?.[Math.min(currentOppIdx, opponentTeam.length - 1)]?.koName || opponentTeam?.[Math.min(currentOppIdx, opponentTeam.length - 1)]?.name}</p>
                                 </div>
                             </motion.div>
                         </div>
@@ -817,7 +858,7 @@ export default function FriendlyMatchPage() {
                                             initial={{ opacity: 0, x: -5 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             className={`text-xs sm:text-sm md:text-base font-bold pixel-text leading-loose break-keep ${isWin ? "text-blue-600 shadow-[1px_1px_0_0_white]" :
-                                                    isLoss ? "text-red-600 shadow-[1px_1px_0_0_white]" : "text-black"
+                                                isLoss ? "text-red-600 shadow-[1px_1px_0_0_white]" : "text-black"
                                                 }`}
                                         >
                                             {log}
