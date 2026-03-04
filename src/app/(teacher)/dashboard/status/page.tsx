@@ -2,7 +2,8 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { db } from "@/lib/firebase";
+import { db, auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import { collection, query, where, getDocs, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,8 @@ function StatusContent() {
         };
     }
 
+    const [classes, setClasses] = useState<{ id: string, className: string }[]>([]);
+    const [selectedClassId, setSelectedClassId] = useState<string>("");
     const [className, setClassName] = useState("");
     const [students, setStudents] = useState<StudentData[]>([]);
     const [reflections, setReflections] = useState<ReflectionData[]>([]);
@@ -66,14 +69,24 @@ function StatusContent() {
         { id: 151, name: "뮤", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/151.png", types: ["Psychic"] },
     ];
     useEffect(() => {
-        if (!classId) {
-            router.push("/dashboard");
-            return;
-        }
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const q = query(collection(db, "classes"), where("teacherId", "==", user.uid));
+                const snapshots = await getDocs(q);
+                const classList: { id: string, className: string }[] = [];
+                snapshots.forEach((doc) => classList.push({ id: doc.id, className: doc.data().className }));
+                setClasses(classList);
 
-        const initialDays = parseInt(filterDays) || 30;
-        updateDates(initialDays);
-        fetchData();
+                if (classId) {
+                    setSelectedClassId(classId);
+                } else if (classList.length > 0) {
+                    setSelectedClassId(classList[0].id);
+                } else {
+                    setLoading(false); // No classes
+                }
+            }
+        });
+        return () => unsubscribe();
     }, [classId]);
 
     const updateDates = (days: number) => {
@@ -87,32 +100,32 @@ function StatusContent() {
     };
 
     useEffect(() => {
-        if (filterDays === "all") {
-            updateDates(100);
-        } else {
-            updateDates(parseInt(filterDays));
+        if (selectedClassId) {
+            const initialDays = parseInt(filterDays) || 30;
+            updateDates(initialDays);
+            fetchData(selectedClassId);
         }
-    }, [filterDays]);
+    }, [selectedClassId, filterDays]);
 
-    const fetchData = async () => {
-        if (!classId) return;
+    const fetchData = async (targetClassId: string) => {
+        if (!targetClassId) return;
         setLoading(true);
         try {
             // 1. 학급 정보
-            const classDoc = await getDoc(doc(db, "classes", classId));
+            const classDoc = await getDoc(doc(db, "classes", targetClassId));
             if (classDoc.exists()) {
                 setClassName(classDoc.data().className);
             }
 
             // 2. 학생 명단
-            const studentQ = query(collection(db, "students"), where("classId", "==", classId));
+            const studentQ = query(collection(db, "students"), where("classId", "==", targetClassId));
             const studentSnap = await getDocs(studentQ);
             const studentList: StudentData[] = [];
             studentSnap.forEach(doc => studentList.push({ id: doc.id, ...doc.data() } as StudentData));
             setStudents(studentList.sort((a, b) => a.number - b.number));
 
             // 3. 성찰 일기 내역
-            const reflectionQ = query(collection(db, "reflections"), where("classId", "==", classId));
+            const reflectionQ = query(collection(db, "reflections"), where("classId", "==", targetClassId));
             const reflectionSnap = await getDocs(reflectionQ);
             const reflectionList: ReflectionData[] = [];
             reflectionSnap.forEach(doc => reflectionList.push({ id: doc.id, ...doc.data() } as ReflectionData));
@@ -183,7 +196,8 @@ function StatusContent() {
         // 모든 성찰 기록 다운로드
         setLoading(true);
         try {
-            const q = query(collection(db, "reflections"), where("classId", "==", classId));
+            if (!selectedClassId) return;
+            const q = query(collection(db, "reflections"), where("classId", "==", selectedClassId));
             const snap = await getDocs(q);
             const allReflections: any[] = [];
             snap.forEach(doc => {
@@ -239,7 +253,7 @@ function StatusContent() {
 
     return (
         <div className="space-y-6 pb-12">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
                 <div className="flex items-center gap-4">
                     <Button
                         variant="ghost"
@@ -254,13 +268,28 @@ function StatusContent() {
                             <img src="https://play.pokemonshowdown.com/sprites/itemicons/town-map.png" alt="Status" className="w-8 h-8 pixelated" />
                         </div>
                         <div className="space-y-1">
-                            <h2 className="text-3xl font-black tracking-tighter text-black uppercase" style={{ fontFamily: '"NeoDunggeunmo", sans-serif', textShadow: '2px 2px 0px white' }}>{className} 현황판</h2>
+                            <h2 className="text-3xl font-black tracking-tighter text-black uppercase" style={{ fontFamily: '"NeoDunggeunmo", sans-serif', textShadow: '2px 2px 0px white' }}>{className || "학급"} 현황판</h2>
                             <p className="text-slate-800 font-medium tracking-tight text-sm bg-white/50 px-2 py-1 rounded inline-block border-2 border-black border-dashed">학생들의 성찰 참여 횟수를 확인하고 상세 기록을 관리합니다.</p>
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                    <Button onClick={exportToExcelFull} className="retro-btn bg-emerald-400 hover:bg-emerald-300 text-black font-black flex items-center gap-2 px-6 h-12">
+                <div className="flex flex-wrap gap-2 w-full xl:w-auto items-center">
+                    {classes.length > 0 && (
+                        <Select value={selectedClassId} onValueChange={(val) => {
+                            setSelectedClassId(val);
+                            router.push(`/dashboard/status?classId=${val}`);
+                        }}>
+                            <SelectTrigger className="w-full sm:w-[200px] h-12 retro-box bg-white text-black font-bold outline-none ring-0">
+                                <SelectValue placeholder="학급 선택" />
+                            </SelectTrigger>
+                            <SelectContent className="retro-box bg-white border-4 border-black rounded-none shadow-none">
+                                {classes.map((cls) => (
+                                    <SelectItem key={cls.id} value={cls.id} className="focus:bg-amber-100 focus:text-black font-bold cursor-pointer">{cls.className}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    )}
+                    <Button onClick={exportToExcelFull} className="flex-1 sm:flex-none retro-btn bg-emerald-400 hover:bg-emerald-300 text-black font-black flex items-center gap-2 px-6 h-12">
                         <img src="https://play.pokemonshowdown.com/sprites/itemicons/tm-normal.png" alt="Excel" className="w-5 h-5 pixelated" />
                         기록 다운로드
                     </Button>

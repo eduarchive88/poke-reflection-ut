@@ -58,11 +58,11 @@ export default function StudentLayout({
             <header className="sticky top-0 z-50 px-6 py-4 bg-background/80 backdrop-blur-xl border-b border-border shadow-md">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                     <Link href="/student" className="flex items-center gap-3 group transition-transform hover:scale-105">
-                        <div className="w-10 h-10 bg-gradient-to-tr from-[#ffde00] to-[#ff9500] rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform">
-                            <div className="w-5 h-5 border-[3px] border-slate-900 rounded-full bg-white/20"></div>
+                        <div className="w-10 h-10 border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_#000] bg-white group-hover:-translate-y-1 transition-transform relative">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="Pokeball" className="w-8 h-8" style={{ imageRendering: 'pixelated' }} />
                         </div>
                         <div className="flex flex-col">
-                            <h1 className="text-xl font-black pokemon-gradient-text tracking-tighter italic leading-none">POCKETMON</h1>
+                            <h1 className="text-xl font-black text-[#ffcb05] tracking-tighter italic leading-none" style={{ textShadow: '2px 2px 0px #3b4cca, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000, 1px 1px 0px #000' }}>POCKETMON</h1>
                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mt-1">Reflection Ultimate</p>
                         </div>
                     </Link>

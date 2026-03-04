@@ -61,15 +61,15 @@ export default function TeacherLayout({
         <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
             {/* Elegant Teacher Header */}
             <header className="px-6 py-4 flex justify-between items-center bg-background/80 backdrop-blur-xl border-b border-border relative z-50 sticky top-0">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg border border-indigo-400/30">
-                        <Presentation className="h-6 w-6 text-white" />
+                <Link href="/dashboard" className="flex items-center gap-3 group transition-transform hover:scale-105">
+                    <div className="w-10 h-10 border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_#000] bg-white group-hover:-translate-y-1 transition-transform relative">
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="Pokeball" className="w-8 h-8" style={{ imageRendering: 'pixelated' }} />
                     </div>
                     <div>
-                        <h1 className="text-xl font-black text-indigo-600 dark:text-indigo-400 tracking-tighter italic leading-none">TEACHER</h1>
-                        <p className="text-[10px] font-bold text-slate-500 dark:text-indigo-400/70 uppercase tracking-widest leading-none mt-1">Management Console</p>
+                        <h1 className="text-2xl font-black text-white tracking-tighter italic leading-none" style={{ textShadow: '2px 2px 0px #ef4444, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000, 1px 1px 0px #000' }}>TEACHER</h1>
+                        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest leading-none mt-1">Management Console</p>
                     </div>
-                </div>
+                </Link>
 
                 <div className="flex items-center gap-4">
                     <div className="hidden sm:block text-right mr-2">

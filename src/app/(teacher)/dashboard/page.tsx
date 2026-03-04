@@ -147,7 +147,7 @@ export default function TeacherDashboardHub() {
                                     <p className="text-3xl font-black text-black dark:text-white mt-1" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.1)' }}>{stats.recentReflections}</p>
                                 </div>
                                 <div className="p-2 border-[3px] border-black bg-yellow-100 shadow-[2px_2px_0px_#000]">
-                                    <img src="https://play.pokemonshowdown.com/sprites/itemicons/pokedex.png" className="w-10 h-10" style={{ imageRendering: 'pixelated' }} alt="Pokedex" />
+                                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png" className="w-10 h-10 drop-shadow-sm" style={{ imageRendering: 'pixelated' }} alt="Pokedex" />
                                 </div>
                             </div>
                         </Card>
