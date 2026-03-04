@@ -16,6 +16,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import { Upload, Download, UserPlus, Trash2, ChevronLeft } from "lucide-react";
 import { deleteDoc } from "firebase/firestore";
+import { useTeacherClass } from "@/contexts/TeacherClassContext";
 
 export const dynamic = 'force-dynamic';
 
@@ -43,12 +44,9 @@ interface StudentData {
 }
 
 function StudentsContent() {
-    const searchParams = useSearchParams();
     const router = useRouter();
-    const urlClassId = searchParams.get("classId");
+    const { classes, selectedClassId } = useTeacherClass();
 
-    const [classes, setClasses] = useState<ClassData[]>([]);
-    const [selectedClassId, setSelectedClassId] = useState<string>("");
     const [students, setStudents] = useState<StudentData[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -66,29 +64,11 @@ function StudentsContent() {
     });
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const q = query(collection(db, "classes"), where("teacherId", "==", user.uid));
-                const snapshots = await getDocs(q);
-                const classList: ClassData[] = [];
-                snapshots.forEach((doc) => classList.push({ id: doc.id, ...(doc.data() as Omit<ClassData, "id">) }));
-                setClasses(classList);
-
-                // URL 파라미터가 있으면 우선 적용, 없으면 첫 번째 학급
-                if (urlClassId) {
-                    setSelectedClassId(urlClassId);
-                } else if (classList.length > 0) {
-                    setSelectedClassId(classList[0].id);
-                }
-                setLoading(false);
-            }
-        });
-        return () => unsubscribe();
-    }, [urlClassId]);
-
-    useEffect(() => {
         if (selectedClassId) {
             fetchStudents(selectedClassId);
+        } else {
+            setStudents([]);
+            setLoading(false);
         }
     }, [selectedClassId]);
 
@@ -175,6 +155,7 @@ function StudentsContent() {
 
     const deleteStudent = async (studentId: string) => {
         if (!confirm("정말로 이 학생을 삭제하시겠습니까? 관련 데이터가 모두 보이지 않게 됩니다.")) return;
+        if (!selectedClassId) return;
         try {
             await deleteDoc(doc(db, "students", studentId));
             toast.success("학생이 성공적으로 삭제되었습니다.");
@@ -306,17 +287,6 @@ function StudentsContent() {
 
                 {classes.length > 0 && (
                     <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
-                        <Select value={selectedClassId} onValueChange={setSelectedClassId}>
-                            <SelectTrigger className="w-full sm:w-[200px] h-12 retro-box bg-white text-black font-bold outline-none ring-0">
-                                <SelectValue placeholder="학급 선택" />
-                            </SelectTrigger>
-                            <SelectContent className="retro-box bg-white border-4 border-black rounded-none shadow-none">
-                                {classes.map((cls) => (
-                                    <SelectItem key={cls.id} value={cls.id} className="focus:bg-amber-100 focus:text-black font-bold cursor-pointer">{cls.className}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-
                         <div className="flex gap-2 w-full sm:w-auto">
                             <Dialog open={isAddIndividualOpen} onOpenChange={setIsAddIndividualOpen}>
                                 <DialogTrigger asChild>

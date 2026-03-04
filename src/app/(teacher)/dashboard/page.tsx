@@ -4,16 +4,18 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, collection, query, getDocs, limit } from "firebase/firestore";
+import { doc, getDoc, collection, query, getDocs, limit, where } from "firebase/firestore";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
     ChevronRight
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTeacherClass } from "@/contexts/TeacherClassContext";
 
 export default function TeacherDashboardHub() {
     const router = useRouter();
+    const { selectedClassId } = useTeacherClass();
     const [teacherName, setTeacherName] = useState("");
     const [stats, setStats] = useState({
         totalStudents: 0,
@@ -29,7 +31,6 @@ export default function TeacherDashboardHub() {
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
                     setTeacherName(docSnap.data().name);
-                    fetchStats(user.uid);
                 }
             } else {
                 router.push("/login");
@@ -39,17 +40,27 @@ export default function TeacherDashboardHub() {
         return () => unsubscribe();
     }, [router]);
 
-    const fetchStats = async (teacherId: string) => {
+    useEffect(() => {
+        if (selectedClassId) {
+            fetchStats(selectedClassId);
+        } else {
+            // 학급이 선택되지 않았을 경우 통계 초기화
+            setStats({ totalStudents: 0, recentReflections: 0, activeClasses: 0 });
+            setLoading(false);
+        }
+    }, [selectedClassId]);
+
+    const fetchStats = async (classId: string) => {
+        setLoading(true);
         try {
-            // 간단하게 통계 데이터 가져오기 (실제 로직에 맞게 조정 필요)
             const classesSnap = await getDocs(collection(db, "classes"));
-            const studentsSnap = await getDocs(collection(db, "students"));
-            const reflectionsSnap = await getDocs(query(collection(db, "reflections"), limit(100)));
+            const studentsSnap = await getDocs(query(collection(db, "students"), where("classId", "==", classId)));
+            const reflectionsSnap = await getDocs(query(collection(db, "reflections"), where("classId", "==", classId), limit(100)));
 
             setStats({
                 totalStudents: studentsSnap.size,
                 recentReflections: reflectionsSnap.size,
-                activeClasses: classesSnap.size
+                activeClasses: classesSnap.size // 이건 전체 교사의 학급 수지만 일단 그대로 둠
             });
         } catch (error) {
             console.error("Error fetching teacher stats:", error);

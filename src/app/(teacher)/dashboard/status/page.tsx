@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { db, auth } from "@/lib/firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import { useRouter } from "next/navigation";
+import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { useTeacherClass } from "@/contexts/TeacherClassContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -18,9 +18,8 @@ import * as XLSX from "xlsx";
 export const dynamic = 'force-dynamic';
 
 function StatusContent() {
-    const searchParams = useSearchParams();
     const router = useRouter();
-    const classId = searchParams.get("classId");
+    const { classes, selectedClassId } = useTeacherClass();
 
     interface StudentData {
         id: string;
@@ -38,8 +37,6 @@ function StatusContent() {
         };
     }
 
-    const [classes, setClasses] = useState<{ id: string, className: string }[]>([]);
-    const [selectedClassId, setSelectedClassId] = useState<string>("");
     const [className, setClassName] = useState("");
     const [students, setStudents] = useState<StudentData[]>([]);
     const [reflections, setReflections] = useState<ReflectionData[]>([]);
@@ -75,27 +72,6 @@ function StatusContent() {
         { id: 150, name: "뮤츠", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/150.png", types: ["Psychic"] },
         { id: 151, name: "뮤", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/151.png", types: ["Psychic"] },
     ];
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const q = query(collection(db, "classes"), where("teacherId", "==", user.uid));
-                const snapshots = await getDocs(q);
-                const classList: { id: string, className: string }[] = [];
-                snapshots.forEach((doc) => classList.push({ id: doc.id, className: doc.data().className }));
-                setClasses(classList);
-
-                if (classId) {
-                    setSelectedClassId(classId);
-                } else if (classList.length > 0) {
-                    setSelectedClassId(classList[0].id);
-                } else {
-                    setLoading(false); // No classes
-                }
-            }
-        });
-        return () => unsubscribe();
-    }, [classId]);
-
     const updateDates = (days: number) => {
         const dateList: string[] = [];
         for (let i = 0; i < days; i++) {
@@ -111,6 +87,11 @@ function StatusContent() {
             const initialDays = parseInt(filterDays) || 30;
             updateDates(initialDays);
             fetchData(selectedClassId);
+        } else {
+            setLoading(false);
+            setStudents([]);
+            setReflections([]);
+            setClassName("");
         }
     }, [selectedClassId, filterDays]);
 
@@ -283,21 +264,6 @@ function StatusContent() {
                     </div>
                 </div>
                 <div className="flex flex-wrap gap-2 w-full xl:w-auto items-center">
-                    {classes.length > 0 && (
-                        <Select value={selectedClassId} onValueChange={(val) => {
-                            setSelectedClassId(val);
-                            router.push(`/dashboard/status?classId=${val}`);
-                        }}>
-                            <SelectTrigger className="w-full sm:w-[200px] h-12 retro-box bg-white text-black font-bold outline-none ring-0">
-                                <SelectValue placeholder="학급 선택" />
-                            </SelectTrigger>
-                            <SelectContent className="retro-box bg-white border-4 border-black rounded-none shadow-none">
-                                {classes.map((cls) => (
-                                    <SelectItem key={cls.id} value={cls.id} className="focus:bg-amber-100 focus:text-black font-bold cursor-pointer">{cls.className}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    )}
                     <Button onClick={exportToExcelFull} className="flex-1 sm:flex-none retro-btn bg-emerald-400 hover:bg-emerald-300 text-black font-black flex items-center gap-2 px-6 h-12">
                         <img src="https://play.pokemonshowdown.com/sprites/itemicons/tm-normal.png" alt="Excel" className="w-5 h-5 pixelated" />
                         기록 다운로드
