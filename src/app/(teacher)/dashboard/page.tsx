@@ -82,6 +82,14 @@ export default function TeacherDashboardHub() {
             path: "/dashboard/status",
             color: "bg-amber-100 dark:bg-amber-900/40 border-amber-300 dark:border-amber-700",
             hoverAccent: "hover:bg-amber-50 dark:hover:bg-amber-900/60"
+        },
+        {
+            title: "체육관 현황",
+            description: "현재 체육관의 마스터와 도전 현황을 실시간으로 확인합니다.",
+            icon: <img src="https://play.pokemonshowdown.com/sprites/itemicons/vs-seeker.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Gym" />,
+            path: "/dashboard/gym",
+            color: "bg-rose-100 dark:bg-rose-900/40 border-rose-300 dark:border-rose-700",
+            hoverAccent: "hover:bg-rose-50 dark:hover:bg-rose-900/60"
         }
     ];
 

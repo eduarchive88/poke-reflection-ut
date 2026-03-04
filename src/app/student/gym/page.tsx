@@ -80,6 +80,7 @@ interface GymData {
     pokemon: PokemonData | null;
     lastRewardAt: any;
     occupiedAt: any;
+    defenseCount?: number;
 }
 
 export default function GymPage() {
@@ -124,7 +125,8 @@ export default function GymPage() {
                     leaderName: null,
                     pokemon: null,
                     lastRewardAt: serverTimestamp(),
-                    occupiedAt: serverTimestamp()
+                    occupiedAt: serverTimestamp(),
+                    defenseCount: 0
                 };
                 await setDoc(gymRef, initialGym);
                 setGym(initialGym);
@@ -275,6 +277,9 @@ export default function GymPage() {
             setBattleLog(prev => [...prev, "▶ 전투에서 패배했습니다...", "▶ 패배한 포켓몬이 12시간 동안 휴식합니다."]);
             try {
                 await updateDoc(doc(db, "pokemon_inventory", player.id), { retiredUntil: retiredTime });
+                if (session && session.classId) {
+                    await updateDoc(doc(db, "gyms", session.classId), { defenseCount: increment(1) });
+                }
             } catch (e) { console.error("도전자 포켓몬 리타이어 처리 실패:", e); }
         }
         setTimeout(() => setGameState("result"), 2500);
@@ -289,7 +294,8 @@ export default function GymPage() {
                 leaderName: session.name || session.studentInfo?.name || "익명 학생",
                 pokemon: player,
                 occupiedAt: serverTimestamp(),
-                lastRewardAt: serverTimestamp()
+                lastRewardAt: serverTimestamp(),
+                defenseCount: 0
             };
             await setDoc(doc(db, "gyms", session.classId), newGymData);
             setGym(newGymData as any);

@@ -56,6 +56,10 @@ function StatusContent() {
     const [isRewardDialogOpen, setIsRewardDialogOpen] = useState(false);
     const [isRewarding, setIsRewarding] = useState(false);
 
+    // 포켓몬 스탯 모달 상태 추가
+    const [selectedPokemonStat, setSelectedPokemonStat] = useState<any | null>(null);
+    const [isStatDialogOpen, setIsStatDialogOpen] = useState(false);
+
     // 학생별 성찰 기록 상세 모달 관련
     const [isReflectionListOpen, setIsReflectionListOpen] = useState(false);
     const [studentReflections, setStudentReflections] = useState<any[]>([]);
@@ -490,7 +494,14 @@ function StatusContent() {
                     ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 py-4">
                             {studentInventory.map((item) => (
-                                <Card key={item.id} className="relative overflow-hidden retro-box bg-white hover:-translate-y-1 transition-transform group">
+                                <Card
+                                    key={item.id}
+                                    className="relative overflow-hidden retro-box bg-white hover:-translate-y-1 transition-transform group cursor-pointer active:scale-95"
+                                    onClick={() => {
+                                        setSelectedPokemonStat(item);
+                                        setIsStatDialogOpen(true);
+                                    }}
+                                >
                                     <div className={`absolute top-0 right-0 px-1.5 py-0.5 text-[8px] font-black border-b-2 border-l-2 border-black z-10 ${item.isLegendary ? 'bg-yellow-400 text-black' : 'bg-slate-200 text-black'}`} style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
                                         {item.isLegendary ? "LEGEND" : `No.${item.pokemonId.toString().padStart(3, '0')}`}
                                     </div>
@@ -504,6 +515,55 @@ function StatusContent() {
                                 </Card>
                             ))}
                         </div>
+                    )}
+                </DialogContent>
+            </Dialog>
+
+            {/* 포켓몬 스탯 모달 */}
+            <Dialog open={isStatDialogOpen} onOpenChange={setIsStatDialogOpen}>
+                <DialogContent className="sm:max-w-md retro-box bg-slate-100 p-6 z-[60]">
+                    {selectedPokemonStat && (
+                        <>
+                            <DialogHeader>
+                                <DialogTitle className="text-xl font-black text-black uppercase flex items-center gap-2" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
+                                    <img src="https://play.pokemonshowdown.com/sprites/itemicons/potion.png" alt="Stats" className="w-6 h-6 pixelated" />
+                                    {selectedPokemonStat.koName || selectedPokemonStat.name} 스탯 정보
+                                </DialogTitle>
+                            </DialogHeader>
+                            <div className="flex flex-col items-center gap-4 py-4">
+                                <img src={selectedPokemonStat.image} alt={selectedPokemonStat.name} className="w-32 h-32 pixelated drop-shadow-md" />
+                                <div className="text-center mb-2">
+                                    <span className="text-black font-black bg-slate-200 px-3 py-1 border-2 border-black inline-block" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
+                                        Lv.{selectedPokemonStat.level || 50}
+                                    </span>
+                                </div>
+                                <div className="w-full space-y-3 bg-white p-4 border-4 border-black retro-box">
+                                    <div className="flex justify-between items-center text-black font-black" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
+                                        <span>HP</span>
+                                        <span>{selectedPokemonStat.stats?.hp || 50}</span>
+                                    </div>
+                                    <div className="w-full bg-slate-200 h-4 border-2 border-black">
+                                        <div className="bg-green-400 h-full border-r-2 border-black" style={{ width: `${Math.min(((selectedPokemonStat.stats?.hp || 50) / 150) * 100, 100)}%` }}></div>
+                                    </div>
+
+                                    <div className="flex justify-between items-center text-black font-black" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
+                                        <span>공격</span>
+                                        <span>{selectedPokemonStat.stats?.attack || 50}</span>
+                                    </div>
+                                    <div className="w-full bg-slate-200 h-4 border-2 border-black">
+                                        <div className="bg-red-400 h-full border-r-2 border-black" style={{ width: `${Math.min(((selectedPokemonStat.stats?.attack || 50) / 150) * 100, 100)}%` }}></div>
+                                    </div>
+
+                                    <div className="flex justify-between items-center text-black font-black" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
+                                        <span>방어</span>
+                                        <span>{selectedPokemonStat.stats?.defense || 50}</span>
+                                    </div>
+                                    <div className="w-full bg-slate-200 h-4 border-2 border-black">
+                                        <div className="bg-blue-400 h-full border-r-2 border-black" style={{ width: `${Math.min(((selectedPokemonStat.stats?.defense || 50) / 150) * 100, 100)}%` }}></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
                     )}
                 </DialogContent>
             </Dialog>
