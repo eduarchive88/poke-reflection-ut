@@ -159,13 +159,23 @@ export default function FriendlyMatchPage() {
             });
             setStudents(sList);
 
-            // 내 포켓몬 (리타이어 안 된 것)
+            // 내 포켓몬 (리타이어 안 된 것 & 체육관 수비 중이지 않은 것)
             const now = new Date();
             const pQ = query(collection(db, "pokemon_inventory"), where("studentId", "==", studentId));
             const pSnap = await getDocs(pQ);
+
+            // 현재 체육관 수비 중인 포켓몬 ID 가져오기
+            const gymRef = doc(db, "gyms", classId);
+            const gymDoc = await getDoc(gymRef);
+            const gymPokeId = gymDoc.exists() ? gymDoc.data().pokemon?.id : null;
+
             const pList: PokemonData[] = [];
             pSnap.forEach(d => {
                 const data = d.data();
+
+                // 체육관 수비 중인 포켓몬은 제외
+                if (d.id === gymPokeId) return;
+
                 let retiredUntilDate = null;
                 if (data.retiredUntil) {
                     try {

@@ -119,6 +119,16 @@ export default function GymPage() {
 
             if (gymDoc.exists()) {
                 const currentGymData = gymDoc.data() as GymData;
+
+                // 체육관 포켓몬 정보 최신화 (도감에서 레벨업 등 반영)
+                if (currentGymData.pokemon?.id) {
+                    const pokeRef = doc(db, "pokemon_inventory", currentGymData.pokemon.id);
+                    const pokeDoc = await getDoc(pokeRef);
+                    if (pokeDoc.exists()) {
+                        currentGymData.pokemon = { id: pokeDoc.id, ...pokeDoc.data() } as PokemonData;
+                    }
+                }
+
                 setGym(currentGymData);
                 await checkWeeklyReward(studentId, classId, currentGymData);
             } else {
