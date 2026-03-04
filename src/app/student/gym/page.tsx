@@ -230,18 +230,11 @@ export default function GymPage() {
     const runBattleLoop = async (player: PokemonData, enemy: PokemonData, logs: string[]) => {
         const wait = (ms: number) => new Promise(res => setTimeout(res, ms));
 
-        // Ensure selectedMyPoke and gym.pokemon are available
-        if (!selectedMyPoke || !gym?.pokemon) {
-            console.error("Battle cannot start: selectedMyPoke or gym.pokemon is missing.");
-            setGameState("info"); // Go back to info or handle error appropriately
-            return;
-        }
-
-        const newLogs = [`▶ 체육관장 ${gym.leaderName}과의 배틀 시작!`];
+        const newLogs = [`▶ 체육관장 ${gym?.leaderName || "마스터"}와의 배틀 시작!`];
         setBattleLog(newLogs);
 
-        let myHp = (selectedMyPoke.stats?.hp || 100) + (selectedMyPoke.level * 2);
-        let leaderHp = (gym.pokemon.stats?.hp || 100) + (gym.pokemon.level * 2);
+        let myHp = (player.stats?.hp || 100) + (player.level * 2);
+        let leaderHp = (enemy.stats?.hp || 100) + (enemy.level * 2);
         const maxMyHp = myHp; // Not used in this snippet, but good to keep for potential HP bar
         const maxLeaderHp = leaderHp; // Not used in this snippet, but good to keep for potential HP bar
 
@@ -252,18 +245,18 @@ export default function GymPage() {
 
         while (myHp > 0 && leaderHp > 0) {
             // 플레이어 턴 (선공 - 레벨/속도 차이 무시 단순화)
-            const mySkillSelection = selectBattleSkill(selectedMyPoke.skills as any, myBasicCount);
+            const mySkillSelection = selectBattleSkill(player.skills as any, myBasicCount);
             const mySkill = mySkillSelection.skill;
 
             if (mySkillSelection.isBasic) myBasicCount++;
             else myBasicCount = 0;
 
-            const myEff = getEffectiveness([mySkill.type], gym.pokemon.types);
-            const myDmg = calculateDamage(selectedMyPoke.level, selectedMyPoke.stats?.attack || 40, gym.pokemon.stats?.defense || 40, mySkill.power, myEff);
+            const myEff = getEffectiveness([mySkill.type], enemy.types);
+            const myDmg = calculateDamage(player.level, player.stats?.attack || 40, enemy.stats?.defense || 40, mySkill.power, myEff);
 
             setHitEffect("opponent");
             leaderHp -= myDmg;
-            newLogs.push(`▶ [나] ${selectedMyPoke.koName || selectedMyPoke.name}의 [${mySkill.name}]! ${myDmg} 데미지!`);
+            newLogs.push(`▶ [나] ${player.koName || player.name}의 [${mySkill.name}]! ${myDmg} 데미지!`);
             if (myEff > 1) newLogs.push("▶ 앗! 효과가 굉장했다!");
             else if (myEff < 1 && myEff > 0) newLogs.push("▶ 효과가 별로인 듯하다...");
             else if (myEff === 0) newLogs.push("▶ 효과가 없는 듯하다...");
@@ -274,24 +267,24 @@ export default function GymPage() {
             await wait(600);
 
             if (leaderHp <= 0) {
-                newLogs.push(`▶ 관장의 ${gym.pokemon.koName || gym.pokemon.name} 쓰러짐!`);
+                newLogs.push(`▶ 관장의 ${enemy.koName || enemy.name} 쓰러짐!`);
                 setBattleLog([...newLogs.slice(-7)]);
                 break;
             }
 
             // 관장 턴
-            const leaderSkillSelection = selectBattleSkill(gym.pokemon.skills as any, leaderBasicCount);
+            const leaderSkillSelection = selectBattleSkill(enemy.skills as any, leaderBasicCount);
             const leaderSkill = leaderSkillSelection.skill;
 
             if (leaderSkillSelection.isBasic) leaderBasicCount++;
             else leaderBasicCount = 0;
 
-            const leaderEff = getEffectiveness([leaderSkill.type], selectedMyPoke.types);
-            const leaderDmg = calculateDamage(gym.pokemon.level, gym.pokemon.stats?.attack || 40, selectedMyPoke.stats?.defense || 40, leaderSkill.power, leaderEff);
+            const leaderEff = getEffectiveness([leaderSkill.type], player.types);
+            const leaderDmg = calculateDamage(enemy.level, enemy.stats?.attack || 40, player.stats?.defense || 40, leaderSkill.power, leaderEff);
 
             setHitEffect("player");
             myHp -= leaderDmg;
-            newLogs.push(`▶ [관장] ${gym.pokemon.koName || gym.pokemon.name}의 [${leaderSkill.name}]! ${leaderDmg} 데미지!`);
+            newLogs.push(`▶ [관장] ${enemy.koName || enemy.name}의 [${leaderSkill.name}]! ${leaderDmg} 데미지!`);
             if (leaderEff > 1) newLogs.push("▶ 앗! 효과가 굉장했다!");
             else if (leaderEff < 1 && leaderEff > 0) newLogs.push("▶ 효과가 별로인 듯하다...");
             else if (leaderEff === 0) newLogs.push("▶ 효과가 없는 듯하다...");
@@ -302,7 +295,7 @@ export default function GymPage() {
             await wait(600);
 
             if (myHp <= 0) {
-                newLogs.push(`▶ 내 ${selectedMyPoke.koName || selectedMyPoke.name} 쓰러짐...`);
+                newLogs.push(`▶ 내 ${player.koName || player.name} 쓰러짐...`);
                 setBattleLog([...newLogs.slice(-7)]);
                 break;
             }
