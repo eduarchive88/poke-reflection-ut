@@ -85,6 +85,15 @@ const TYPE_CHART: Record<string, Record<string, number>> = {
     fighting: { normal: 3, ice: 3, rock: 3, dark: 3, steel: 3, poison: 0.33, flying: 0.33, psychic: 0.33, bug: 0.33, fairy: 0.33, ghost: 0 }
 };
 
+const KO_TYPES: Record<string, string> = {
+    normal: "노말", fire: "불꽃", water: "물", grass: "풀", electric: "전기",
+    ice: "얼음", fighting: "격투", poison: "독", ground: "땅", flying: "비행",
+    psychic: "에스퍼", bug: "벌레", rock: "바위", ghost: "고스트",
+    dragon: "드래곤", dark: "악", steel: "강철", fairy: "페어리"
+};
+
+const TYPES_ORDER = ["normal", "fire", "water", "grass", "electric", "ice", "fighting", "poison", "ground", "flying", "psychic", "bug", "rock", "ghost", "dragon", "dark", "steel", "fairy"];
+
 export default function FriendlyMatchPage() {
     const router = useRouter();
     const [session, setSession] = useState<any>(null);
@@ -103,6 +112,9 @@ export default function FriendlyMatchPage() {
     const [winner, setWinner] = useState<"me" | "opponent" | null>(null);
     const [isReady, setIsReady] = useState(false);
     const [opponentReady, setOpponentReady] = useState(false);
+
+    // 모달 State
+    const [showTypeChart, setShowTypeChart] = useState(false);
 
     // Battle State
     const [currentMyIdx, setCurrentMyIdx] = useState(0);
@@ -635,7 +647,7 @@ export default function FriendlyMatchPage() {
                                     <ul className="space-y-3 text-xs sm:text-sm pixel-text text-gray-700">
                                         <li>▶ <span className="text-red-500 font-bold">효과 굉장 (데미지 2배)</span> : 물 ➔ 불꽃, 전기 ➔ 비행 등</li>
                                         <li>▶ <span className="text-blue-500 font-bold">효과 별로 (데미지 절반)</span> : 불꽃 ➔ 물, 풀 ➔ 비행 등</li>
-                                        <li>▶ 상세한 상성은 하단 메뉴의 <span className="font-bold border-b border-black">상성표</span>를 확인하세요!</li>
+                                        <li>▶ 상세한 상성은 <span className="font-bold border-b border-black text-blue-600 cursor-pointer hover:bg-blue-50 transition-colors" onClick={() => setShowTypeChart(true)}>상성표</span>를 확인하세요!</li>
                                     </ul>
                                 </div>
 
@@ -933,6 +945,85 @@ export default function FriendlyMatchPage() {
                         >
                             로비로 돌아가기
                         </Button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* 상성표 모달 */}
+            <AnimatePresence>
+                {showTypeChart && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-sm"
+                        onClick={() => setShowTypeChart(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            className="pixel-box bg-white p-2 sm:p-4 md:p-6 w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col relative"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="flex justify-between items-center mb-4 border-b-2 border-black pb-2">
+                                <h2 className="text-lg sm:text-xl md:text-2xl font-black pixel-text flex items-center gap-2">
+                                    ⚔️ 불꽃/물/풀... 상성표!
+                                </h2>
+                                <Button
+                                    onClick={() => setShowTypeChart(false)}
+                                    className="pixel-button bg-red-500 text-white w-8 h-8 p-0 flex items-center justify-center"
+                                >
+                                    X
+                                </Button>
+                            </div>
+
+                            <div className="overflow-auto custom-scrollbar border-4 border-black p-1 sm:p-2 bg-gray-50 flex-grow">
+                                <div className="min-w-[600px]">
+                                    <table className="w-full text-[10px] md:text-xs text-center border-collapse">
+                                        <thead>
+                                            <tr>
+                                                <th className="border-2 border-black p-1 bg-gray-200 pixel-text text-gray-700 whitespace-nowrap sticky top-0 left-0 z-20">공격 ➔<br />방어 ⬇</th>
+                                                {TYPES_ORDER.map(t => (
+                                                    <th key={t} className={`border border-black p-1 sm:p-2 ${TYPE_COLORS[t] || 'bg-gray-400'} text-white font-black pixel-text whitespace-nowrap sticky top-0 z-10 w-10 sm:w-16 shadow-sm`}>
+                                                        {KO_TYPES[t]}
+                                                    </th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {TYPES_ORDER.map(atk => (
+                                                <tr key={atk}>
+                                                    <th className={`border-2 border-black p-1 sm:p-2 font-black pixel-text ${TYPE_COLORS[atk] || 'bg-gray-400'} text-white whitespace-nowrap sticky left-0 z-10 w-16 sm:w-20 shadow-[2px_0_0_0_rgba(0,0,0,0.1)]`}>
+                                                        {KO_TYPES[atk]}
+                                                    </th>
+                                                    {TYPES_ORDER.map(def => {
+                                                        const val = TYPE_CHART[atk]?.[def];
+                                                        let content = "";
+                                                        let bg = "bg-white";
+                                                        if (val === 3) { content = "O"; bg = "bg-green-100 font-black text-green-700 text-sm sm:text-base"; }
+                                                        else if (val === 0.33) { content = "△"; bg = "bg-red-50 font-bold text-red-700"; }
+                                                        else if (val === 0) { content = "X"; bg = "bg-gray-300 font-bold text-gray-500"; }
+
+                                                        return (
+                                                            <td key={def} className={`border border-gray-400 p-1 sm:p-2 ${bg} hover:bg-yellow-200 transition-colors cursor-crosshair`}>
+                                                                {content}
+                                                            </td>
+                                                        );
+                                                    })}
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div className="mt-4 pb-2 text-[10px] sm:text-sm font-bold pixel-text text-gray-800 flex flex-col sm:flex-row gap-2 sm:gap-6 justify-center bg-gray-100 p-2 sm:p-3 border-2 border-black border-dashed">
+                                <span className="flex items-center gap-2"><span className="text-green-700 font-black text-lg bg-green-100 px-1 border border-green-700">O</span> 효과가 굉장했다! (데미지 증가)</span>
+                                <span className="flex items-center gap-2"><span className="text-red-700 font-bold text-base bg-red-50 px-1 border border-red-700">△</span> 효과가 별로인 듯하다... (데미지 감소)</span>
+                                <span className="flex items-center gap-2"><span className="text-gray-500 font-bold text-base bg-gray-300 px-1 border border-gray-500">X</span> 효과가 없는 것 같다... (공격 무효)</span>
+                            </div>
+                        </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
