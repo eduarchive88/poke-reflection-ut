@@ -430,7 +430,7 @@ function StatusContent() {
                                         </div>
                                     </div>
                                     <CardContent className="p-4">
-                                        <p className="text-sm leading-relaxed whitespace-pre-wrap font-bold text-black">{item.content}</p>
+                                        <p className="text-sm leading-relaxed whitespace-pre-wrap break-all font-bold text-black">{item.content}</p>
                                     </CardContent>
                                 </Card>
                             ))}

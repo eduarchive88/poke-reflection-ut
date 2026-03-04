@@ -231,7 +231,7 @@ export default function ClassesPage() {
             )}
 
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                <DialogContent className="retro-box sm:max-w-[425px] bg-white dark:bg-slate-800 p-0 overflow-hidden">
+                <DialogContent className="retro-box sm:max-w-[500px] bg-white dark:bg-slate-800 p-0 overflow-hidden">
                     <div className="bg-yellow-500 p-4 border-b-[3px] border-black flex items-center gap-2">
                         <img src="https://play.pokemonshowdown.com/sprites/itemicons/machobrace.png" className="w-6 h-6" style={{ imageRendering: 'pixelated' }} alt="Brace" />
                         <DialogTitle className="text-xl font-black text-black uppercase italic drop-shadow-[1px_1px_0_rgba(255,255,255,0.5)]">학급 정보 변경</DialogTitle>

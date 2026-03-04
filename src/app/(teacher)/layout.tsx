@@ -88,9 +88,13 @@ function TeacherLayoutInner({ children }: { children: React.ReactNode }) {
                         </div>
                     </Link>
 
+                    {/* Class Selector Dropdown Moved Context */}
+                </div>
+
+                <div className="flex items-center gap-4">
                     {/* Class Selector Dropdown */}
                     {classes.length > 0 && pathname !== "/dashboard/classes" && (
-                        <div className="hidden md:flex items-center gap-2">
+                        <div className="hidden lg:flex items-center gap-2 mr-2">
                             <div className="bg-slate-800 text-white border-2 border-black flex items-center px-2 py-1 h-10">
                                 <span className="font-bold pixel-text text-xs">CLASS :</span>
                             </div>
@@ -108,9 +112,7 @@ function TeacherLayoutInner({ children }: { children: React.ReactNode }) {
                             </Select>
                         </div>
                     )}
-                </div>
 
-                <div className="flex items-center gap-4">
                     <div className="hidden sm:block text-right mr-2">
                         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-end gap-1">
                             {selectedClassId && classes.find(c => c.id === selectedClassId)?.className && (
