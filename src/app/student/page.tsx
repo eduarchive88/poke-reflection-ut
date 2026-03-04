@@ -17,6 +17,7 @@ export default function StudentDashboard() {
     const router = useRouter();
     const [session, setSession] = useState<any>(null);
     const [recentReflections, setRecentReflections] = useState<any[]>([]);
+    const [recentLogs, setRecentLogs] = useState<any[]>([]);
     const [partnerPokemon, setPartnerPokemon] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
@@ -28,13 +29,12 @@ export default function StudentDashboard() {
         }
         const sessionData = JSON.parse(sessionStr);
         setSession(sessionData);
-        fetchData(sessionData.studentId);
+        fetchData(sessionData.studentId, sessionData.classId);
     }, [router]);
 
-    const fetchData = async (studentId: string) => {
+    const fetchData = async (studentId: string, classId: string) => {
         try {
             // 이번 주 월요일 0시 기준 (주간 성찰 카운팅용)
-            // 간단하게 최근 5개 중 이번 주 것만 필터링하거나, 쿼리 자체에 시간 조건 추가
             const now = new Date();
             const day = now.getDay();
             const diff = now.getDate() - day + (day === 0 ? -6 : 1);
@@ -52,6 +52,18 @@ export default function StudentDashboard() {
             const list: any[] = [];
             snapshots.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
             setRecentReflections(list);
+
+            // 최근 활동 로그 가져오기 (최신 6개)
+            const logQ = query(
+                collection(db, "student_logs"),
+                where("studentId", "==", studentId),
+                orderBy("createdAt", "desc"),
+                limit(6)
+            );
+            const logSnap = await getDocs(logQ);
+            const logs: any[] = [];
+            logSnap.forEach(d => logs.push({ id: d.id, ...d.data() }));
+            setRecentLogs(logs);
 
             // 파트너 포켓몬 가져오기 (가장 레벨이 높은 포켓몬)
             const pokeQ = query(collection(db, "pokemon_inventory"), where("studentId", "==", studentId));
@@ -71,6 +83,19 @@ export default function StudentDashboard() {
         }
     };
 
+    const getLogIcon = (type: string) => {
+        switch (type) {
+            case "reflection": return "https://play.pokemonshowdown.com/sprites/itemicons/town-map.png";
+            case "candy_gain": return "https://play.pokemonshowdown.com/sprites/itemicons/rare-candy.png";
+            case "pokemon_catch": return "https://play.pokemonshowdown.com/sprites/itemicons/poke-ball.png";
+            case "level_up": return "https://play.pokemonshowdown.com/sprites/itemicons/exp-share.png";
+            case "battle_friendly":
+            case "battle_gym": return "https://play.pokemonshowdown.com/sprites/itemicons/vs-seeker.png";
+            case "layoff_start": return "https://play.pokemonshowdown.com/sprites/itemicons/revive.png";
+            default: return "https://play.pokemonshowdown.com/sprites/itemicons/star-piece.png";
+        }
+    };
+
     const menuItems = [
         {
             name: "성찰 일지 쓰기",
@@ -79,6 +104,14 @@ export default function StudentDashboard() {
             icon: <img src="https://play.pokemonshowdown.com/sprites/itemicons/poke-ball.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Poke Ball" />,
             bgColor: "bg-red-100 dark:bg-red-900/40",
             hoverAccent: "hover:bg-red-50 dark:hover:bg-red-900/60"
+        },
+        {
+            name: "활동 기록",
+            description: "나의 모든 활동 내역을 상세하게 확인하세요.",
+            path: "/student/activities",
+            icon: <img src="https://play.pokemonshowdown.com/sprites/itemicons/journal.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Journal" />,
+            bgColor: "bg-blue-100 dark:bg-blue-900/40",
+            hoverAccent: "hover:bg-blue-50 dark:hover:bg-blue-900/60"
         },
         {
             name: "기록 보관함",
@@ -117,7 +150,7 @@ export default function StudentDashboard() {
     if (!session) return null;
 
     return (
-        <div className="space-y-12">
+        <div className="space-y-12 pb-12">
             {/* Header Hero */}
             <motion.div
                 initial={{ opacity: 0, scale: 0.98 }}
@@ -181,9 +214,9 @@ export default function StudentDashboard() {
                             <Button
                                 size="lg"
                                 className="retro-btn bg-white text-black hover:bg-gray-200 h-12 px-6"
-                                onClick={() => router.push("/student/archive")}
+                                onClick={() => router.push("/student/activities")}
                             >
-                                지난 기록 보기
+                                나의 활동 기록
                             </Button>
                         </div>
                     </div>
@@ -298,7 +331,7 @@ export default function StudentDashboard() {
                                     </div>
                                     <h3 className="text-2xl font-black italic tracking-tighter" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.1)' }}>최근 활동 요약</h3>
                                 </div>
-                                <Button variant="ghost" size="sm" className="retro-btn text-xs py-1 hover:bg-slate-300" onClick={() => router.push("/student/archive")}>
+                                <Button variant="ghost" size="sm" className="retro-btn text-xs py-1 hover:bg-slate-300" onClick={() => router.push("/student/activities")}>
                                     더보기 <span className="ml-1 text-base">▶</span>
                                 </Button>
                             </div>
@@ -310,25 +343,32 @@ export default function StudentDashboard() {
                                             <div key={i} className="h-24 bg-slate-300 dark:bg-slate-600 animate-pulse border-[3px] border-black shadow-[2px_2px_0px_rgba(0,0,0,0.2)]" />
                                         ))}
                                     </div>
-                                ) : recentReflections.length === 0 ? (
+                                ) : recentLogs.length === 0 ? (
                                     <div className="h-full flex flex-col items-center justify-center text-center space-y-4 py-8 border-4 border-dashed border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 rounded">
                                         <img src="https://play.pokemonshowdown.com/sprites/itemicons/old-amber.png" className="w-16 h-16 grayscale opacity-60" style={{ imageRendering: 'pixelated' }} alt="No Data" />
-                                        <p className="text-sm font-black uppercase tracking-[0.2em] text-slate-500">No data logs found</p>
+                                        <p className="text-sm font-black uppercase tracking-[0.2em] text-slate-500">최근 활동이 없습니다.</p>
                                     </div>
                                 ) : (
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {recentReflections.slice(0, 3).map((ref) => (
+                                        {recentLogs.map((log) => (
                                             <motion.div
-                                                key={ref.id}
+                                                key={log.id}
                                                 whileHover={{ y: -4, x: -4 }}
-                                                className="retro-box p-5 bg-white dark:bg-slate-900 cursor-pointer shadow-[4px_4px_0px_#000] hover:shadow-[8px_8px_0px_#000] border-[3px] border-black flex flex-col justify-between min-h-[120px] transition-all"
-                                                onClick={() => router.push("/student/archive")}
+                                                className="retro-box p-5 bg-white dark:bg-slate-900 cursor-pointer shadow-[4px_4px_0px_#000] hover:shadow-[8px_8px_0px_#000] border-[3px] border-black flex flex-col justify-between min-h-[140px] transition-all"
+                                                onClick={() => router.push("/student/activities")}
                                             >
-                                                <p className="line-clamp-2 text-base font-bold text-foreground leading-snug mb-4">{ref.content}</p>
+                                                <div className="flex items-start gap-3 mb-2">
+                                                    <div className="p-1 border-2 border-black bg-slate-100 shadow-[2px_2px_0px_#000] shrink-0">
+                                                        <img src={getLogIcon(log.type)} className="w-6 h-6" style={{ imageRendering: 'pixelated' }} alt="Type" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="font-black text-sm text-blue-600 dark:text-blue-400 leading-tight">{log.title}</h4>
+                                                        <p className="line-clamp-2 text-xs font-bold text-foreground leading-tight mt-1">{log.description}</p>
+                                                    </div>
+                                                </div>
                                                 <div className="flex items-center justify-between border-t-2 border-slate-200 dark:border-slate-700 pt-3 mt-auto">
                                                     <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                                                        <img src="https://play.pokemonshowdown.com/sprites/itemicons/star-piece.png" className="w-4 h-4" style={{ imageRendering: 'pixelated' }} alt="Star" />
-                                                        {ref.createdAt?.toDate ? ref.createdAt.toDate().toLocaleDateString() : "RECENT ACTIVITY"}
+                                                        {log.createdAt?.toDate ? log.createdAt.toDate().toLocaleString() : "RECENT ACTIVITY"}
                                                     </span>
                                                 </div>
                                             </motion.div>
@@ -338,6 +378,21 @@ export default function StudentDashboard() {
                             </div>
                         </Card>
                     </motion.div>
+                </div>
+            </div>
+
+            {/* Footer */}
+            <div className="pt-12 mt-12 border-t-4 border-black border-dashed text-center space-y-2">
+                <p className="text-sm font-black tracking-widest text-slate-500 uppercase">
+                    만든 사람: 경기도 지구과학 교사 뀨짱
+                </p>
+                <div className="flex justify-center gap-6">
+                    <a href="https://open.kakao.com/o/s7hVU65h" target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-blue-600 hover:underline">
+                        문의: 카카오톡 오픈채팅
+                    </a>
+                    <a href="https://eduarchive.tistory.com/" target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-slate-600 hover:underline">
+                        블로그: 뀨짱쌤의 교육자료 아카이브
+                    </a>
                 </div>
             </div>
         </div>

@@ -598,6 +598,23 @@ export default function FriendlyMatchPage() {
                 createdAt: serverTimestamp(),
                 classId: session?.classId
             });
+
+            // 학생 활동 로그 기록
+            await addDoc(collection(db, "student_logs"), {
+                studentId: session.studentId,
+                classId: session.classId,
+                type: "battle_friendly",
+                title: isWin ? "친선 경기 승리! 🎉" : "친선 경기 패배... 💧",
+                description: `${oppName}님과의 대결에서 ${isWin ? "승리" : "패배"}했습니다.`,
+                details: {
+                    opponentId: oppId,
+                    opponentName: oppName,
+                    isWin: isWin,
+                    myFirstPoke: myFirstPoke,
+                    oppFirstPoke: oppFirstPoke
+                },
+                createdAt: serverTimestamp()
+            });
         } catch (e) {
             console.error("배틀 로그 기록 실패:", e);
         }
@@ -605,7 +622,22 @@ export default function FriendlyMatchPage() {
         if (!isWin) {
             const retiredTime = new Date();
             retiredTime.setHours(retiredTime.getHours() + 12);
+
+            // 포켓몬 휴가(리타이어) 로그 기록
             try {
+                await addDoc(collection(db, "student_logs"), {
+                    studentId: session.studentId,
+                    classId: session.classId,
+                    type: "layoff_start",
+                    title: "포켓몬 휴식 시작",
+                    description: `패배한 포켓몬들이 12시간 동안 휴식에 들어갑니다.`,
+                    details: {
+                        retiredUntil: retiredTime,
+                        reason: "battle_defeat"
+                    },
+                    createdAt: serverTimestamp()
+                });
+
                 for (const poke of myTeam) {
                     await updateDoc(doc(db, "pokemon_inventory", poke.id), { retiredUntil: retiredTime });
                 }

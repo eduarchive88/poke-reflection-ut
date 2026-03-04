@@ -154,6 +154,21 @@ export default function WritePage() {
                         level: (currentData.level || 5) + 1,
                         updatedAt: serverTimestamp()
                     });
+
+                    // 학생 활동 로그 기록 (레벨업)
+                    const logRef = doc(collection(db, "student_logs"));
+                    transaction.set(logRef, {
+                        studentId: session.studentId,
+                        classId: session.classId,
+                        type: "level_up",
+                        title: `${koName} 레벨업! ✨`,
+                        description: `성찰 일기 보상으로 ${koName}의 레벨이 ${currentData.level + 1}로 올랐습니다.`,
+                        details: {
+                            pokemonId: randomPokeId,
+                            newLevel: currentData.level + 1
+                        },
+                        createdAt: serverTimestamp()
+                    });
                 } else {
                     const { getPokemonStats, getRandomSkills } = await import("@/lib/pokemonData");
                     const initialStats = getPokemonStats(randomPokeId, 5);
@@ -172,7 +187,52 @@ export default function WritePage() {
                         skills: initialSkills,
                         createdAt: serverTimestamp()
                     });
+
+                    // 학생 활동 로그 기록 (새로운 포켓몬)
+                    const logRef = doc(collection(db, "student_logs"));
+                    transaction.set(logRef, {
+                        studentId: session.studentId,
+                        classId: session.classId,
+                        type: "pokemon_catch",
+                        title: `새로운 친구 ${koName}! 🎈`,
+                        description: `성찰 일기 보상으로 새로운 포켓몬 ${koName}을 얻었습니다.`,
+                        details: {
+                            pokemonId: randomPokeId,
+                            level: 5
+                        },
+                        createdAt: serverTimestamp()
+                    });
                 }
+
+                // 성찰 일기 작성 로그
+                const reflectionLogRef = doc(collection(db, "student_logs"));
+                transaction.set(reflectionLogRef, {
+                    studentId: session.studentId,
+                    classId: session.classId,
+                    type: "reflection",
+                    title: "성찰 일기 작성 완료 📝",
+                    description: `오늘의 성찰 일기를 작성했습니다. (${wordCount}자)`,
+                    details: {
+                        wordCount: wordCount,
+                        rating: rating
+                    },
+                    createdAt: serverTimestamp()
+                });
+
+                // 캔디 획득 로그
+                const candyLogRef = doc(collection(db, "student_logs"));
+                transaction.set(candyLogRef, {
+                    studentId: session.studentId,
+                    classId: session.classId,
+                    type: "candy_gain",
+                    title: `캔디 ${earnedCandies}개 획득! 🍬`,
+                    description: `성찰 일기 작성 보상으로 캔디 ${earnedCandies}개를 받았습니다.`,
+                    details: {
+                        amount: earnedCandies,
+                        reason: "reflection"
+                    },
+                    createdAt: serverTimestamp()
+                });
             });
 
             setRewardPokemon(pokemon);

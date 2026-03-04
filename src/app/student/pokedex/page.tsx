@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { collection, query, where, getDocs, doc, updateDoc, increment, getDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, updateDoc, increment, getDoc, addDoc, serverTimestamp } from "firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -163,6 +163,24 @@ export default function PokedexPage() {
 
             await updateDoc(doc(db, "pokemon_inventory", inventoryId), updates);
 
+            // 4. 활동 로그 기록
+            const statName = randomStat === 'hp' ? '체력' : randomStat === 'attack' ? '공격력' : '방어력';
+            await addDoc(collection(db, "student_logs"), {
+                studentId: session.studentId,
+                classId: session.classId,
+                type: "level_up",
+                title: "포켓몬 레벨업!",
+                description: `${currentData.koName || currentData.name}의 레벨이 ${currentData.level + 1}로 올랐습니다! (상승 스탯: ${statName} +${incrementValue})`,
+                details: {
+                    pokemonId: currentData.pokemonId,
+                    pokemonName: currentData.koName || currentData.name,
+                    newLevel: currentData.level + 1,
+                    statName: statName,
+                    statIncrease: incrementValue
+                },
+                createdAt: serverTimestamp()
+            });
+
             // 3. 로컬 상태 업데이트
             setCandies(prev => prev - 1);
             setMyPokemon(prev => prev.map(p => {
@@ -184,7 +202,6 @@ export default function PokedexPage() {
                 setSelectedPokemon({ ...selectedPokemon, level: selectedPokemon.level + 1, stats: newStats });
             }
 
-            const statName = randomStat === 'hp' ? '체력' : randomStat === 'attack' ? '공격력' : '방어력';
             toast.success(`레벨업 성공! ${statName}이(가) ${incrementValue} 상승했습니다.`);
         } catch (error) {
             console.error(error);

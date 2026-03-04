@@ -199,6 +199,22 @@ export default function GymPage() {
                 const batch = writeBatch(db);
                 batch.update(doc(db, "students", studentId), { candies: increment(3) });
                 batch.update(doc(db, "gyms", classId), { lastRewardAt: serverTimestamp() });
+
+                // 학생 활동 로그 기록 (주간 보상)
+                const logRef = doc(collection(db, "student_logs"));
+                batch.set(logRef, {
+                    studentId: studentId,
+                    classId: classId,
+                    type: "candy_gain",
+                    title: "체육관 주간 보상! 🍬",
+                    description: "체육관을 1주일 동안 지켜서 캔디 3개를 획득했습니다!",
+                    details: {
+                        amount: 3,
+                        reason: "gym_weekly_reward"
+                    },
+                    createdAt: serverTimestamp()
+                });
+
                 await batch.commit();
                 toast.success("🍬 체육관 보상! 캔디 3개를 획득했습니다!");
             } catch (e) {
@@ -353,6 +369,23 @@ export default function GymPage() {
                     createdAt: serverTimestamp(),
                     classId: session.classId
                 });
+
+                // 학생 활동 로그 기록
+                await addDoc(collection(db, "student_logs"), {
+                    studentId: session.studentId,
+                    classId: session.classId,
+                    type: "battle_gym",
+                    title: "체육관 배틀 승리! 👑",
+                    description: `${gym?.leaderName || "마스터"}를 꺾고 체육관을 차지했습니다!`,
+                    details: {
+                        opponentId: gym?.leaderId || "NPC",
+                        opponentName: gym?.leaderName || "체육관 마스터",
+                        isWin: true,
+                        myPoke: player.koName || player.name,
+                        oppPoke: gym?.pokemon?.koName || gym?.pokemon?.name
+                    },
+                    createdAt: serverTimestamp()
+                });
             }
         } catch (e) {
             console.error("체육관 배틀 로그 저장 실패:", e);
@@ -388,6 +421,38 @@ export default function GymPage() {
                     loserPoke: player.koName || player.name || "비어있음",
                     createdAt: serverTimestamp(),
                     classId: session.classId
+                });
+
+                // 학생 활동 로그 기록
+                await addDoc(collection(db, "student_logs"), {
+                    studentId: session.studentId,
+                    classId: session.classId,
+                    type: "battle_gym",
+                    title: "체육관 배틀 패배... 💧",
+                    description: `${gym?.leaderName || "마스터"}와의 대결에서 패배했습니다.`,
+                    details: {
+                        opponentId: gym?.leaderId || "NPC",
+                        opponentName: gym?.leaderName || "체육관 마스터",
+                        isWin: false,
+                        myPoke: player.koName || player.name,
+                        oppPoke: gym?.pokemon?.koName || gym?.pokemon?.name
+                    },
+                    createdAt: serverTimestamp()
+                });
+
+                // 포켓몬 휴식 시작(리타이어) 로그 기록
+                await addDoc(collection(db, "student_logs"), {
+                    studentId: session.studentId,
+                    classId: session.classId,
+                    type: "layoff_start",
+                    title: "포켓몬 휴식 시작",
+                    description: `패배한 포켓몬(${player.koName || player.name})이 12시간 동안 휴식에 들어갑니다.`,
+                    details: {
+                        pokemonId: player.id,
+                        retiredUntil: retiredTime,
+                        reason: "gym_defeat"
+                    },
+                    createdAt: serverTimestamp()
                 });
             }
         } catch (e) { console.error("도전자 포켓몬 리타이어 처리 및 로그 기록 실패:", e); }
