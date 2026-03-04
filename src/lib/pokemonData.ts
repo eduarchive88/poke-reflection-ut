@@ -172,25 +172,48 @@ export function getSkillData(skillName: string): PokemonSkill | null {
 }
 
 // 배틀 스킬 확률 선택 시스템
-// 기본 공격(몸통박치기) 30% + 보유 스킬 중 하나 70%
+// 기본 공격('기본 공격')은 고정 가중치(예: 300) 배정하여 확률을 높임.
+// 보유 스킬 3개는 각 스킬의 역량(power)에 반비례하여 가중치를 갖게 됨: Math.max(10, 160 - power)
 export function selectBattleSkill(skills: string[] | undefined): PokemonSkill {
-    const basicAttack: PokemonSkill = { name: "몸통박치기", type: "normal", power: 40 };
+    const basicAttack: PokemonSkill = { name: "기본 공격", type: "normal", power: 30 };
 
-    // 스킬이 없으면 항상 기본 공격
-    if (!skills || skills.length === 0) return basicAttack;
+    // 스킬이 없거나 잘못된 배열일 경우 항상 기본 공격 반환
+    if (!skills || !Array.isArray(skills) || skills.length === 0) return basicAttack;
 
-    // 30% 확률로 기본 공격 사용
-    if (Math.random() < 0.3) return basicAttack;
-
-    // 70% 확률로 보유 스킬 중 하나 (랜덤 추출을 통한 골고루 사용)
+    // 실제 데이터가 존재하는 유효한 스킬들만 필터링
     const validSkills = skills
         .map(name => getSkillData(name))
         .filter((s): s is PokemonSkill => s !== null);
 
     if (validSkills.length === 0) return basicAttack;
 
-    const randomIndex = Math.floor(Math.random() * validSkills.length);
-    return validSkills[randomIndex];
+    // 가중치 배열 생성 (위력이 높을수록 낮아지도록)
+    // 예: 위력이 40일 경우 160-40=120(비교적 흔하게 발생)
+    // 예: 위력이 150일 경우 160-150=10(비교적 드물게 발생)
+    const skillWeights = validSkills.map(s => Math.max(10, 160 - s.power));
+
+    // 기본 공격에 막대한 가중치(예: 300) 할당
+    const BASE_ATTACK_WEIGHT = 300;
+
+    const totalWeight = BASE_ATTACK_WEIGHT + skillWeights.reduce((a, b) => a + b, 0);
+    const randomValue = Math.random() * totalWeight;
+
+    // 기본 공격 범주에 랜덤값이 들어왔을 때
+    if (randomValue < BASE_ATTACK_WEIGHT) {
+        return basicAttack;
+    }
+
+    // 그 외 범주에서 가중치 기반 특정 스킬 추첨
+    let cumulativeWeight = BASE_ATTACK_WEIGHT;
+    for (let i = 0; i < validSkills.length; i++) {
+        cumulativeWeight += skillWeights[i];
+        if (randomValue < cumulativeWeight) {
+            return validSkills[i];
+        }
+    }
+
+    // fallback
+    return basicAttack;
 }
 
 export function calculateDamage(attackerLevel: number, attackerAttack: number, defenderDefense: number, skillPower: number, effectiveness: number): number {

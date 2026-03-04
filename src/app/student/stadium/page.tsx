@@ -7,7 +7,7 @@ import { collection, query, where, getDocs, addDoc, serverTimestamp, limit } fro
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { getSkillData, calculateDamage } from "@/lib/pokemonData";
+import { getSkillData, calculateDamage, selectBattleSkill } from "@/lib/pokemonData";
 
 // 간단한 상성 차트 (1.0 = 보통, 3.0 = 효과 좋음, 0.33 = 효과 별로)
 const TYPE_CHART: Record<string, Record<string, number>> = {
@@ -132,19 +132,12 @@ export default function StadiumPage() {
         let eHp = (enemy.stats?.hp || 100) + ((enemy.level || 5) * 2);
         let turn = 1;
 
-        const fallbackSkillName = "몸통박치기";
         await wait(2000);
 
         while (pHp > 0 && eHp > 0) {
-            const pSkillName = player.skills && player.skills.length > 0
-                ? player.skills[Math.floor(Math.random() * player.skills.length)]
-                : fallbackSkillName;
-            const eSkillName = enemy.skills && enemy.skills.length > 0
-                ? enemy.skills[Math.floor(Math.random() * enemy.skills.length)]
-                : fallbackSkillName;
-
-            const pSkill = getSkillData(pSkillName) || { name: fallbackSkillName, type: "normal", power: 40 };
-            const eSkill = getSkillData(eSkillName) || { name: fallbackSkillName, type: "normal", power: 40 };
+            // 확률 기반 스킬 선택 (기본공격 60~70% + 보유 기술 랜덤 확률)
+            const pSkill = selectBattleSkill(player.skills);
+            const eSkill = selectBattleSkill(enemy.skills);
 
             const pEff = getEffectiveness([pSkill.type], enemy.types);
             const eEff = getEffectiveness([eSkill.type], player.types);
