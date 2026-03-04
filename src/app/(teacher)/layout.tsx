@@ -135,7 +135,7 @@ function TeacherLayoutInner({ children }: { children: React.ReactNode }) {
                     <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-blue-600/5 rounded-full blur-[100px]"></div>
                 </div>
 
-                <div className="max-w-7xl mx-auto relative z-10 w-full pb-20">
+                <div className="max-w-7xl mx-auto relative z-10 w-full">
                     {/* 학급 선택 화면: 학급은 있지만 아직 선택 안 한 상태 */}
                     {showClassPicker ? (
                         <div className="max-w-3xl mx-auto space-y-8 py-8">
@@ -229,18 +229,6 @@ function TeacherLayoutInner({ children }: { children: React.ReactNode }) {
                         </div>
                     </DialogContent>
                 </Dialog>
-
-                {/* Footer */}
-                <footer className="mt-auto py-10 text-center text-[10px] text-slate-500 relative z-10 border-t border-border bg-background/50">
-                    <div className="max-w-7xl mx-auto px-6">
-                        <p className="text-slate-500 dark:text-slate-400 font-medium">만든 사람: 경기도 지구과학 교사 뀨짱</p>
-                        <div className="mt-2 flex items-center justify-center gap-3 text-slate-500">
-                            <a href="https://open.kakao.com/o/s7hVU65h" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">카카오톡 오픈채팅</a>
-                            <span className="w-1 h-1 bg-slate-300 dark:bg-slate-700 rounded-full"></span>
-                            <a href="https://eduarchive.tistory.com/" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">뀨짱쌤의 교육자료 아카이브</a>
-                        </div>
-                    </div>
-                </footer>
             </main>
         </div>
     );

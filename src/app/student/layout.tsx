@@ -98,35 +98,6 @@ export default function StudentLayout({
                 <div className="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-8 relative z-10">
                     {children}
                 </div>
-
-                {/* Global Footer */}
-                <footer className="w-full py-10 border-t border-border bg-background/50 backdrop-blur-sm relative z-10">
-                    <div className="max-w-7xl mx-auto px-6 flex flex-col items-center">
-                        <div className="text-center space-y-2">
-                            <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
-                                만든 사람: <span className="text-slate-900 dark:text-slate-200">경기도 지구과학 교사 뀨짱</span>
-                            </p>
-                            <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-xs font-medium text-slate-500">
-                                <a
-                                    href="https://open.kakao.com/o/s7hVU65h"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-white/5 border border-border hover:bg-indigo-50 dark:hover:bg-[#3b4cca]/20 hover:text-indigo-600 dark:hover:text-white transition-all flex items-center gap-2"
-                                >
-                                    <span>문의: 카카오톡 오픈채팅</span>
-                                </a>
-                                <a
-                                    href="https://eduarchive.tistory.com/"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-white/5 border border-border hover:bg-indigo-50 dark:hover:bg-[#3b4cca]/20 hover:text-indigo-600 dark:hover:text-white transition-all flex items-center gap-2"
-                                >
-                                    <span>블로그: 뀨짱쌤의 교육자료 아카이브</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
             </main>
         </div>
     );
