@@ -75,6 +75,7 @@ export default function StadiumPage() {
     const [selectedOpponent, setSelectedOpponent] = useState<PokemonData | null>(null);
     const [battleLog, setBattleLog] = useState<string[]>([]);
     const [winner, setWinner] = useState<string | null>(null);
+    const [hitEffect, setHitEffect] = useState<"player" | "opponent" | "none">("none");
 
     useEffect(() => {
         const sessionStr = localStorage.getItem("poke_student_session");
@@ -154,24 +155,30 @@ export default function StadiumPage() {
             const pEff = getEffectiveness([pSkill.type], enemy.types);
             const eEff = getEffectiveness([eSkill.type], player.types);
 
-            const pDmg = calculateDamage(player.level || 5, player.stats?.attack || 40, enemy.stats?.defense || 40, pSkill.power, pEff);
-            const eDmg = calculateDamage(enemy.level || 5, enemy.stats?.attack || 40, player.stats?.defense || 40, eSkill.power, eEff);
+            const pDmg = calculateDamage(player.level, player.stats?.attack || 40, enemy.stats?.defense || 40, pSkill.power, pEff);
+            const eDmg = calculateDamage(enemy.level, enemy.stats?.attack || 40, player.stats?.defense || 40, eSkill.power, eEff);
 
             if (turn % 2 !== 0) {
+                setHitEffect("opponent");
                 eHp -= pDmg;
-                logs.push(`▶ ${player.koName || player.name}의 [${pSkill.name}]! ${pDmg} 데미지!`);
+                logs.push(`▶ [나] ${player.koName || player.name}의 [${pSkill.name}]! ${pDmg} 데미지!`);
                 if (pEff > 1) logs.push("▶ 앗! 효과가 굉장했다!");
-                else if (pEff < 1) logs.push("▶ 효과가 별로인 듯하다...");
+                else if (pEff < 1 && pEff > 0) logs.push("▶ 효과가 별로인 듯하다...");
+                else if (pEff === 0) logs.push("▶ 효과가 없는 듯하다...");
             } else {
+                setHitEffect("player");
                 pHp -= eDmg;
-                logs.push(`▶ ${enemy.koName || enemy.name}의 [${eSkill.name}]! ${eDmg} 데미지!`);
+                logs.push(`▶ [상대] ${enemy.koName || enemy.name}의 [${eSkill.name}]! ${eDmg} 데미지!`);
                 if (eEff > 1) logs.push("▶ 앗! 효과가 굉장했다!");
-                else if (eEff < 1) logs.push("▶ 효과가 별로인 듯하다...");
+                else if (eEff < 1 && eEff > 0) logs.push("▶ 효과가 별로인 듯하다...");
+                else if (eEff === 0) logs.push("▶ 효과가 없는 듯하다...");
             }
 
-            setBattleLog([...logs.slice(-6)]);
+            setBattleLog([...logs.slice(-7)]);
+            await wait(400);
+            setHitEffect("none");
             turn++;
-            await wait(1500);
+            await wait(1000);
         }
 
         // 결과 처리

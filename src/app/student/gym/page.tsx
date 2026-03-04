@@ -96,6 +96,7 @@ export default function GymPage() {
     const [selectedMyPoke, setSelectedMyPoke] = useState<PokemonData | null>(null);
     const [battleLog, setBattleLog] = useState<string[]>([]);
     const [winner, setWinner] = useState<"player" | "leader" | null>(null);
+    const [hitEffect, setHitEffect] = useState<"player" | "opponent" | "none">("none");
 
     useEffect(() => {
         const sessionStr = localStorage.getItem("poke_student_session");
@@ -229,80 +230,121 @@ export default function GymPage() {
     const runBattleLoop = async (player: PokemonData, enemy: PokemonData, logs: string[]) => {
         const wait = (ms: number) => new Promise(res => setTimeout(res, ms));
 
-        let pHp = (player.stats?.hp || 100) + (player.level * 2);
-        let eHp = (enemy.stats?.hp || 100) + (enemy.level * 2);
-        let turn = 1;
-
-        let pBasicCount = 0;
-        let eBasicCount = 0;
-
-        await wait(2000);
-
-        while (pHp > 0 && eHp > 0) {
-            // 확률 기반 스킬 선택 (기본공격 카운트 반영)
-            const pSkillSelection = selectBattleSkill(player.skills, pBasicCount);
-            const eSkillSelection = selectBattleSkill(enemy.skills, eBasicCount);
-
-            const pSkill = pSkillSelection.skill;
-            const eSkill = eSkillSelection.skill;
-
-            if (pSkillSelection.isBasic) pBasicCount++;
-            else pBasicCount = 0;
-
-            if (eSkillSelection.isBasic) eBasicCount++;
-            else eBasicCount = 0;
-
-            const pEff = getEffectiveness([pSkill.type], enemy.types);
-            const eEff = getEffectiveness([eSkill.type], player.types);
-
-            const pDmg = calculateDamage(player.level, player.stats?.attack || 40, enemy.stats?.defense || 40, pSkill.power, pEff);
-            const eDmg = calculateDamage(enemy.level, enemy.stats?.attack || 40, player.stats?.defense || 40, eSkill.power, eEff);
-
-            if (turn % 2 !== 0) {
-                eHp -= pDmg;
-                logs.push(`▶ ${player.koName || player.name}의 [${pSkill.name}]! ${pDmg} 데미지!`);
-                if (pEff > 1) logs.push("▶ 앗! 효과가 굉장했다!");
-                else if (pEff < 1) logs.push("▶ 효과가 별로인 듯하다...");
-            } else {
-                pHp -= eDmg;
-                logs.push(`▶ ${enemy.koName || enemy.name}의 [${eSkill.name}]! ${eDmg} 데미지!`);
-                if (eEff > 1) logs.push("▶ 앗! 효과가 굉장했다!");
-                else if (eEff < 1) logs.push("▶ 효과가 별로인 듯하다...");
-            }
-
-            setBattleLog([...logs.slice(-6)]);
-            turn++;
-            await wait(1500);
+        // Ensure selectedMyPoke and gym.pokemon are available
+        if (!selectedMyPoke || !gym?.pokemon) {
+            console.error("Battle cannot start: selectedMyPoke or gym.pokemon is missing.");
+            setGameState("info"); // Go back to info or handle error appropriately
+            return;
         }
 
-        finishBattle(pHp > 0, player, enemy);
+        const newLogs = [`▶ 체육관장 ${gym.leaderName}과의 배틀 시작!`];
+        setBattleLog(newLogs);
+
+        let myHp = (selectedMyPoke.stats?.hp || 100) + (selectedMyPoke.level * 2);
+        let leaderHp = (gym.pokemon.stats?.hp || 100) + (gym.pokemon.level * 2);
+        const maxMyHp = myHp; // Not used in this snippet, but good to keep for potential HP bar
+        const maxLeaderHp = leaderHp; // Not used in this snippet, but good to keep for potential HP bar
+
+        let myBasicCount = 0;
+        let leaderBasicCount = 0;
+
+        await wait(1500);
+
+        while (myHp > 0 && leaderHp > 0) {
+            // 플레이어 턴 (선공 - 레벨/속도 차이 무시 단순화)
+            const mySkillSelection = selectBattleSkill(selectedMyPoke.skills as any, myBasicCount);
+            const mySkill = mySkillSelection.skill;
+
+            if (mySkillSelection.isBasic) myBasicCount++;
+            else myBasicCount = 0;
+
+            const myEff = getEffectiveness([mySkill.type], gym.pokemon.types);
+            const myDmg = calculateDamage(selectedMyPoke.level, selectedMyPoke.stats?.attack || 40, gym.pokemon.stats?.defense || 40, mySkill.power, myEff);
+
+            setHitEffect("opponent");
+            leaderHp -= myDmg;
+            newLogs.push(`▶ [나] ${selectedMyPoke.koName || selectedMyPoke.name}의 [${mySkill.name}]! ${myDmg} 데미지!`);
+            if (myEff > 1) newLogs.push("▶ 앗! 효과가 굉장했다!");
+            else if (myEff < 1 && myEff > 0) newLogs.push("▶ 효과가 별로인 듯하다...");
+            else if (myEff === 0) newLogs.push("▶ 효과가 없는 듯하다...");
+
+            setBattleLog([...newLogs.slice(-7)]);
+            await wait(400);
+            setHitEffect("none");
+            await wait(600);
+
+            if (leaderHp <= 0) {
+                newLogs.push(`▶ 관장의 ${gym.pokemon.koName || gym.pokemon.name} 쓰러짐!`);
+                setBattleLog([...newLogs.slice(-7)]);
+                break;
+            }
+
+            // 관장 턴
+            const leaderSkillSelection = selectBattleSkill(gym.pokemon.skills as any, leaderBasicCount);
+            const leaderSkill = leaderSkillSelection.skill;
+
+            if (leaderSkillSelection.isBasic) leaderBasicCount++;
+            else leaderBasicCount = 0;
+
+            const leaderEff = getEffectiveness([leaderSkill.type], selectedMyPoke.types);
+            const leaderDmg = calculateDamage(gym.pokemon.level, gym.pokemon.stats?.attack || 40, selectedMyPoke.stats?.defense || 40, leaderSkill.power, leaderEff);
+
+            setHitEffect("player");
+            myHp -= leaderDmg;
+            newLogs.push(`▶ [관장] ${gym.pokemon.koName || gym.pokemon.name}의 [${leaderSkill.name}]! ${leaderDmg} 데미지!`);
+            if (leaderEff > 1) newLogs.push("▶ 앗! 효과가 굉장했다!");
+            else if (leaderEff < 1 && leaderEff > 0) newLogs.push("▶ 효과가 별로인 듯하다...");
+            else if (leaderEff === 0) newLogs.push("▶ 효과가 없는 듯하다...");
+
+            setBattleLog([...newLogs.slice(-7)]);
+            await wait(400);
+            setHitEffect("none");
+            await wait(600);
+
+            if (myHp <= 0) {
+                newLogs.push(`▶ 내 ${selectedMyPoke.koName || selectedMyPoke.name} 쓰러짐...`);
+                setBattleLog([...newLogs.slice(-7)]);
+                break;
+            }
+        }
+
+        const playerWon = myHp > 0;
+        setWinner(playerWon ? "player" : "leader");
+        setGameState("result");
+
+        if (playerWon) {
+            handleVictory(player);
+        } else {
+            handleDefeat(player);
+        }
     };
 
-    // 배틀 종료 처리
-    const finishBattle = async (isWin: boolean, player: PokemonData, enemy: PokemonData) => {
+    // 승리 처리
+    const handleVictory = async (player: PokemonData) => {
         const retiredTime = new Date();
         retiredTime.setHours(retiredTime.getHours() + 12);
 
-        if (isWin) {
-            setWinner("player");
-            setBattleLog(prev => [...prev, "▶ 체육관 마스터를 꺾었습니다!", "▶ 당당하게 체육관을 차지했습니다!"]);
-            if (gym?.pokemon?.id) {
-                try {
-                    await updateDoc(doc(db, "pokemon_inventory", gym.pokemon.id), { retiredUntil: retiredTime });
-                } catch (e) { console.error("기존 리더 포켓몬 리타이어 처리 실패:", e); }
-            }
-            await handleOccupy(player);
-        } else {
-            setWinner("leader");
-            setBattleLog(prev => [...prev, "▶ 전투에서 패배했습니다...", "▶ 패배한 포켓몬이 12시간 동안 휴식합니다."]);
+        setBattleLog(prev => [...prev, "▶ 체육관 마스터를 꺾었습니다!", "▶ 당당하게 체육관을 차지했습니다!"]);
+        if (gym?.pokemon?.id) {
             try {
-                await updateDoc(doc(db, "pokemon_inventory", player.id), { retiredUntil: retiredTime });
-                if (session && session.classId) {
-                    await updateDoc(doc(db, "gyms", session.classId), { defenseCount: increment(1) });
-                }
-            } catch (e) { console.error("도전자 포켓몬 리타이어 처리 실패:", e); }
+                await updateDoc(doc(db, "pokemon_inventory", gym.pokemon.id), { retiredUntil: retiredTime });
+            } catch (e) { console.error("기존 리더 포켓몬 리타이어 처리 실패:", e); }
         }
-        setTimeout(() => setGameState("result"), 2500);
+        await handleOccupy(player);
+    };
+
+    // 패배 처리
+    const handleDefeat = async (player: PokemonData) => {
+        const retiredTime = new Date();
+        retiredTime.setHours(retiredTime.getHours() + 12);
+
+        setBattleLog(prev => [...prev, "▶ 전투에서 패배했습니다...", "▶ 패배한 포켓몬이 12시간 동안 휴식합니다."]);
+        try {
+            await updateDoc(doc(db, "pokemon_inventory", player.id), { retiredUntil: retiredTime });
+            if (session && session.classId) {
+                await updateDoc(doc(db, "gyms", session.classId), { defenseCount: increment(1) });
+            }
+        } catch (e) { console.error("도전자 포켓몬 리타이어 처리 실패:", e); }
     };
 
     // 체육관 점령 처리
@@ -593,13 +635,20 @@ export default function GymPage() {
                                 <div className="mb-2 bg-white border-2 border-black px-3 py-1 flex items-center gap-2 drop-shadow-sm">
                                     <span className="font-bold pixel-text text-[10px] md:text-sm text-blue-600">도전자</span>
                                 </div>
-                                <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-48 md:h-48 relative drop-shadow-[0_8px_0_rgba(0,0,0,0.3)]">
+                                <motion.div
+                                    animate={hitEffect === "player" ? {
+                                        x: [-10, 10, -10, 10, 0],
+                                        filter: ["brightness(1)", "brightness(2)", "brightness(1)"]
+                                    } : {}}
+                                    transition={{ duration: 0.4 }}
+                                    className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-48 md:h-48 drop-shadow-[0_8px_0_rgba(0,0,0,0.3)]"
+                                >
                                     <PokemonImage
                                         id={selectedMyPoke?.pokemonId || 0}
                                         name={selectedMyPoke?.koName || selectedMyPoke?.name}
                                         className="w-full h-full object-contain pixelated [transform:scaleX(-1)]"
                                     />
-                                </div>
+                                </motion.div>
                                 <div className="mt-2 text-center drop-shadow-sm">
                                     <p className="font-bold pixel-text text-[10px] sm:text-sm md:text-base text-black bg-white px-3 py-1 border-2 border-black truncate max-w-[120px] md:max-w-none">
                                         {selectedMyPoke?.koName || selectedMyPoke?.name}
@@ -618,13 +667,20 @@ export default function GymPage() {
                                         {gym?.leaderName || "마스터"}
                                     </span>
                                 </div>
-                                <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-48 md:h-48 relative drop-shadow-[0_8px_0_rgba(0,0,0,0.3)]">
+                                <motion.div
+                                    animate={hitEffect === "opponent" ? {
+                                        x: [-10, 10, -10, 10, 0],
+                                        filter: ["brightness(1)", "brightness(2)", "brightness(1)"]
+                                    } : {}}
+                                    transition={{ duration: 0.4 }}
+                                    className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-48 md:h-48 drop-shadow-[0_8px_0_rgba(0,0,0,0.3)]"
+                                >
                                     <PokemonImage
                                         id={gym?.pokemon?.pokemonId || 0}
                                         name={gym?.pokemon?.koName || gym?.pokemon?.name}
                                         className="w-full h-full object-contain pixelated"
                                     />
-                                </div>
+                                </motion.div>
                                 <div className="mt-2 text-center drop-shadow-sm flex flex-col items-center">
                                     <p className="font-bold pixel-text text-[10px] sm:text-sm md:text-base text-black bg-white px-3 py-1 border-2 border-black truncate max-w-[120px] md:max-w-none">
                                         {gym?.pokemon?.koName || gym?.pokemon?.name || "???"}
