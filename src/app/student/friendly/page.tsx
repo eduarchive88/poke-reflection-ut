@@ -451,6 +451,9 @@ export default function FriendlyMatchPage() {
         let currentMyHp = 0;
         let currentOppHp = 0;
 
+        let myBasicCount = 0;
+        let oppBasicCount = 0;
+
         const wait = (ms: number) => new Promise(res => setTimeout(res, ms));
         await wait(2000);
 
@@ -461,11 +464,13 @@ export default function FriendlyMatchPage() {
             let nextLogMsg = false;
             if (currentMyHp <= 0) {
                 currentMyHp = (me.stats?.hp || 100) + (me.level * 2);
+                myBasicCount = 0;
                 logs.push(`▶ [나] ${me.koName || me.name} 출전!`);
                 nextLogMsg = true;
             }
             if (currentOppHp <= 0) {
                 currentOppHp = (opp.stats?.hp || 100) + (opp.level * 2);
+                oppBasicCount = 0;
                 logs.push(`▶ [상대] ${opp.koName || opp.name} 출전!`);
                 nextLogMsg = true;
             }
@@ -475,9 +480,18 @@ export default function FriendlyMatchPage() {
                 await wait(1000);
             }
 
-            // 확률 기반 스킬 선택 (기본공격 60% + 보유스킬 40%)
-            const mySkill = selectBattleSkill(me.skills);
-            const oppSkill = selectBattleSkill(opp.skills);
+            // 확률 기반 스킬 선택 (기본공격 카운트 반영)
+            const mySkillSelection = selectBattleSkill(me.skills, myBasicCount);
+            const oppSkillSelection = selectBattleSkill(opp.skills, oppBasicCount);
+
+            const mySkill = mySkillSelection.skill;
+            const oppSkill = oppSkillSelection.skill;
+
+            if (mySkillSelection.isBasic) myBasicCount++;
+            else myBasicCount = 0;
+
+            if (oppSkillSelection.isBasic) oppBasicCount++;
+            else oppBasicCount = 0;
 
             const myEff = getEffectiveness([mySkill.type], opp.types);
             const oppEff = getEffectiveness([oppSkill.type], me.types);

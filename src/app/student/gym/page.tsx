@@ -233,12 +233,24 @@ export default function GymPage() {
         let eHp = (enemy.stats?.hp || 100) + (enemy.level * 2);
         let turn = 1;
 
+        let pBasicCount = 0;
+        let eBasicCount = 0;
+
         await wait(2000);
 
         while (pHp > 0 && eHp > 0) {
-            // 확률 기반 스킬 선택 (기본공격 60% + 보유스킬 40%)
-            const pSkill = selectBattleSkill(player.skills);
-            const eSkill = selectBattleSkill(enemy.skills);
+            // 확률 기반 스킬 선택 (기본공격 카운트 반영)
+            const pSkillSelection = selectBattleSkill(player.skills, pBasicCount);
+            const eSkillSelection = selectBattleSkill(enemy.skills, eBasicCount);
+
+            const pSkill = pSkillSelection.skill;
+            const eSkill = eSkillSelection.skill;
+
+            if (pSkillSelection.isBasic) pBasicCount++;
+            else pBasicCount = 0;
+
+            if (eSkillSelection.isBasic) eBasicCount++;
+            else eBasicCount = 0;
 
             const pEff = getEffectiveness([pSkill.type], enemy.types);
             const eEff = getEffectiveness([eSkill.type], player.types);
@@ -356,7 +368,7 @@ export default function GymPage() {
                         <div className="grid gap-6 md:grid-cols-2">
                             {/* 현재 마스터 카드 */}
                             <div className="pixel-box bg-white overflow-hidden relative border-4 border-black shadow-[8px_8px_0_0_rgba(0,0,0,1)] flex flex-col items-center">
-                                <div className="absolute inset-0 bg-yellow-300 opacity-20" />
+                                <div className="absolute inset-0 bg-yellow-300 opacity-20 pointer-events-none" />
                                 <div className="text-center p-4 relative z-10 w-full border-b-4 border-black bg-yellow-400">
                                     <h3 className="text-xl font-black pixel-text text-black uppercase tracking-widest mt-1">
                                         ⭐ HALL OF FAME ⭐
@@ -427,7 +439,7 @@ export default function GymPage() {
                                         </div>
                                     )}
                                 </div>
-                                <div className="p-4 w-full bg-gray-100 border-t-4 border-black">
+                                <div className="p-4 w-full bg-gray-100 border-t-4 border-black relative z-10">
                                     <Button
                                         size="lg"
                                         className="w-full pixel-button font-black text-lg h-14 bg-red-500 hover:bg-red-600 text-white"

@@ -172,35 +172,45 @@ export function getSkillData(skillName: string): PokemonSkill | null {
 }
 
 // 배틀 스킬 확률 선택 시스템
-// 기본 공격('기본 공격')은 고정 가중치(예: 300) 배정하여 확률을 높임.
+// 기본 공격('기본 공격')은 고정 가중치(예: 100) 배정하여 확률을 일부 조정.
 // 보유 스킬 3개는 각 스킬의 역량(power)에 반비례하여 가중치를 갖게 됨: Math.max(10, 160 - power)
-export function selectBattleSkill(skills: string[] | undefined): PokemonSkill {
+// 5회 중 1회는 무조건 스킬이 발동되도록 basicAttackCount 매개변수 도입
+export function selectBattleSkill(skills: string[] | undefined, basicAttackCount: number = 0): { skill: PokemonSkill, isBasic: boolean } {
     const basicAttack: PokemonSkill = { name: "기본 공격", type: "normal", power: 30 };
 
     // 스킬이 없거나 잘못된 배열일 경우 항상 기본 공격 반환
-    if (!skills || !Array.isArray(skills) || skills.length === 0) return basicAttack;
+    if (!skills || !Array.isArray(skills) || skills.length === 0) return { skill: basicAttack, isBasic: true };
 
     // 실제 데이터가 존재하는 유효한 스킬들만 필터링
     const validSkills = skills
         .map(name => getSkillData(name))
         .filter((s): s is PokemonSkill => s !== null);
 
-    if (validSkills.length === 0) return basicAttack;
+    if (validSkills.length === 0) return { skill: basicAttack, isBasic: true };
+
+    // 만약 기본 공격이 4연속 이상 지속되었다면, 무조건 보유 스킬 중 하나를 발동 (5회당 최소 1회 보장)
+    if (basicAttackCount >= 4) {
+        // 이 때도 가중치가 높은(단일 파워가 낮은) 스킬이 유틸성상 더 잘 발동되게 가중치 기반 추첨할 수 있으나,
+        // 보장 턴인 만큼 모든 스킬 중 무작위 1개 발동으로 동일한 확률을 줄수도 있음.
+        // 여기서는 그냥 완전히 무작위로 선택하도록 함
+        const randomIndex = Math.floor(Math.random() * validSkills.length);
+        return { skill: validSkills[randomIndex], isBasic: false };
+    }
 
     // 가중치 배열 생성 (위력이 높을수록 낮아지도록)
     // 예: 위력이 40일 경우 160-40=120(비교적 흔하게 발생)
     // 예: 위력이 150일 경우 160-150=10(비교적 드물게 발생)
     const skillWeights = validSkills.map(s => Math.max(10, 160 - s.power));
 
-    // 기본 공격에 막대한 가중치(예: 300) 할당
-    const BASE_ATTACK_WEIGHT = 300;
+    // 기본 공격에 고정 가중치 할당 (발동 빈도를 스킬과 유사하게 조정, 예: 100)
+    const BASE_ATTACK_WEIGHT = 100;
 
     const totalWeight = BASE_ATTACK_WEIGHT + skillWeights.reduce((a, b) => a + b, 0);
     const randomValue = Math.random() * totalWeight;
 
     // 기본 공격 범주에 랜덤값이 들어왔을 때
     if (randomValue < BASE_ATTACK_WEIGHT) {
-        return basicAttack;
+        return { skill: basicAttack, isBasic: true };
     }
 
     // 그 외 범주에서 가중치 기반 특정 스킬 추첨
@@ -208,12 +218,12 @@ export function selectBattleSkill(skills: string[] | undefined): PokemonSkill {
     for (let i = 0; i < validSkills.length; i++) {
         cumulativeWeight += skillWeights[i];
         if (randomValue < cumulativeWeight) {
-            return validSkills[i];
+            return { skill: validSkills[i], isBasic: false };
         }
     }
 
     // fallback
-    return basicAttack;
+    return { skill: basicAttack, isBasic: true };
 }
 
 export function calculateDamage(attackerLevel: number, attackerAttack: number, defenderDefense: number, skillPower: number, effectiveness: number): number {

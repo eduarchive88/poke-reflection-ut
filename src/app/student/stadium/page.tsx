@@ -132,12 +132,24 @@ export default function StadiumPage() {
         let eHp = (enemy.stats?.hp || 100) + ((enemy.level || 5) * 2);
         let turn = 1;
 
+        let pBasicCount = 0;
+        let eBasicCount = 0;
+
         await wait(2000);
 
         while (pHp > 0 && eHp > 0) {
-            // 확률 기반 스킬 선택 (기본공격 60~70% + 보유 기술 랜덤 확률)
-            const pSkill = selectBattleSkill(player.skills);
-            const eSkill = selectBattleSkill(enemy.skills);
+            // 확률 기반 스킬 선택 (기본공격 카운트 반영)
+            const pSkillSelection = selectBattleSkill(player.skills, pBasicCount);
+            const eSkillSelection = selectBattleSkill(enemy.skills, eBasicCount);
+
+            const pSkill = pSkillSelection.skill;
+            const eSkill = eSkillSelection.skill;
+
+            if (pSkillSelection.isBasic) pBasicCount++;
+            else pBasicCount = 0;
+
+            if (eSkillSelection.isBasic) eBasicCount++;
+            else eBasicCount = 0;
 
             const pEff = getEffectiveness([pSkill.type], enemy.types);
             const eEff = getEffectiveness([eSkill.type], player.types);
