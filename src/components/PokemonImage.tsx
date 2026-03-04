@@ -49,17 +49,19 @@ export function PokemonImage({ id, name, className, pixelated = false }: Pokemon
     }, [validId, getFallbackSources]);
 
     // 이미지 로드 실패 시 다음 소스로 전환
-    const handleError = () => {
-        const newSources = getFallbackSources(validId);
-        const nextIndex = fallbackIndex + 1;
-        if (nextIndex < newSources.length) {
-            setFallbackIndex(nextIndex);
-            setImgSrc(newSources[nextIndex]);
-        } else {
-            // 모든 소스 실패 시 에러 상태
-            setIsError(true);
-        }
-    };
+    const handleError = useCallback(() => {
+        setFallbackIndex((prevIndex) => {
+            const nextIndex = prevIndex + 1;
+            const newSources = getFallbackSources(validId);
+            if (nextIndex < newSources.length) {
+                setImgSrc(newSources[nextIndex]);
+                return nextIndex;
+            } else {
+                setIsError(true);
+                return prevIndex;
+            }
+        });
+    }, [validId, getFallbackSources]);
 
     // 유효하지 않은 ID이거나 모든 소스 실패 시 placeholder 표시
     if (!validId || isError) {

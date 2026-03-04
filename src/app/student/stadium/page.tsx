@@ -4,10 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, addDoc, serverTimestamp, limit } from "firebase/firestore";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Swords, User, Shield, Zap, RefreshCcw, ChevronLeft, Sparkles, Trophy } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // 간단한 상성 차트 (1.0 = 보통, 2.0 = 효과 좋음, 0.5 = 효과 별로)
@@ -108,7 +106,7 @@ export default function StadiumPage() {
     };
 
     const runBattleSimulation = (player: PokemonData, enemy: PokemonData) => {
-        setBattleLog(["Battle Start!", `${player.koName || player.name} VS ${enemy.koName || enemy.name}`]);
+        setBattleLog(["전투 시작!", `${player.koName || player.name} VS ${enemy.koName || enemy.name}`]);
 
         setTimeout(() => {
             const playerEff = getEffectiveness(player.types, enemy.types);
@@ -143,7 +141,7 @@ export default function StadiumPage() {
                 } else {
                     setWinner("enemy");
                     logs.push(`${player.koName || player.name}이(가) 지쳤다...`);
-                    logs.push("경쟁자의 승리!");
+                    logs.push("상대의 승리!");
                     battleWinnerId = enemy.studentId;
                     battleWinnerName = "상대";
                     battleLoserId = player.studentId;
@@ -169,34 +167,34 @@ export default function StadiumPage() {
                 }
 
                 setBattleLog(logs);
-                setTimeout(() => setGameState("result"), 1200);
-            }, 1200);
+                setTimeout(() => setGameState("result"), 2000); // 좀 더 여유있게 결과창 전환
+            }, 1500);
             setBattleLog(logs);
-        }, 1200);
+        }, 1500);
     };
 
     if (!session) return null;
 
     return (
-        <div className="space-y-8 pb-20">
+        <div className="space-y-8 pb-20 max-w-5xl mx-auto px-4 sm:px-6">
             {/* Header with Back Button */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-6">
                 <div className="flex items-center gap-4">
                     <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => router.push("/student")}
-                        className="rounded-full hover:bg-slate-800"
+                        className="rounded-none hover:bg-gray-200 border-2 border-transparent hover:border-black transition-none h-12 w-12"
                     >
-                        <ChevronLeft className="h-6 w-6 text-slate-400 hover:text-white" />
+                        <span className="text-2xl">◀</span>
                     </Button>
                     <div className="flex items-center gap-3">
-                        <div className="p-3 bg-red-500/20 rounded-2xl border border-red-500/30">
-                            <Swords className="h-6 w-6 text-red-500" />
+                        <div className="p-2 bg-red-500 border-2 border-black flex items-center justify-center w-12 h-12">
+                            <span className="text-white text-2xl">⚔️</span>
                         </div>
                         <div>
-                            <h2 className="text-3xl font-black italic tracking-tighter pokemon-gradient-text uppercase">Battle Stadium</h2>
-                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">Competitive Arena</p>
+                            <h2 className="text-xl sm:text-2xl font-black pixel-text uppercase">Battle Stadium</h2>
+                            <p className="text-[10px] sm:text-xs text-gray-600 font-bold pixel-text uppercase mt-1">친선 대결장</p>
                         </div>
                     </div>
                 </div>
@@ -211,67 +209,57 @@ export default function StadiumPage() {
                         exit={{ opacity: 0, scale: 0.95 }}
                         className="space-y-6"
                     >
-                        <div className="flex items-center justify-between mb-2">
-                            <h3 className="text-xl font-bold flex items-center gap-2">
-                                <User className="h-5 w-5 text-primary" /> 나의 포켓몬 선택
+                        <div className="flex items-center justify-between pixel-box bg-white p-4">
+                            <h3 className="text-sm sm:text-base font-bold pixel-text flex items-center gap-2">
+                                🎒 나의 포켓몬 선택
                             </h3>
-                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{myPokemon.length} AVAILABLE</span>
+                            <span className="text-[10px] sm:text-xs font-black text-gray-500 pixel-text">보유: {myPokemon.length}</span>
                         </div>
 
                         {loading ? (
-                            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                 {[1, 2, 3].map(i => (
-                                    <div key={i} className="h-32 rounded-[2rem] bg-slate-800/10 animate-pulse border-2 border-dashed border-slate-700/20" />
+                                    <div key={i} className="h-32 pixel-box bg-gray-200 animate-pulse border-4 border-dashed border-gray-400" />
                                 ))}
                             </div>
                         ) : myPokemon.length === 0 ? (
-                            <Card className="p-20 text-center border-dashed border-2 rounded-[3rem] bg-slate-800/5">
-                                <div className="space-y-4">
-                                    <Sparkles className="h-12 w-12 text-slate-400 mx-auto" />
-                                    <div>
-                                        <p className="text-xl font-bold">아직 포켓몬이 없습니다!</p>
-                                        <p className="text-sm text-slate-500 mt-1">성찰 일기를 작성하여 첫 번째 동료를 만나보세요.</p>
-                                    </div>
-                                    <Button onClick={() => router.push("/student/write")} className="rounded-full px-8">일기 쓰러 가기</Button>
-                                </div>
-                            </Card>
+                            <div className="pixel-box bg-white p-8 sm:p-12 text-center">
+                                <span className="text-4xl mb-4 block">✨</span>
+                                <p className="text-lg sm:text-xl font-bold pixel-text mb-2">아직 포켓몬이 없습니다!</p>
+                                <p className="text-xs sm:text-sm text-gray-500 pixel-text mb-6">성찰 일기를 작성하여 포켓몬을 얻어보세요.</p>
+                                <Button onClick={() => router.push("/student/write")} className="pixel-button bg-blue-500 text-white hover:bg-blue-600">일기 쓰러 가기</Button>
+                            </div>
                         ) : (
-                            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                                 {myPokemon.map(poke => (
-                                    <motion.div
+                                    <div
                                         key={poke.id}
-                                        whileHover={{ y: -5 }}
-                                        whileTap={{ scale: 0.98 }}
+                                        className="pixel-box bg-white p-3 sm:p-4 cursor-pointer hover:-translate-y-1 hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] active:translate-y-0 active:shadow-[2px_2px_0_0_rgba(0,0,0,1)] transition-all relative group"
+                                        onClick={() => startBattle(poke)}
                                     >
-                                        <Card
-                                            className="group relative overflow-hidden h-32 cursor-pointer transition-all border-2 bg-card hover:border-primary/50 shadow-sm rounded-[2rem]"
-                                            onClick={() => startBattle(poke)}
-                                        >
-                                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
-                                                <Trophy className="h-20 w-20 rotate-12" />
+                                        <div className="flex items-center gap-3 sm:gap-4 h-full">
+                                            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 border-2 border-black flex items-center justify-center p-1 sm:p-2 relative shrink-0">
+                                                <img src={poke.image} alt={poke.name} className="w-full h-full object-contain pixelated" />
                                             </div>
-                                            <CardContent className="flex items-center gap-6 h-full p-6">
-                                                <div className="relative">
-                                                    <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full scale-0 group-hover:scale-100 transition-transform" />
-                                                    <img src={poke.image} alt={poke.name} className="w-20 h-20 object-contain relative z-10 drop-shadow-lg group-hover:scale-110 transition-transform" />
+                                            <div className="flex-1 min-w-0 pr-2">
+                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-1">
+                                                    <h4 className="font-bold pixel-text text-sm sm:text-base truncate" title={poke.koName || poke.name}>
+                                                        {poke.koName || poke.name}
+                                                    </h4>
+                                                    <span className="text-[10px] font-bold bg-yellow-300 border border-black px-1 py-0.5 whitespace-nowrap self-start sm:self-auto">Lv.{poke.level}</span>
                                                 </div>
-                                                <div className="flex-1">
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <span className="text-xs font-black italic text-primary">Lv.{poke.level}</span>
-                                                        <h4 className="font-black text-lg">{poke.koName || poke.name}</h4>
-                                                    </div>
-                                                    <div className="flex gap-1">
-                                                        {poke.types.map((t) => (
-                                                            <span key={t} className="text-[8px] font-bold uppercase bg-slate-800/10 px-1.5 py-0.5 rounded border border-slate-800/20">{t}</span>
-                                                        ))}
-                                                    </div>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {poke.types.map((t) => (
+                                                        <span key={t} className="text-[8px] sm:text-[10px] bg-gray-200 border border-black px-1 py-0.5 uppercase pixel-text">{t}</span>
+                                                    ))}
                                                 </div>
-                                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <Swords className="h-5 w-5 text-primary" />
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
+                                            </div>
+                                        </div>
+                                        {/* Hover Overlay */}
+                                        <div className="absolute inset-0 bg-black/10 hidden group-hover:flex items-center justify-center">
+                                            <span className="bg-red-500 text-white pixel-text text-sm sm:text-base px-3 py-1 border-2 border-black animate-pulse">출전!</span>
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
                         )}
@@ -283,79 +271,62 @@ export default function StadiumPage() {
                         key="battle"
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="flex flex-col items-center justify-center space-y-12 py-12"
+                        className="flex flex-col items-center justify-center space-y-8 py-4 sm:py-8"
                     >
-                        <div className="flex justify-around items-center w-full max-w-4xl relative">
-                            {/* VS Text Overlay */}
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0">
-                                <span className="text-9xl font-black italic text-slate-800/10 select-none">VERSUS</span>
-                            </div>
-
+                        <div className="flex justify-between items-end w-full max-w-4xl relative px-2 sm:px-12">
                             {/* Player */}
                             <motion.div
-                                className="flex flex-col items-center z-10"
-                                animate={{ x: [0, 30, 0] }}
+                                className="flex flex-col items-center z-10 w-2/5 sm:w-1/3"
+                                animate={{ x: [0, 10, 0] }}
                                 transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
                             >
-                                <div className="text-[10px] font-black mb-4 bg-primary text-primary-foreground px-4 py-1 rounded-full shadow-lg shadow-primary/30 uppercase tracking-widest">YOU</div>
-                                <div className="relative group">
-                                    <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse" />
-                                    <img src={selectedMyPoke.image} className="w-48 h-48 md:w-64 md:h-64 object-contain relative z-10 drop-shadow-2xl" alt={selectedMyPoke.name} />
+                                <div className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-48 md:h-48">
+                                    <img src={selectedMyPoke.image} className="w-full h-full object-contain pixelated drop-shadow-[0_8px_0_rgba(0,0,0,0.2)]" alt={selectedMyPoke.name} />
                                 </div>
-                                <p className="font-black text-3xl mt-6 italic tracking-tighter uppercase">{selectedMyPoke.koName || selectedMyPoke.name}</p>
-                                <div className="flex gap-2 mt-2">
-                                    {selectedMyPoke.types.map((t: string) => <span key={t} className="text-[10px] font-bold bg-slate-800/10 border px-3 py-1 rounded-full uppercase">{t}</span>)}
-                                </div>
-                                <div className="mt-4 flex flex-col items-center">
-                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Status</span>
-                                    <div className="w-32 h-2 bg-slate-100 rounded-full overflow-hidden border">
-                                        <motion.div animate={{ width: ['100%', '80%', '100%'] }} className="h-full bg-green-500" />
-                                    </div>
+                                <div className="pixel-box bg-white p-2 sm:p-3 mt-4 w-full text-center">
+                                    <p className="font-bold pixel-text text-[10px] sm:text-sm md:text-base truncate" title={selectedMyPoke.koName || selectedMyPoke.name}>
+                                        {selectedMyPoke.koName || selectedMyPoke.name}
+                                    </p>
+                                    <span className="text-[8px] sm:text-[10px] font-bold inline-block mt-1 bg-blue-100 border border-black px-1 sm:px-2 py-0.5 whitespace-nowrap">내 포켓몬</span>
                                 </div>
                             </motion.div>
 
-                            <div className="text-6xl font-black italic text-primary animate-pulse z-10 drop-shadow-2xl">VS</div>
+                            <div className="text-3xl flex-shrink-0 sm:text-5xl md:text-6xl font-black pixel-text text-red-500 animate-pulse z-10 pb-16 sm:pb-24">VS</div>
 
                             {/* Enemy */}
                             <motion.div
-                                className="flex flex-col items-center z-10"
-                                animate={{ x: [0, -30, 0] }}
-                                transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                                className="flex flex-col items-center z-10 w-2/5 sm:w-1/3"
+                                animate={{ x: [0, -10, 0] }}
+                                transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut", delay: 0.2 }}
                             >
-                                <div className="text-[10px] font-black mb-4 bg-red-500 text-white px-4 py-1 rounded-full shadow-lg shadow-red-500/30 uppercase tracking-widest">RIVAL</div>
-                                <div className="relative group">
-                                    <div className="absolute inset-0 bg-red-500/10 blur-3xl rounded-full animate-pulse" />
-                                    <img src={selectedOpponent.image} className="w-48 h-48 md:w-64 md:h-64 object-contain relative z-10 drop-shadow-2xl" alt={selectedOpponent.name} />
+                                <div className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-48 md:h-48">
+                                    <img src={selectedOpponent.image} className="w-full h-full object-contain pixelated drop-shadow-[0_8px_0_rgba(0,0,0,0.2)]" alt={selectedOpponent.name} />
                                 </div>
-                                <p className="font-black text-3xl mt-6 italic tracking-tighter uppercase">{selectedOpponent.koName || selectedOpponent.name}</p>
-                                <div className="flex gap-2 mt-2">
-                                    {selectedOpponent.types.map((t: string) => <span key={t} className="text-[10px] font-bold bg-slate-800/10 border px-3 py-1 rounded-full uppercase">{t}</span>)}
-                                </div>
-                                <div className="mt-4 flex flex-col items-center">
-                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">Status</span>
-                                    <div className="w-32 h-2 bg-slate-100 rounded-full overflow-hidden border">
-                                        <motion.div animate={{ width: ['100%', '70%', '100%'] }} className="h-full bg-red-500" />
-                                    </div>
+                                <div className="pixel-box bg-white p-2 sm:p-3 mt-4 w-full text-center cursor-help" title={`상대: ${selectedOpponent.studentId}`}>
+                                    <p className="font-bold pixel-text text-[10px] sm:text-sm md:text-base truncate">
+                                        {selectedOpponent.koName || selectedOpponent.name}
+                                    </p>
+                                    <span className="text-[8px] sm:text-[10px] font-bold inline-block mt-1 bg-red-100 border border-black px-1 sm:px-2 py-0.5 whitespace-nowrap">상대 포켓몬</span>
                                 </div>
                             </motion.div>
                         </div>
 
-                        <Card className="w-full max-w-2xl bg-slate-900 border-2 border-slate-700 p-8 rounded-[2rem] shadow-2xl relative overflow-hidden group">
-                            <div className="absolute top-0 left-0 w-2 h-full bg-primary" />
-                            <div className="space-y-4 max-h-48 overflow-y-auto pr-4 scrollbar-hide">
+                        {/* Battle Log Box */}
+                        <div className="w-full max-w-2xl pixel-box bg-white p-4 sm:p-6 relative">
+                            <div className="absolute top-0 left-0 w-full h-2 bg-gray-200" />
+                            <div className="space-y-3 h-48 sm:h-56 overflow-y-auto pr-2 custom-scrollbar mt-2 flex flex-col justify-end pb-2">
                                 {battleLog.map((log, i) => (
                                     <motion.div
                                         key={i}
-                                        initial={{ opacity: 0, x: -20 }}
+                                        initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
-                                        className="flex items-center gap-3 text-sm font-bold text-slate-300"
+                                        className="text-xs sm:text-sm md:text-base font-bold pixel-text text-black leading-relaxed"
                                     >
-                                        <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                                        {log}
+                                        ▶ {log}
                                     </motion.div>
                                 ))}
                             </div>
-                        </Card>
+                        </div>
                     </motion.div>
                 )}
 
@@ -364,86 +335,77 @@ export default function StadiumPage() {
                         key="result"
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="flex flex-col items-center justify-center py-10"
+                        className="flex flex-col items-center justify-center py-6 sm:py-10 px-2 sm:px-4 w-full max-w-4xl mx-auto"
                     >
-                        <div className="relative mb-8">
+                        <div className="relative mb-6 sm:mb-8 text-center">
                             <motion.div
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
                                 transition={{ type: "spring", damping: 10, stiffness: 100 }}
-                                className={`text-8xl sm:text-9xl font-black italic tracking-tighter drop-shadow-2xl ${winner === 'player' ? 'text-amber-500' : 'text-slate-500'}`}
+                                className={`text-4xl sm:text-6xl md:text-8xl font-black pixel-text drop-shadow-[2px_2px_0_rgba(0,0,0,1)] sm:drop-shadow-[4px_4px_0_rgba(0,0,0,1)] ${winner === 'player' ? 'text-yellow-400' : 'text-gray-400'}`}
                             >
-                                {winner === 'player' ? 'VICTORY' : 'DEFEAT'}
+                                {winner === 'player' ? '승리!' : '패배...'}
                             </motion.div>
-                            {winner === 'player' && (
-                                <motion.div
-                                    animate={{ rotate: 360 }}
-                                    transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                                    className="absolute inset-0 z-[-1] opacity-20"
-                                >
-                                    <Sparkles className="h-full w-full text-amber-500" />
-                                </motion.div>
-                            )}
                         </div>
 
-                        <p className="text-2xl font-bold mb-12">
-                            {winner === 'player'
-                                ? `${selectedMyPoke.koName || selectedMyPoke.name}의 화려한 승리입니다!`
-                                : `아쉽게도 ${selectedOpponent.koName || selectedOpponent.name}의 힘이 더 강력했습니다.`}
-                        </p>
+                        <div className="pixel-box bg-white p-4 sm:p-6 mb-6 sm:mb-8 text-center w-full">
+                            <p className="text-sm sm:text-lg md:text-xl font-bold pixel-text leading-tight">
+                                {winner === 'player'
+                                    ? <span className="text-blue-600">{selectedMyPoke.koName || selectedMyPoke.name}의 화려한 승리!</span>
+                                    : <span className="text-red-600">아쉽지만 {selectedOpponent.koName || selectedOpponent.name}의 승리입니다.</span>}
+                            </p>
+                        </div>
 
-                        <div className="grid sm:grid-cols-2 gap-8 w-full max-w-2xl">
-                            <Card className={`p-8 rounded-[2.5rem] border-2 flex flex-col items-center ${winner === 'player' ? 'border-primary/50 bg-primary/5' : 'border-slate-800/20 bg-slate-800/5'}`}>
-                                <h5 className="text-[10px] font-black uppercase text-slate-500 mb-6 tracking-widest">Winning Pokemon</h5>
-                                <img
-                                    src={winner === 'player' ? selectedMyPoke.image : selectedOpponent.image}
-                                    className="w-48 h-48 object-contain drop-shadow-2xl mb-6 hover:scale-110 transition-transform"
-                                    alt="winner"
-                                />
-                                <span className="font-black text-2xl uppercase italic tracking-tighter">
+                        <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 w-full">
+                            <div className="pixel-box bg-white p-4 sm:p-6 flex flex-col items-center relative overflow-hidden">
+                                {winner === 'player' && <div className="absolute inset-0 bg-yellow-300 opacity-20 animate-pulse" />}
+                                <h5 className="text-[10px] sm:text-xs font-black pixel-text text-gray-800 mb-2 sm:mb-4 bg-gray-200 px-2 sm:px-3 py-1 border-2 border-black inline-block z-10 w-fit">
+                                    🏆 최종 승자
+                                </h5>
+                                <div className="w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center p-2 mb-2 sm:mb-4 bg-gray-50 border-2 border-black z-10">
+                                    <img
+                                        src={winner === 'player' ? selectedMyPoke.image : selectedOpponent.image}
+                                        className="w-full h-full object-contain pixelated hover:scale-110 transition-transform"
+                                        alt="winner"
+                                    />
+                                </div>
+                                <span className="font-black text-sm sm:text-lg md:text-xl pixel-text text-center z-10 w-full px-2" style={{ wordBreak: 'keep-all' }}>
                                     {winner === 'player' ? (selectedMyPoke.koName || selectedMyPoke.name) : (selectedOpponent.koName || selectedOpponent.name)}
                                 </span>
-                            </Card>
+                            </div>
 
-                            <Card className="p-8 rounded-[2.5rem] bg-secondary/30 flex flex-col justify-center border-border/50">
-                                <div className="space-y-6">
-                                    <div className="flex items-center gap-4">
-                                        <div className="p-3 bg-amber-500/20 rounded-2xl">
-                                            <Zap className="h-6 w-6 text-amber-500" />
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] font-black text-slate-500 uppercase">Rewards</p>
-                                            <p className="font-bold">경험치를 획득했습니다! (가상)</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        <div className="p-3 bg-indigo-500/20 rounded-2xl">
-                                            <Trophy className="h-6 w-6 text-indigo-500" />
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] font-black text-slate-500 uppercase">Season Rank</p>
-                                            <p className="font-bold">+15 Battle Points</p>
-                                        </div>
+                            <div className="pixel-box bg-gray-100 p-4 sm:p-6 flex flex-col justify-center gap-3 sm:gap-4">
+                                <div className="pixel-box bg-white p-2 sm:p-3 flex items-center gap-2 sm:gap-3">
+                                    <span className="text-xl sm:text-2xl">⭐</span>
+                                    <div>
+                                        <p className="text-[8px] sm:text-[10px] font-black text-gray-500">경험치 보상</p>
+                                        <p className="font-bold pixel-text text-[10px] sm:text-sm">경험치 획득!</p>
                                     </div>
                                 </div>
-                            </Card>
+                                <div className="pixel-box bg-white p-2 sm:p-3 flex items-center gap-2 sm:gap-3">
+                                    <span className="text-xl sm:text-2xl">🏆</span>
+                                    <div>
+                                        <p className="text-[8px] sm:text-[10px] font-black text-gray-500">시즌 점수</p>
+                                        <p className="font-bold pixel-text text-[10px] sm:text-sm">{winner === 'player' ? '+15 BP' : '+0 BP'}</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row gap-4 mt-12 w-full max-w-md">
+                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8 sm:mt-12 w-full max-w-md">
                             <Button
                                 size="lg"
-                                variant="outline"
                                 onClick={() => setGameState("select")}
-                                className="flex-1 h-14 rounded-full font-bold gap-2"
+                                className="flex-1 pixel-button bg-gray-200 text-black hover:bg-gray-300 h-12 sm:h-14 text-sm sm:text-base border-2 border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] active:shadow-none active:translate-y-1 transition-none"
                             >
-                                <RefreshCcw className="h-5 w-5" /> 다시 도전하기
+                                다시 도전
                             </Button>
                             <Button
                                 size="lg"
                                 onClick={() => router.push("/student")}
-                                className="flex-1 h-14 rounded-full font-bold bg-slate-900 hover:bg-black text-white"
+                                className="flex-1 pixel-button bg-blue-500 text-white hover:bg-blue-600 h-12 sm:h-14 text-sm sm:text-base border-2 border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] active:shadow-none active:translate-y-1 transition-none"
                             >
-                                대시보드 환전
+                                메뉴 복귀
                             </Button>
                         </div>
                     </motion.div>

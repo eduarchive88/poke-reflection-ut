@@ -8,17 +8,7 @@ import { doc, getDoc, collection, query, getDocs, limit } from "firebase/firesto
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-    Presentation,
-    Users,
-    FileText,
-    ArrowRight,
-    BarChart3,
-    Settings,
-    ChevronRight,
-    Sparkles,
-    CheckCircle2,
-    Calendar,
-    Activity
+    ChevronRight
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -72,37 +62,41 @@ export default function TeacherDashboardHub() {
         {
             title: "학급 관리",
             description: "새로운 학급을 생성하고 접속용 세션 코드를 관리합니다.",
-            icon: <Presentation className="h-8 w-8 text-indigo-400" />,
+            icon: <img src="https://play.pokemonshowdown.com/sprites/itemicons/up-grade.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="PC" />,
             path: "/dashboard/classes",
-            color: "from-indigo-600/20 to-blue-600/20",
-            borderColor: "border-indigo-500/30",
-            accentColor: "indigo"
+            color: "bg-indigo-100 dark:bg-indigo-900/40 border-indigo-300 dark:border-indigo-700",
+            hoverAccent: "hover:bg-indigo-50 dark:hover:bg-indigo-900/60"
         },
         {
             title: "학생 명렬표",
             description: "전체 학생 명단을 확인하고 포켓몬 보유 현황을 관리합니다.",
-            icon: <Users className="h-8 w-8 text-emerald-400" />,
+            icon: <img src="https://play.pokemonshowdown.com/sprites/itemicons/town-map.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Town map" />,
             path: "/dashboard/students",
-            color: "from-emerald-600/20 to-teal-600/20",
-            borderColor: "border-emerald-500/30",
-            accentColor: "emerald"
+            color: "bg-emerald-100 dark:bg-emerald-900/40 border-emerald-300 dark:border-emerald-700",
+            hoverAccent: "hover:bg-emerald-50 dark:hover:bg-emerald-900/60"
         },
         {
             title: "성찰 현황판",
             description: "학생들의 성찰 일기 작성 현황과 통계를 실시간으로 확인합니다.",
-            icon: <FileText className="h-8 w-8 text-amber-400" />,
+            icon: <img src="https://play.pokemonshowdown.com/sprites/itemicons/exp-share.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Exp share" />,
             path: "/dashboard/status",
-            color: "from-amber-600/20 to-orange-600/20",
-            borderColor: "border-amber-500/30",
-            accentColor: "amber"
+            color: "bg-amber-100 dark:bg-amber-900/40 border-amber-300 dark:border-amber-700",
+            hoverAccent: "hover:bg-amber-50 dark:hover:bg-amber-900/60"
         }
     ];
 
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
-                <div className="w-12 h-12 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
-                <p className="text-slate-400 font-bold animate-pulse uppercase tracking-widest text-xs">Loading Dashboard...</p>
+                <img
+                    src="https://play.pokemonshowdown.com/sprites/itemicons/poke-ball.png"
+                    className="w-12 h-12 animate-bounce"
+                    style={{ imageRendering: 'pixelated' }}
+                    alt="Loading"
+                />
+                <p className="font-extrabold animate-pulse uppercase tracking-widest text-base shadow-sm">
+                    연구소 PC 통신 중...
+                </p>
             </div>
         );
     }
@@ -113,47 +107,47 @@ export default function TeacherDashboardHub() {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-indigo-500/10 via-background to-blue-500/10 p-8 sm:p-12 border border-border shadow-2xl"
+                className="retro-box overflow-hidden bg-teal-600 dark:bg-slate-800 p-8 sm:p-12 text-white"
             >
-                <div className="absolute -top-24 -right-24 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px]"></div>
-                <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px]"></div>
+                <div className="retro-box-inner border-teal-400 dark:border-slate-600"></div>
+                <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-white/10 to-transparent pointer-events-none"></div>
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-12">
                     <div className="space-y-6 text-center lg:text-left">
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-300 text-[10px] font-black uppercase tracking-widest mb-2">
-                            <Sparkles className="h-3 w-3" />
-                            Teacher Management Console
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-black/30 border-[3px] border-black text-white text-[10px] font-black uppercase tracking-widest shadow-[2px_2px_0px_#000]">
+                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/pc-box.png" className="w-4 h-4" style={{ imageRendering: 'pixelated' }} alt="PC Box" onError={(e) => e.currentTarget.style.display = 'none'} />
+                            PROFESSOR'S LAB SYSTEM
                         </div>
-                        <h2 className="text-4xl sm:text-6xl font-black text-foreground tracking-tighter leading-tight italic">
-                            안녕하세요, <span className="text-indigo-600 dark:text-indigo-400">{teacherName || "선생님"}님!</span><br />
-                            <span className="text-3xl sm:text-4xl text-slate-500 dark:text-slate-400 not-italic">오늘도 학생들의 성장을 응원합니다.</span>
+                        <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tighter leading-tight italic drop-shadow-[4px_4px_0_rgba(0,0,0,0.5)]">
+                            환영합니다, <span className="text-yellow-400" style={{ textShadow: '4px 4px 0px #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000' }}>{teacherName || "오키드 박사"}님!</span><br />
+                            <span className="text-2xl sm:text-3xl text-white/90 not-italic">오늘도 포켓몬 트레이너들의 성장을 응원합니다.</span>
                         </h2>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base font-medium max-w-xl">
-                            포켓몬 성찰 일기 관리 대시보드입니다.<br />
-                            학급의 활동 내역을 한눈에 파악하고 효율적으로 관리하세요.
+                        <p className="text-white bg-black/40 p-3 border-2 border-black rounded shadow-[2px_2px_0px_#000] text-sm sm:text-base font-medium max-w-xl">
+                            학생들의 포켓몬 성찰 일기 관리 PC입니다.<br />
+                            연구소 데이터베이스에 접속하여 학급 활동 내역을 파악하세요.
                         </p>
                     </div>
 
                     {/* Quick Stats Grid */}
                     <div className="grid grid-cols-2 gap-4 w-full lg:w-auto">
-                        <Card className="bg-card backdrop-blur-xl border-border rounded-3xl p-6 shadow-xl flex flex-col justify-center min-w-[160px]">
-                            <Users className="h-5 w-5 text-indigo-500 mb-2 opacity-50" />
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Total Students</p>
-                            <p className="text-2xl font-black text-foreground mt-1">{stats.totalStudents}</p>
+                        <Card className="retro-box p-4 bg-white dark:bg-slate-900 border-2 items-center flex flex-col justify-center min-w-[150px]">
+                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/poke-ball.png" className="w-8 h-8 mb-2" style={{ imageRendering: 'pixelated' }} alt="Poke Ball" />
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Total Trainers</p>
+                            <p className="text-3xl font-black text-black dark:text-white mt-1 text-center" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.1)' }}>{stats.totalStudents}</p>
                         </Card>
-                        <Card className="bg-card backdrop-blur-xl border-border rounded-3xl p-6 shadow-xl flex flex-col justify-center min-w-[160px]">
-                            <Activity className="h-5 w-5 text-emerald-500 mb-2 opacity-50" />
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Active Classes</p>
-                            <p className="text-2xl font-black text-foreground mt-1">{stats.activeClasses}</p>
+                        <Card className="retro-box p-4 bg-white dark:bg-slate-900 border-2 items-center flex flex-col justify-center min-w-[150px]">
+                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/great-ball.png" className="w-8 h-8 mb-2" style={{ imageRendering: 'pixelated' }} alt="Great Ball" />
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Active Classes</p>
+                            <p className="text-3xl font-black text-black dark:text-white mt-1 text-center" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.1)' }}>{stats.activeClasses}</p>
                         </Card>
-                        <Card className="bg-card backdrop-blur-xl border-border rounded-3xl p-6 shadow-xl flex flex-col justify-center col-span-2">
-                            <div className="flex justify-between items-center">
+                        <Card className="retro-box p-4 bg-white dark:bg-slate-900 border-2 flex flex-col justify-center col-span-2">
+                            <div className="flex justify-between items-center px-2">
                                 <div>
-                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Recent Reflections</p>
-                                    <p className="text-2xl font-black text-foreground mt-1">{stats.recentReflections}</p>
+                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Recent Logs</p>
+                                    <p className="text-3xl font-black text-black dark:text-white mt-1" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.1)' }}>{stats.recentReflections}</p>
                                 </div>
-                                <div className="p-3 bg-slate-100 dark:bg-white/5 rounded-2xl border border-border">
-                                    <FileText className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                                <div className="p-2 border-[3px] border-black bg-yellow-100 shadow-[2px_2px_0px_#000]">
+                                    <img src="https://play.pokemonshowdown.com/sprites/itemicons/pokedex.png" className="w-10 h-10" style={{ imageRendering: 'pixelated' }} alt="Pokedex" />
                                 </div>
                             </div>
                         </Card>
@@ -162,7 +156,7 @@ export default function TeacherDashboardHub() {
             </motion.div>
 
             {/* Menu Hub Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
                 {menuItems.map((item, index) => (
                     <motion.div
                         key={item.title}
@@ -171,23 +165,24 @@ export default function TeacherDashboardHub() {
                         transition={{ delay: index * 0.1 }}
                     >
                         <Card
-                            className={`group relative h-full bg-card hover:bg-gradient-to-br ${item.color} border-2 border-border hover:border-indigo-500/30 hover:scale-[1.03] transition-all duration-300 cursor-pointer overflow-hidden rounded-[2.5rem] shadow-xl hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]`}
+                            className={`retro-box hover-pixel-lift h-full p-0 flex flex-col transition-all duration-200 cursor-pointer ${item.color}`}
                             onClick={() => router.push(item.path)}
                         >
-                            <CardContent className="p-8 flex flex-col items-center text-center h-full">
-                                <div className={`p-4 bg-slate-100 dark:bg-slate-900 rounded-[1.5rem] mb-6 border border-border group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500 shadow-lg`}>
+                            <div className="retro-box-inner"></div>
+                            <CardContent className="p-8 flex flex-col items-center text-center h-full relative z-10">
+                                <div className={`w-20 h-20 bg-white dark:bg-slate-800 mb-6 border-[3px] border-black flex items-center justify-center shadow-[4px_4px_0px_#000] group-hover:-translate-y-1 transition-transform`}>
                                     {item.icon}
                                 </div>
-                                <h3 className="text-2xl font-black text-foreground italic tracking-tighter mb-3 transition-colors">
+                                <h3 className="text-2xl font-black text-black dark:text-white tracking-tighter mb-3">
                                     {item.title}
                                 </h3>
-                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed mb-8">
+                                <p className="text-sm font-medium text-slate-700 dark:text-slate-300 leading-relaxed mb-8">
                                     {item.description}
                                 </p>
                                 <div className="mt-auto w-full group/btn">
-                                    <div className="w-full h-12 bg-slate-100 dark:bg-white/5 group-hover/btn:bg-indigo-600 group-hover/btn:text-white text-slate-600 dark:text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl flex items-center justify-center border border-border group-hover:border-indigo-600 transition-all flex items-center gap-2">
-                                        관리하기 (MANAGE)
-                                        <ChevronRight className="h-4 w-4 transform group-hover/btn:translate-x-1 transition-transform" />
+                                    <div className="w-full h-10 bg-black text-white font-black text-xs uppercase tracking-widest flex items-center justify-center border-[3px] border-transparent hover:bg-slate-800 transition-colors shadow-[2px_2px_0px_rgba(0,0,0,0.3)]">
+                                        시스템 접속 (ACCESS)
+                                        <ChevronRight className="h-4 w-4 ml-1 transform group-hover/btn:translate-x-1 transition-transform" />
                                     </div>
                                 </div>
                             </CardContent>
@@ -201,38 +196,39 @@ export default function TeacherDashboardHub() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                 >
-                    <Card className="h-full bg-card border-2 border-border backdrop-blur-md rounded-[2.5rem] p-8 flex flex-col relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-6 opacity-[0.03] pointer-events-none group-hover:opacity-[0.07] transition-opacity">
-                            <Settings className="h-32 w-32" />
+                    <Card className="retro-box h-full bg-slate-100 dark:bg-slate-800 p-8 flex flex-col relative overflow-hidden group">
+                        <div className="retro-box-inner"></div>
+                        <div className="absolute top-0 right-0 p-6 opacity-[0.05] pointer-events-none group-hover:opacity-[0.1] transition-opacity">
+                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/porygon.png" className="w-32 h-32" style={{ imageRendering: 'pixelated' }} alt="Porygon" onError={(e) => e.currentTarget.style.display = 'none'} />
                         </div>
                         <div className="relative z-10 flex flex-col h-full">
-                            <div className="flex items-center gap-3 mb-8">
-                                <div className="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
-                                    <BarChart3 className="h-5 w-5 text-indigo-400" />
+                            <div className="flex items-center gap-3 mb-8 border-b-[3px] border-black pb-4">
+                                <div className="p-2 bg-white border-2 border-black shadow-[2px_2px_0px_#000]">
+                                    <img src="https://play.pokemonshowdown.com/sprites/itemicons/devon-parts.png" className="w-6 h-6" style={{ imageRendering: 'pixelated' }} alt="Parts" />
                                 </div>
-                                <h3 className="text-lg font-black italic tracking-tighter text-foreground">시스템 상태</h3>
+                                <h3 className="text-xl font-black italic tracking-tighter text-black dark:text-white" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.1)' }}>시스템 상태</h3>
                             </div>
 
                             <div className="flex-1 space-y-4">
-                                <div className="p-4 bg-slate-50 dark:bg-white/5 border border-border rounded-2xl flex items-center justify-between">
+                                <div className="p-3 bg-white dark:bg-slate-900 border-[3px] border-black shadow-[2px_2px_0px_#000] flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                                        <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Firebase Cloud</span>
+                                        <div className="w-3 h-3 bg-green-500 border border-black shadow-[1px_1px_0_#000] animate-pulse"></div>
+                                        <span className="text-xs font-bold text-black dark:text-white">DB CONNECTION</span>
                                     </div>
-                                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Operational</span>
+                                    <span className="text-[10px] font-black text-green-600 dark:text-green-400 uppercase tracking-widest">ONLINE</span>
                                 </div>
-                                <div className="p-4 bg-slate-50 dark:bg-white/5 border border-border rounded-2xl flex items-center justify-between">
+                                <div className="p-3 bg-white dark:bg-slate-900 border-[3px] border-black shadow-[2px_2px_0px_#000] flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                                        <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Real-time Sync</span>
+                                        <div className="w-3 h-3 bg-green-500 border border-black shadow-[1px_1px_0_#000]"></div>
+                                        <span className="text-xs font-bold text-black dark:text-white">REAL-TIME SYNC</span>
                                     </div>
-                                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Active</span>
+                                    <span className="text-[10px] font-black text-green-600 dark:text-green-400 uppercase tracking-widest">ACTIVE</span>
                                 </div>
                             </div>
 
-                            <div className="mt-6 p-4 bg-indigo-500/5 dark:bg-indigo-500/10 border border-border rounded-2xl flex items-center gap-3">
-                                <Calendar className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            <div className="mt-6 p-3 bg-white dark:bg-slate-900 border-[3px] border-black shadow-[2px_2px_0px_#000] flex items-center gap-3">
+                                <img src="https://play.pokemonshowdown.com/sprites/itemicons/journal.png" className="w-5 h-5" style={{ imageRendering: 'pixelated' }} alt="Journal" />
+                                <span className="text-[10px] font-bold text-black dark:text-white uppercase tracking-wider">
                                     {new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" })}
                                 </span>
                             </div>
