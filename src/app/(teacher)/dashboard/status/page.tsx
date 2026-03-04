@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, doc, getDoc, setDoc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { getPokemonStats, getRandomSkills } from "@/lib/pokemonData";
 import { useTeacherClass } from "@/contexts/TeacherClassContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -216,6 +217,9 @@ function StatusContent() {
         setIsRewarding(true);
         try {
             const inventoryRef = doc(db, "pokemon_inventory", `${selectedStudent.id}_${pokeId}`);
+            const stats = getPokemonStats(pokeId, 50);
+            const skills = getRandomSkills(types);
+
             await setDoc(inventoryRef, {
                 studentId: selectedStudent.id,
                 pokemonId: pokeId,
@@ -224,6 +228,8 @@ function StatusContent() {
                 types: types,
                 level: 50,
                 exp: 0,
+                stats: stats,
+                skills: skills,
                 isLegendary: true,
                 givenByTeacher: true,
                 createdAt: serverTimestamp()

@@ -148,8 +148,9 @@ export function getPokemonStats(pokemonId: number, level: number) {
 export function getRandomSkills(types: string[]): PokemonSkill[] {
     const allPossibleSkills: PokemonSkill[] = [];
     types.forEach(type => {
-        if (TYPE_SKILLS[type]) {
-            allPossibleSkills.push(...TYPE_SKILLS[type]);
+        const lowerType = type.toLowerCase();
+        if (TYPE_SKILLS[lowerType]) {
+            allPossibleSkills.push(...TYPE_SKILLS[lowerType]);
         }
     });
 
