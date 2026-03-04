@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { PokemonImage } from "@/components/PokemonImage";
+import { getSkillData, calculateDamage } from "@/lib/pokemonData";
 
 interface Student {
     id: string;
@@ -28,6 +29,7 @@ interface PokemonData {
     image: string;
     level: number;
     types: string[];
+    skills?: string[];
     stats?: {
         hp: number;
         attack: number;
@@ -461,17 +463,25 @@ export default function FriendlyMatchPage() {
                 await wait(1000);
             }
 
-            const myEff = getEffectiveness(me.types, opp.types);
-            const oppEff = getEffectiveness(opp.types, me.types);
+            const fallbackSkillName = "몸통박치기";
+            const mySkillName = me.skills && me.skills.length > 0 ? me.skills[Math.floor(Math.random() * me.skills.length)] : fallbackSkillName;
+            const oppSkillName = opp.skills && opp.skills.length > 0 ? opp.skills[Math.floor(Math.random() * opp.skills.length)] : fallbackSkillName;
 
-            const myDmg = Math.max(10, Math.floor(((me.level * 2 + (me.stats?.attack || 40) * myEff) / ((opp.stats?.defense || 40) * 0.5)) * 0.8));
-            const oppDmg = Math.max(10, Math.floor(((opp.level * 2 + (opp.stats?.attack || 40) * oppEff) / ((me.stats?.defense || 40) * 0.5)) * 0.8));
+            const mySkill = getSkillData(mySkillName) || { name: fallbackSkillName, type: "normal", power: 40 };
+            const oppSkill = getSkillData(oppSkillName) || { name: fallbackSkillName, type: "normal", power: 40 };
+
+            const myEff = getEffectiveness([mySkill.type], opp.types);
+            const oppEff = getEffectiveness([oppSkill.type], me.types);
+
+            const myDmg = calculateDamage(me.level, me.stats?.attack || 40, opp.stats?.defense || 40, mySkill.power, myEff);
+            const oppDmg = calculateDamage(opp.level, opp.stats?.attack || 40, me.stats?.defense || 40, oppSkill.power, oppEff);
 
             // 내 턴 공격
             setHitEffect("opponent");
             currentOppHp -= myDmg;
-            logs.push(`▶ ${me.koName || me.name}의 공격! ${myDmg} 데미지!`);
+            logs.push(`▶ ${me.koName || me.name}의 [${mySkill.name}]! ${myDmg} 데미지!`);
             if (myEff > 1) logs.push("▶ 앗! 효과가 굉장했다!");
+            else if (myEff < 1) logs.push("▶ 효과가 별로인 듯하다...");
             setBattleLog([...logs.slice(-7)]);
             await wait(400); // 타격 이펙트 지속
             setHitEffect("none");
@@ -481,8 +491,9 @@ export default function FriendlyMatchPage() {
             if (currentOppHp > 0) {
                 setHitEffect("me");
                 currentMyHp -= oppDmg;
-                logs.push(`▶ ${opp.koName || opp.name}의 반격! ${oppDmg} 데미지!`);
+                logs.push(`▶ ${opp.koName || opp.name}의 [${oppSkill.name}]! ${oppDmg} 데미지!`);
                 if (oppEff > 1) logs.push("▶ 앗! 효과가 굉장했다!");
+                else if (oppEff < 1) logs.push("▶ 효과가 별로인 듯하다...");
                 setBattleLog([...logs.slice(-7)]);
                 await wait(400);
                 setHitEffect("none");

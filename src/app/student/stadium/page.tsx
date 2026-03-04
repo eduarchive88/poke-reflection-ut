@@ -7,8 +7,9 @@ import { collection, query, where, getDocs, addDoc, serverTimestamp, limit } fro
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { getSkillData, calculateDamage } from "@/lib/pokemonData";
 
-// 간단한 상성 차트 (1.0 = 보통, 2.0 = 효과 좋음, 0.5 = 효과 별로)
+// 간단한 상성 차트 (1.0 = 보통, 3.0 = 효과 좋음, 0.33 = 효과 별로)
 const TYPE_CHART: Record<string, Record<string, number>> = {
     fire: { grass: 3, ice: 3, bug: 3, steel: 3, fire: 0.33, water: 0.33, rock: 0.33, dragon: 0.33 },
     water: { fire: 3, ground: 3, rock: 3, water: 0.33, grass: 0.33, dragon: 0.33 },
@@ -53,6 +54,8 @@ export default function StadiumPage() {
         image: string;
         level: number;
         types: string[];
+        skills?: string[];
+        stats?: { hp: number; attack: number; defense: number };
         studentId: string;
     }
 
@@ -117,72 +120,85 @@ export default function StadiumPage() {
         runBattleSimulation(myPoke, randomOpp);
     };
 
-    const runBattleSimulation = (player: PokemonData, enemy: PokemonData) => {
-        setBattleLog(["전투 시작!", `${player.koName || player.name} VS ${enemy.koName || enemy.name}`]);
+    const runBattleSimulation = async (player: PokemonData, enemy: PokemonData) => {
+        const wait = (ms: number) => new Promise(res => setTimeout(res, ms));
+        const logs: string[] = [
+            "▶ 스타디움 배틀 시작!",
+            `▶ ${player.koName || player.name} VS ${enemy.koName || enemy.name}`
+        ];
+        setBattleLog([...logs]);
 
-        setTimeout(() => {
-            const playerEff = getEffectiveness(player.types, enemy.types);
-            const enemyEff = getEffectiveness(enemy.types, player.types);
+        let pHp = (player.stats?.hp || 100) + ((player.level || 5) * 2);
+        let eHp = (enemy.stats?.hp || 100) + ((enemy.level || 5) * 2);
+        let turn = 1;
 
-            const playerPower = (player.level || 5) * playerEff + (Math.random() * 5);
-            const enemyPower = (enemy.level || 5) * enemyEff + (Math.random() * 5);
+        const fallbackSkillName = "몸통박치기";
+        await wait(2000);
 
-            const logs = [...battleLog];
-            logs.push(`${player.koName || player.name}의 맹공격!`);
-            if (playerEff > 1) logs.push("효과가 굉장했다!");
-            if (playerEff < 1) logs.push("효과가 별로인 듯하다...");
+        while (pHp > 0 && eHp > 0) {
+            const pSkillName = player.skills && player.skills.length > 0
+                ? player.skills[Math.floor(Math.random() * player.skills.length)]
+                : fallbackSkillName;
+            const eSkillName = enemy.skills && enemy.skills.length > 0
+                ? enemy.skills[Math.floor(Math.random() * enemy.skills.length)]
+                : fallbackSkillName;
 
-            setTimeout(async () => {
-                let battleWinnerId = "";
-                let battleWinnerName = "";
-                let battleLoserId = "";
-                let battleLoserName = "";
-                let winnerPoke = "";
-                let loserPoke = "";
+            const pSkill = getSkillData(pSkillName) || { name: fallbackSkillName, type: "normal", power: 40 };
+            const eSkill = getSkillData(eSkillName) || { name: fallbackSkillName, type: "normal", power: 40 };
 
-                if (playerPower >= enemyPower) {
-                    setWinner("player");
-                    logs.push(`${enemy.koName || enemy.name}이(가) 쓰러졌다!`);
-                    logs.push("당신의 승리!");
-                    battleWinnerId = player.studentId;
-                    battleWinnerName = session?.name || "나";
-                    battleLoserId = enemy.studentId;
-                    battleLoserName = "상대";
-                    winnerPoke = player.koName || player.name;
-                    loserPoke = enemy.koName || enemy.name;
-                } else {
-                    setWinner("enemy");
-                    logs.push(`${player.koName || player.name}이(가) 지쳤다...`);
-                    logs.push("상대의 승리!");
-                    battleWinnerId = enemy.studentId;
-                    battleWinnerName = "상대";
-                    battleLoserId = player.studentId;
-                    battleLoserName = session?.name || "나";
-                    winnerPoke = enemy.koName || enemy.name;
-                    loserPoke = player.koName || player.name;
-                }
+            const pEff = getEffectiveness([pSkill.type], enemy.types);
+            const eEff = getEffectiveness([eSkill.type], player.types);
 
-                try {
-                    await addDoc(collection(db, "battle_logs"), {
-                        classId: session?.classId,
-                        winnerId: battleWinnerId,
-                        winnerName: battleWinnerName,
-                        loserId: battleLoserId,
-                        loserName: battleLoserName,
-                        winnerPoke: winnerPoke,
-                        loserPoke: loserPoke,
-                        createdAt: serverTimestamp(),
-                        type: 'stadium'
-                    });
-                } catch (e) {
-                    console.error("배틀 로그 저장 실패:", e);
-                }
+            const pDmg = calculateDamage(player.level || 5, player.stats?.attack || 40, enemy.stats?.defense || 40, pSkill.power, pEff);
+            const eDmg = calculateDamage(enemy.level || 5, enemy.stats?.attack || 40, player.stats?.defense || 40, eSkill.power, eEff);
 
-                setBattleLog(logs);
-                setTimeout(() => setGameState("result"), 2000); // 좀 더 여유있게 결과창 전환
-            }, 1500);
-            setBattleLog(logs);
-        }, 1500);
+            if (turn % 2 !== 0) {
+                eHp -= pDmg;
+                logs.push(`▶ ${player.koName || player.name}의 [${pSkill.name}]! ${pDmg} 데미지!`);
+                if (pEff > 1) logs.push("▶ 앗! 효과가 굉장했다!");
+                else if (pEff < 1) logs.push("▶ 효과가 별로인 듯하다...");
+            } else {
+                pHp -= eDmg;
+                logs.push(`▶ ${enemy.koName || enemy.name}의 [${eSkill.name}]! ${eDmg} 데미지!`);
+                if (eEff > 1) logs.push("▶ 앗! 효과가 굉장했다!");
+                else if (eEff < 1) logs.push("▶ 효과가 별로인 듯하다...");
+            }
+
+            setBattleLog([...logs.slice(-6)]);
+            turn++;
+            await wait(1500);
+        }
+
+        // 결과 처리
+        const playerWon = pHp > 0;
+        if (playerWon) {
+            setWinner("player");
+            logs.push(`▶ ${enemy.koName || enemy.name}이(가) 쓰러졌다!`);
+            logs.push("▶ 당신의 승리!");
+        } else {
+            setWinner("enemy");
+            logs.push(`▶ ${player.koName || player.name}이(가) 지쳤다...`);
+            logs.push("▶ 상대의 승리!");
+        }
+        setBattleLog([...logs.slice(-6)]);
+
+        try {
+            await addDoc(collection(db, "battle_logs"), {
+                classId: session?.classId,
+                winnerId: playerWon ? player.studentId : enemy.studentId,
+                winnerName: playerWon ? (session?.name || "나") : "상대",
+                loserId: playerWon ? enemy.studentId : player.studentId,
+                loserName: playerWon ? "상대" : (session?.name || "나"),
+                winnerPoke: playerWon ? (player.koName || player.name) : (enemy.koName || enemy.name),
+                loserPoke: playerWon ? (enemy.koName || enemy.name) : (player.koName || player.name),
+                createdAt: serverTimestamp(),
+                type: 'stadium'
+            });
+        } catch (e) {
+            console.error("배틀 로그 저장 실패:", e);
+        }
+
+        setTimeout(() => setGameState("result"), 2000);
     };
 
     if (!session) return null;

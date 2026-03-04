@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { PokemonImage } from "@/components/PokemonImage";
+import { getSkillData, calculateDamage } from "@/lib/pokemonData";
 
 // 상성 데이터
 const TYPE_CHART: Record<string, Record<string, number>> = {
@@ -66,6 +67,7 @@ interface PokemonData {
     image: string;
     level: number;
     types: string[];
+    skills?: string[];
     stats?: {
         hp: number;
         attack: number;
@@ -221,41 +223,50 @@ export default function GymPage() {
         ];
         setBattleLog([...logs]);
 
-        const pStats = player.stats || { hp: 100, attack: 40, defense: 40 };
-        const eStats = enemy.stats || { hp: 100, attack: 40, defense: 40 };
+        runBattleLoop(player, enemy, logs);
+    };
 
-        let pHp = pStats.hp + (player.level * 2);
-        let eHp = eStats.hp + (enemy.level * 2);
+    const runBattleLoop = async (player: PokemonData, enemy: PokemonData, logs: string[]) => {
+        const wait = (ms: number) => new Promise(res => setTimeout(res, ms));
 
-        const pEff = getEffectiveness(player.types, enemy.types);
-        const eEff = getEffectiveness(enemy.types, player.types);
-
+        let pHp = (player.stats?.hp || 100) + (player.level * 2);
+        let eHp = (enemy.stats?.hp || 100) + (enemy.level * 2);
         let turn = 1;
 
-        const processTurn = () => {
-            if (pHp <= 0 || eHp <= 0) {
-                finishBattle(pHp > 0, player, enemy);
-                return;
-            }
+        await wait(2000);
+
+        while (pHp > 0 && eHp > 0) {
+            const fallbackSkillName = "몸통박치기";
+            const pSkillName = player.skills && player.skills.length > 0 ? player.skills[Math.floor(Math.random() * player.skills.length)] : fallbackSkillName;
+            const eSkillName = enemy.skills && enemy.skills.length > 0 ? enemy.skills[Math.floor(Math.random() * enemy.skills.length)] : fallbackSkillName;
+
+            const pSkill = getSkillData(pSkillName) || { name: fallbackSkillName, type: "normal", power: 40 };
+            const eSkill = getSkillData(eSkillName) || { name: fallbackSkillName, type: "normal", power: 40 };
+
+            const pEff = getEffectiveness([pSkill.type], enemy.types);
+            const eEff = getEffectiveness([eSkill.type], player.types);
+
+            const pDmg = calculateDamage(player.level, player.stats?.attack || 40, enemy.stats?.defense || 40, pSkill.power, pEff);
+            const eDmg = calculateDamage(enemy.level, enemy.stats?.attack || 40, player.stats?.defense || 40, eSkill.power, eEff);
 
             if (turn % 2 !== 0) {
-                const damage = Math.max(5, Math.floor(((player.level * 2 + pStats.attack * pEff) / (eStats.defense * 0.5)) * (Math.random() * 0.4 + 0.8)));
-                eHp -= damage;
-                logs.push(`▶ ${player.koName || player.name}의 공격! ${damage} 데미지!`);
+                eHp -= pDmg;
+                logs.push(`▶ ${player.koName || player.name}의 [${pSkill.name}]! ${pDmg} 데미지!`);
                 if (pEff > 1) logs.push("▶ 앗! 효과가 굉장했다!");
+                else if (pEff < 1) logs.push("▶ 효과가 별로인 듯하다...");
             } else {
-                const damage = Math.max(5, Math.floor(((enemy.level * 2 + eStats.attack * eEff) / (pStats.defense * 0.5)) * (Math.random() * 0.4 + 0.8)));
-                pHp -= damage;
-                logs.push(`▶ ${enemy.koName || enemy.name}의 반격! ${damage} 데미지!`);
+                pHp -= eDmg;
+                logs.push(`▶ ${enemy.koName || enemy.name}의 [${eSkill.name}]! ${eDmg} 데미지!`);
                 if (eEff > 1) logs.push("▶ 앗! 효과가 굉장했다!");
+                else if (eEff < 1) logs.push("▶ 효과가 별로인 듯하다...");
             }
 
             setBattleLog([...logs.slice(-6)]);
             turn++;
-            setTimeout(processTurn, 1500);
-        };
+            await wait(1500);
+        }
 
-        setTimeout(processTurn, 2000);
+        finishBattle(pHp > 0, player, enemy);
     };
 
     // 배틀 종료 처리

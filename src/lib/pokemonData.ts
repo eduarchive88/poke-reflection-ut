@@ -162,3 +162,20 @@ export function getRandomSkills(types: string[]): PokemonSkill[] {
 
     return uniqueSkills.sort(() => 0.5 - Math.random()).slice(0, 3);
 }
+
+export function getSkillData(skillName: string): PokemonSkill | null {
+    for (const type in TYPE_SKILLS) {
+        const skill = TYPE_SKILLS[type].find(s => s.name === skillName);
+        if (skill) return skill;
+    }
+    return null;
+}
+
+export function calculateDamage(attackerLevel: number, attackerAttack: number, defenderDefense: number, skillPower: number, effectiveness: number): number {
+    // 포켓몬스터 전통적인 데미지 공식과 유사하면서도 단순화한 형태
+    // ((레벨 * 2 / 5 + 2) * 위력 * 공격력 / 방어력) / 50 + 2
+    const baseDamage = Math.floor((((attackerLevel * 2 / 5 + 2) * skillPower * attackerAttack) / defenderDefense) / 50 + 2);
+    // 상성 적용 및 랜덤 데미지 (0.85 ~ 1.0)
+    const randomFactor = Math.random() * (1.0 - 0.85) + 0.85;
+    return Math.max(1, Math.floor(baseDamage * effectiveness * randomFactor));
+}
