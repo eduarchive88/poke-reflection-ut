@@ -63,24 +63,24 @@ const TYPE_COLORS: Record<string, string> = {
 
 // 상성 데이터
 const TYPE_CHART: Record<string, Record<string, number>> = {
-    fire: { grass: 2, ice: 2, bug: 2, steel: 2, fire: 0.5, water: 0.5, rock: 0.5, dragon: 0.5 },
-    water: { fire: 2, ground: 2, rock: 2, water: 0.5, grass: 0.5, dragon: 0.5 },
-    grass: { water: 2, ground: 2, rock: 2, grass: 0.5, fire: 0.5, poison: 0.5, flying: 0.5, bug: 0.5, dragon: 0.5, steel: 0.5 },
-    electric: { water: 2, flying: 2, electric: 0.5, grass: 0.5, dragon: 0.5, ground: 0 },
-    normal: { rock: 0.5, steel: 0.5, ghost: 0 },
-    bug: { grass: 2, psychic: 2, dark: 2, fire: 0.5, fighting: 0.5, poison: 0.5, flying: 0.5, ghost: 0.5, steel: 0.5, fairy: 0.5 },
-    poison: { grass: 2, fairy: 2, poison: 0.5, ground: 0.5, rock: 0.5, ghost: 0.5, steel: 0 },
-    ground: { fire: 2, electric: 2, poison: 2, rock: 2, steel: 2, grass: 0.5, bug: 0.5, flying: 0 },
-    flying: { grass: 2, fighting: 2, bug: 2, electric: 0.5, rock: 0.5, steel: 0.5 },
-    psychic: { fighting: 2, poison: 2, psychic: 0.5, steel: 0.5, dark: 0 },
-    rock: { fire: 2, ice: 2, flying: 2, bug: 2, fighting: 0.5, ground: 0.5, steel: 0.5 },
-    ice: { grass: 2, ground: 2, flying: 2, dragon: 2, fire: 0.5, water: 0.5, ice: 0.5, steel: 0.5 },
-    ghost: { psychic: 2, ghost: 2, normal: 0, dark: 0.5 },
-    dragon: { dragon: 2, steel: 0.5, fairy: 0 },
-    steel: { ice: 2, rock: 2, fairy: 2, fire: 0.5, water: 0.5, electric: 0.5, steel: 0.5 },
-    dark: { psychic: 2, ghost: 2, fighting: 0.5, dark: 0.5, fairy: 0.5 },
-    fairy: { fighting: 2, dragon: 2, dark: 2, fire: 0.5, poison: 0.5, steel: 0.5 },
-    fighting: { normal: 2, ice: 2, rock: 2, dark: 2, steel: 2, poison: 0.5, flying: 0.5, psychic: 0.5, bug: 0.5, fairy: 0.5, ghost: 0 }
+    fire: { grass: 3, ice: 3, bug: 3, steel: 3, fire: 0.33, water: 0.33, rock: 0.33, dragon: 0.33 },
+    water: { fire: 3, ground: 3, rock: 3, water: 0.33, grass: 0.33, dragon: 0.33 },
+    grass: { water: 3, ground: 3, rock: 3, grass: 0.33, fire: 0.33, poison: 0.33, flying: 0.33, bug: 0.33, dragon: 0.33, steel: 0.33 },
+    electric: { water: 3, flying: 3, electric: 0.33, grass: 0.33, dragon: 0.33, ground: 0 },
+    normal: { rock: 0.33, steel: 0.33, ghost: 0 },
+    bug: { grass: 3, psychic: 3, dark: 3, fire: 0.33, fighting: 0.33, poison: 0.33, flying: 0.33, ghost: 0.33, steel: 0.33, fairy: 0.33 },
+    poison: { grass: 3, fairy: 3, poison: 0.33, ground: 0.33, rock: 0.33, ghost: 0.33, steel: 0 },
+    ground: { fire: 3, electric: 3, poison: 3, rock: 3, steel: 3, grass: 0.33, bug: 0.33, flying: 0 },
+    flying: { grass: 3, fighting: 3, bug: 3, electric: 0.33, rock: 0.33, steel: 0.33 },
+    psychic: { fighting: 3, poison: 3, psychic: 0.33, steel: 0.33, dark: 0 },
+    rock: { fire: 3, ice: 3, flying: 3, bug: 3, fighting: 0.33, ground: 0.33, steel: 0.33 },
+    ice: { grass: 3, ground: 3, flying: 3, dragon: 3, fire: 0.33, water: 0.33, ice: 0.33, steel: 0.33 },
+    ghost: { psychic: 3, ghost: 3, normal: 0, dark: 0.33 },
+    dragon: { dragon: 3, steel: 0.33, fairy: 0 },
+    steel: { ice: 3, rock: 3, fairy: 3, fire: 0.33, water: 0.33, electric: 0.33, steel: 0.33 },
+    dark: { psychic: 3, ghost: 3, fighting: 0.33, dark: 0.33, fairy: 0.33 },
+    fairy: { fighting: 3, dragon: 3, dark: 3, fire: 0.33, poison: 0.33, steel: 0.33 },
+    fighting: { normal: 3, ice: 3, rock: 3, dark: 3, steel: 3, poison: 0.33, flying: 0.33, psychic: 0.33, bug: 0.33, fairy: 0.33, ghost: 0 }
 };
 
 export default function FriendlyMatchPage() {

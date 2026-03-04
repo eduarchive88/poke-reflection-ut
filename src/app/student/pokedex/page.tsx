@@ -82,9 +82,35 @@ export default function PokedexPage() {
             const q = query(collection(db, "pokemon_inventory"), where("studentId", "==", studentId));
             const snapshots = await getDocs(q);
             const list: Pokemon[] = [];
-            snapshots.forEach((doc) => {
-                list.push({ id: doc.id, ...(doc.data() as Omit<Pokemon, "id">) });
-            });
+
+            for (const docSnap of snapshots.docs) {
+                const data = docSnap.data() as Omit<Pokemon, "id">;
+
+                let updated = false;
+                const updates: any = {};
+
+                if (!data.stats) {
+                    const { getPokemonStats } = await import("@/lib/pokemonData");
+                    const newStats = getPokemonStats(data.pokemonId, data.level || 5);
+                    updates.stats = newStats;
+                    data.stats = newStats;
+                    updated = true;
+                }
+
+                if (!data.skills || data.skills.length === 0) {
+                    const { getRandomSkills } = await import("@/lib/pokemonData");
+                    const newSkills = getRandomSkills(data.types || ["normal"]);
+                    updates.skills = newSkills;
+                    data.skills = newSkills;
+                    updated = true;
+                }
+
+                if (updated) {
+                    await updateDoc(doc(db, "pokemon_inventory", docSnap.id), updates);
+                }
+
+                list.push({ id: docSnap.id, ...data });
+            }
             setMyPokemon(list);
         } catch (error) {
             console.error(error);
