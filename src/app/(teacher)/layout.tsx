@@ -93,19 +93,16 @@ function TeacherLayoutInner({ children }: { children: React.ReactNode }) {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    {/* 학급 선택 드롭다운: 우측 CLASS 라벨 옆에 배치 */}
+                    {/* 학급 선택 드롭다운: 우측 로그인 정보 옆에 배치 */}
                     {selectedClassId && classes.length > 0 && pathname !== "/dashboard/classes" && (
-                        <div className="flex items-center gap-1">
-                            <div className="bg-slate-800 text-white border-2 border-black flex items-center px-2 py-1 h-10">
-                                <span className="font-bold pixel-text text-xs">CLASS</span>
-                            </div>
+                        <div className="flex items-center">
                             <Select value={selectedClassId || ""} onValueChange={setSelectedClassId}>
-                                <SelectTrigger className="w-[140px] sm:w-[180px] retro-box-inner bg-white border-2 border-black h-10 rounded-none shadow-[2px_2px_0_#000] font-bold text-black focus:ring-0 text-xs sm:text-sm">
+                                <SelectTrigger className="w-[120px] sm:w-[160px] bg-white border-[3px] border-black h-10 rounded-none shadow-[2px_2px_0_#000] font-black text-black hover:bg-slate-50 focus:ring-0 text-sm transition-transform hover:-translate-y-0.5">
                                     <SelectValue placeholder="학급 선택" />
                                 </SelectTrigger>
-                                <SelectContent className="border-2 border-black rounded-none shadow-[4px_4px_0_#000]">
+                                <SelectContent className="border-[3px] border-black rounded-none shadow-[4px_4px_0_#000]">
                                     {classes.map(cls => (
-                                        <SelectItem key={cls.id} value={cls.id} className="font-bold focus:bg-slate-200 cursor-pointer">
+                                        <SelectItem key={cls.id} value={cls.id} className="font-bold focus:bg-indigo-100 cursor-pointer text-sm">
                                             {cls.className}
                                         </SelectItem>
                                     ))}
