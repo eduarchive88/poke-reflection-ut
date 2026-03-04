@@ -212,7 +212,7 @@ export default function TeacherDashboardHub() {
                         <div className="relative z-10 flex flex-col h-full">
                             <div className="flex items-center gap-3 mb-8 border-b-[3px] border-black pb-4">
                                 <div className="p-2 bg-white border-2 border-black shadow-[2px_2px_0px_#000]">
-                                    <img src="https://play.pokemonshowdown.com/sprites/itemicons/devon-parts.png" className="w-6 h-6" style={{ imageRendering: 'pixelated' }} alt="Parts" />
+                                    <img src="https://play.pokemonshowdown.com/sprites/itemicons/data-card.png" className="w-6 h-6" style={{ imageRendering: 'pixelated' }} alt="Parts" onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/itemicons/potion.png'; }} />
                                 </div>
                                 <h3 className="text-xl font-black italic tracking-tighter text-black dark:text-white" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.1)' }}>시스템 상태</h3>
                             </div>

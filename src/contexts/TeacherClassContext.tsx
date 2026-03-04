@@ -50,14 +50,11 @@ export const TeacherClassProvider = ({ children }: { children: ReactNode }) => {
 
             setClasses(classList);
 
-            // Automatically select the first class if none is selected or if the currently selected one is no longer valid
-            if (classList.length > 0) {
-                if (!selectedClassId || !classList.find(c => c.id === selectedClassId)) {
-                    setSelectedClassId(classList[0].id);
-                }
-            } else {
+            // 현재 선택된 학급이 목록에서 사라졌으면 null로 리셋 (학급 삭제된 경우)
+            if (selectedClassId && !classList.find(c => c.id === selectedClassId)) {
                 setSelectedClassId(null);
             }
+            // 자동 선택하지 않음 - 교사가 직접 학급을 선택해야 함
         } catch (error) {
             console.error("Error fetching classes:", error);
         } finally {

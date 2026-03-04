@@ -73,9 +73,12 @@ function TeacherLayoutInner({ children }: { children: React.ReactNode }) {
         return null; // router.push 리다이렉트 처리 대기
     }
 
+    // 학급이 있지만 아직 선택하지 않은 경우 → 학급 선택 화면 표시
+    const showClassPicker = !loadingClasses && !loading && user && classes.length > 0 && !selectedClassId && pathname !== "/dashboard/classes";
+
     return (
         <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
-            {/* Elegant Teacher Header */}
+            {/* Teacher Header */}
             <header className="px-6 py-4 flex justify-between items-center bg-background/80 backdrop-blur-xl border-b border-border relative z-50 sticky top-0">
                 <div className="flex items-center gap-6">
                     <Link href="/dashboard" className="flex items-center gap-3 group transition-transform hover:scale-105">
@@ -87,13 +90,11 @@ function TeacherLayoutInner({ children }: { children: React.ReactNode }) {
                             <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest leading-none mt-1">Management Console</p>
                         </div>
                     </Link>
-
-                    {/* Class Selector Dropdown Moved Context */}
                 </div>
 
                 <div className="flex items-center gap-3">
-                    {/* 학급 선택 드롭다운: 항상 우측에 표시 */}
-                    {classes.length > 0 && pathname !== "/dashboard/classes" && (
+                    {/* 학급 선택 드롭다운: 우측 CLASS 라벨 옆에 배치 */}
+                    {selectedClassId && classes.length > 0 && pathname !== "/dashboard/classes" && (
                         <div className="flex items-center gap-1">
                             <div className="bg-slate-800 text-white border-2 border-black flex items-center px-2 py-1 h-10">
                                 <span className="font-bold pixel-text text-xs">CLASS</span>
@@ -138,7 +139,69 @@ function TeacherLayoutInner({ children }: { children: React.ReactNode }) {
                 </div>
 
                 <div className="max-w-7xl mx-auto relative z-10 w-full pb-20">
-                    {children}
+                    {/* 학급 선택 화면: 학급은 있지만 아직 선택 안 한 상태 */}
+                    {showClassPicker ? (
+                        <div className="max-w-3xl mx-auto space-y-8 py-8">
+                            {/* 학급 선택 헤더 */}
+                            <div className="text-center space-y-4">
+                                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest border-[3px] border-black shadow-[2px_2px_0px_#000]">
+                                    <img src="https://play.pokemonshowdown.com/sprites/itemicons/pc-box.png" className="w-4 h-4" style={{ imageRendering: 'pixelated' }} alt="PC" />
+                                    CLASS SELECT
+                                </div>
+                                <h2 className="text-3xl sm:text-4xl font-black text-black dark:text-white tracking-tighter italic" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.1)' }}>
+                                    관리할 학급을 선택하세요
+                                </h2>
+                                <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
+                                    선택한 학급의 대시보드로 이동합니다.
+                                </p>
+                            </div>
+
+                            {/* 학급 카드 그리드 */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {classes.map((cls, index) => (
+                                    <button
+                                        key={cls.id}
+                                        onClick={() => setSelectedClassId(cls.id)}
+                                        className="retro-box hover-pixel-lift bg-white dark:bg-slate-800 p-6 flex items-center gap-4 text-left transition-all duration-200 cursor-pointer border-[3px] border-black hover:bg-indigo-50 dark:hover:bg-indigo-900/30 group"
+                                    >
+                                        {/* 포켓볼 아이콘 */}
+                                        <div className="w-14 h-14 bg-indigo-100 dark:bg-indigo-900/50 border-[3px] border-black flex items-center justify-center shadow-[2px_2px_0px_#000] flex-shrink-0 group-hover:scale-110 transition-transform">
+                                            <img
+                                                src={`https://play.pokemonshowdown.com/sprites/itemicons/${['poke-ball', 'great-ball', 'ultra-ball', 'master-ball', 'premier-ball', 'luxury-ball'][index % 6]}.png`}
+                                                className="w-10 h-10"
+                                                style={{ imageRendering: 'pixelated' }}
+                                                alt="Ball"
+                                            />
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-lg font-black text-black dark:text-white truncate tracking-tight">
+                                                {cls.className}
+                                            </p>
+                                            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 font-mono tracking-wider">
+                                                CODE: {cls.sessionCode}
+                                            </p>
+                                        </div>
+                                        <div className="text-indigo-500 font-black text-xl group-hover:translate-x-1 transition-transform">
+                                            ▶
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* 새 학급 만들기 유도 */}
+                            <div className="text-center">
+                                <Button
+                                    variant="outline"
+                                    className="retro-btn bg-white border-2 border-black shadow-[2px_2px_0px_#000] font-black text-sm"
+                                    onClick={() => router.push("/dashboard/classes")}
+                                >
+                                    + 새 학급 만들기
+                                </Button>
+                            </div>
+                        </div>
+                    ) : (
+                        children
+                    )}
                 </div>
 
                 {/* No Class Warning Modal */}
