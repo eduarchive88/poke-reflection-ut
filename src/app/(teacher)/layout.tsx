@@ -91,15 +91,15 @@ function TeacherLayoutInner({ children }: { children: React.ReactNode }) {
                     {/* Class Selector Dropdown Moved Context */}
                 </div>
 
-                <div className="flex items-center gap-4">
-                    {/* Class Selector Dropdown */}
+                <div className="flex items-center gap-3">
+                    {/* 학급 선택 드롭다운: 항상 우측에 표시 */}
                     {classes.length > 0 && pathname !== "/dashboard/classes" && (
-                        <div className="hidden lg:flex items-center gap-2 mr-2">
+                        <div className="flex items-center gap-1">
                             <div className="bg-slate-800 text-white border-2 border-black flex items-center px-2 py-1 h-10">
-                                <span className="font-bold pixel-text text-xs">CLASS :</span>
+                                <span className="font-bold pixel-text text-xs">CLASS</span>
                             </div>
                             <Select value={selectedClassId || ""} onValueChange={setSelectedClassId}>
-                                <SelectTrigger className="w-[180px] retro-box-inner bg-white border-2 border-black h-10 rounded-none shadow-[2px_2px_0_#000] font-bold text-black focus:ring-0">
+                                <SelectTrigger className="w-[140px] sm:w-[180px] retro-box-inner bg-white border-2 border-black h-10 rounded-none shadow-[2px_2px_0_#000] font-bold text-black focus:ring-0 text-xs sm:text-sm">
                                     <SelectValue placeholder="학급 선택" />
                                 </SelectTrigger>
                                 <SelectContent className="border-2 border-black rounded-none shadow-[4px_4px_0_#000]">
@@ -113,20 +113,15 @@ function TeacherLayoutInner({ children }: { children: React.ReactNode }) {
                         </div>
                     )}
 
-                    <div className="hidden sm:block text-right mr-2">
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-end gap-1">
-                            {selectedClassId && classes.find(c => c.id === selectedClassId)?.className && (
-                                <span className="text-indigo-600 bg-indigo-100 px-1 border border-indigo-200">{classes.find(c => c.id === selectedClassId)?.className} 관리중</span>
-                            )}
-                            <span className="ml-1">Logged in</span>
-                        </p>
+                    <div className="hidden sm:block text-right">
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Logged in</p>
                         <p className="text-sm font-black">{teacherName || user.email?.split("@")[0]} 선생님</p>
                     </div>
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={handleLogout}
-                        className="retro-btn bg-white border-2 border-slate-300 text-red-500 font-bold hover:bg-red-50 hover:border-red-500 text-xs px-4"
+                        className="retro-btn bg-white border-2 border-slate-300 text-red-500 font-bold hover:bg-red-50 hover:border-red-500 text-xs px-3"
                     >
                         <LogOut className="h-3 w-3 sm:mr-2" />
                         <span className="hidden sm:inline">로그아웃</span>

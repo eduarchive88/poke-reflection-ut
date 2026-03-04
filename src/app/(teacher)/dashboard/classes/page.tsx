@@ -1,17 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { nanoid } from "nanoid";
-import { Edit2, Trash2, Copy, Check, ChevronLeft, Plus } from "lucide-react";
+import { Check, Trash2, Copy, ChevronLeft, Plus } from "lucide-react";
 import { useTeacherClass } from "@/contexts/TeacherClassContext";
 import { auth } from "@/lib/firebase";
 
@@ -23,12 +23,20 @@ export default function ClassesPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [newClassName, setNewClassName] = useState("");
 
-    // 수정용 상태
-    const [isEditOpen, setIsEditOpen] = useState(false);
+    // 수정용 상태 (인라인 편집)
     const [editName, setEditName] = useState("");
     const [editCode, setEditCode] = useState("");
 
     const [copiedId, setCopiedId] = useState<string | null>(null);
+
+    // 선택 학급이 변경되면 editName/editCode를 자동으로 현재 학급 정보로 초기화
+    const selectedClassData = classes.find(c => c.id === selectedClassId);
+    useEffect(() => {
+        if (selectedClassData) {
+            setEditName(selectedClassData.className);
+            setEditCode(selectedClassData.sessionCode);
+        }
+    }, [selectedClassId, selectedClassData?.className, selectedClassData?.sessionCode]);
 
     const handleCreateClass = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -54,8 +62,8 @@ export default function ClassesPage() {
         }
     };
 
-    const handleUpdateClass = async (e: React.FormEvent) => {
-        e.preventDefault();
+    // 학급 정보 업데이트 (인라인 저장 버튼 클릭 시 직접 호출)
+    const handleUpdateClass = async () => {
         if (!selectedClassId || !editName.trim() || !editCode.trim()) return;
 
         try {
@@ -66,7 +74,6 @@ export default function ClassesPage() {
             });
 
             await refreshClasses(); // 변경사항 전역 상태 갱신
-            setIsEditOpen(false);
             toast.success("학급 정보가 수정되었습니다.");
         } catch (error) {
             toast.error("수정에 실패했습니다.");
@@ -93,7 +100,7 @@ export default function ClassesPage() {
         setTimeout(() => setCopiedId(null), 2000);
     };
 
-    const selectedClassData = classes.find(c => c.id === selectedClassId);
+
 
     return (
         <div className="space-y-8">
@@ -165,55 +172,61 @@ export default function ClassesPage() {
                 </Card>
             ) : (
                 <div className="max-w-2xl mx-auto">
-                    <Card className="retro-box hover-pixel-lift bg-white dark:bg-slate-800 flex flex-col h-full relative z-10 p-0 border-[3px] border-black">
-                        <div className="retro-box-inner"></div>
+                    <Card className="retro-box bg-white dark:bg-slate-800 flex flex-col h-full relative z-10 p-0 border-[3px] border-black">
 
-                        <CardHeader className="p-6 border-b-[3px] border-black bg-indigo-500 text-white relative">
-                            <div className="flex justify-between items-start gap-4">
-                                <div className="space-y-2 min-w-0">
-                                    <CardDescription className="text-indigo-200 font-bold text-xs uppercase tracking-widest flex items-center gap-1">
-                                        <img src="https://play.pokemonshowdown.com/sprites/itemicons/town-map.png" className="w-4 h-4" style={{ imageRendering: 'pixelated' }} alt="Map" />
-                                        현재 선택 및 관리 중인 학급
-                                    </CardDescription>
-                                    <CardTitle className="text-3xl font-black tracking-tight truncate drop-shadow-[2px_2px_0_rgba(0,0,0,0.5)]">{selectedClassData.className}</CardTitle>
-                                </div>
-                            </div>
+                        {/* 카드 헤더: 학급 이름 인라인 편집 */}
+                        <CardHeader className="p-6 border-b-[3px] border-black bg-indigo-500 text-white">
+                            <CardDescription className="text-indigo-200 font-bold text-xs uppercase tracking-widest flex items-center gap-1 mb-3">
+                                <img src="https://play.pokemonshowdown.com/sprites/itemicons/town-map.png" className="w-4 h-4" style={{ imageRendering: 'pixelated' }} alt="Map" />
+                                학급 이름 (클릭하여 바로 수정 가능)
+                            </CardDescription>
+                            <Input
+                                value={editName}
+                                onChange={(e) => setEditName(e.target.value)}
+                                className="text-2xl font-black bg-white/20 border-[3px] border-white/60 text-white placeholder:text-indigo-300 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none h-14"
+                                placeholder="학급 이름 입력..."
+                            />
                         </CardHeader>
-                        <CardContent className="p-8 flex flex-col space-y-8 bg-slate-50 dark:bg-slate-700 relative z-10">
-                            {/* Session Code Section */}
+
+                        <CardContent className="p-8 flex flex-col space-y-6 bg-slate-50 dark:bg-slate-700">
+                            {/* 세션 코드 인라인 편집 Section */}
                             <div className="bg-white dark:bg-slate-800 border-[3px] border-black p-6 shadow-[4px_4px_0px_rgba(0,0,0,1)] relative overflow-hidden">
                                 <div className="absolute -right-4 -bottom-4 opacity-10 pointer-events-none">
                                     <img src="https://play.pokemonshowdown.com/sprites/itemicons/poke-ball.png" className="w-32 h-32" style={{ imageRendering: 'pixelated' }} alt="BG" />
                                 </div>
-                                <p className="text-sm font-black text-slate-500 mb-3 uppercase tracking-widest">학생 접속 세션 코드 (Session Code)</p>
-                                <div className="flex items-center gap-4">
-                                    <p className="text-4xl font-black font-mono tracking-widest text-indigo-600 dark:text-indigo-400 select-all flex-1 text-center bg-slate-100 dark:bg-slate-900 py-4 border-2 border-dashed border-indigo-200">
-                                        {selectedClassData.sessionCode}
-                                    </p>
+                                <p className="text-sm font-black text-slate-500 mb-1 uppercase tracking-widest">학생 접속 세션 코드</p>
+                                <p className="text-xs font-bold text-amber-600 bg-amber-50 border-2 border-amber-300 p-2 mb-3">
+                                    ⚠️ 코드를 바꾸면 학생들도 변경된 코드로 다시 접속해야 합니다.
+                                </p>
+                                <div className="flex items-center gap-3">
+                                    <Input
+                                        value={editCode}
+                                        onChange={(e) => setEditCode(e.target.value.toUpperCase())}
+                                        className="flex-1 text-2xl font-black font-mono tracking-widest text-indigo-600 text-center bg-slate-100 dark:bg-slate-900 border-[3px] border-black focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none h-16 uppercase"
+                                        placeholder="세션 코드"
+                                    />
                                     <Button
+                                        type="button"
                                         variant="outline"
                                         size="icon"
                                         className="retro-btn h-16 w-16 px-0 bg-indigo-50 text-indigo-600 border-2 border-indigo-200 hover:bg-indigo-500 hover:text-white shadow-[2px_2px_0px_#4f46e5]"
-                                        onClick={() => copyToClipboard(selectedClassData.sessionCode)}
+                                        onClick={() => copyToClipboard(editCode)}
+                                        title="코드 복사"
                                     >
-                                        {copiedId === selectedClassData.id ? <Check className="h-8 w-8" /> : <Copy className="h-8 w-8" />}
+                                        {copiedId === selectedClassId ? <Check className="h-8 w-8" /> : <Copy className="h-8 w-8" />}
                                     </Button>
                                 </div>
                             </div>
 
-                            {/* Management Actions */}
-                            <div className="pt-4 border-t-2 border-dashed border-slate-300 grid sm:grid-cols-2 gap-4">
+                            {/* 저장 + 삭제 버튼 */}
+                            <div className="grid sm:grid-cols-2 gap-4 pt-2">
                                 <Button
-                                    variant="outline"
-                                    className="retro-btn h-14 bg-yellow-50 hover:bg-yellow-100 text-yellow-800 border-2 border-yellow-900 shadow-[2px_2px_0px_#713f12] text-sm font-black flex items-center justify-center gap-2"
-                                    onClick={() => {
-                                        setEditName(selectedClassData.className);
-                                        setEditCode(selectedClassData.sessionCode);
-                                        setIsEditOpen(true);
-                                    }}
+                                    className="retro-btn h-14 bg-indigo-500 hover:bg-indigo-600 text-white border-2 border-black shadow-[4px_4px_0px_#000] text-base font-black flex items-center justify-center gap-2"
+                                    onClick={handleUpdateClass}
+                                    disabled={!editName.trim() || !editCode.trim()}
                                 >
-                                    <Edit2 className="w-5 h-5" />
-                                    학급 정보 이름/코드 변경
+                                    <Check className="w-5 h-5" />
+                                    변경 저장하기 (SAVE)
                                 </Button>
                                 <Button
                                     variant="outline"
@@ -224,41 +237,10 @@ export default function ClassesPage() {
                                     이 학급 삭제하기
                                 </Button>
                             </div>
-
                         </CardContent>
                     </Card>
                 </div>
             )}
-
-            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                <DialogContent className="retro-box sm:max-w-[500px] bg-white dark:bg-slate-800 p-0 overflow-hidden">
-                    <div className="bg-yellow-500 p-4 border-b-[3px] border-black flex items-center gap-2">
-                        <img src="https://play.pokemonshowdown.com/sprites/itemicons/machobrace.png" className="w-6 h-6" style={{ imageRendering: 'pixelated' }} alt="Brace" />
-                        <DialogTitle className="text-xl font-black text-black uppercase italic drop-shadow-[1px_1px_0_rgba(255,255,255,0.5)]">학급 정보 변경</DialogTitle>
-                    </div>
-                    <div className="p-6 bg-slate-100 dark:bg-slate-700">
-                        <DialogDescription className="text-slate-700 dark:text-slate-300 font-bold mb-4 bg-white dark:bg-slate-800 p-3 border-2 border-black shadow-[2px_2px_0px_#000]">
-                            학급의 이름과 접속 코드를 변경합니다.<br />
-                            <span className="text-red-500 font-black">주의:</span> 세션 코드를 바꾸면 학생들도 변경된 코드로 접속해야 합니다.
-                        </DialogDescription>
-                        <form onSubmit={handleUpdateClass}>
-                            <div className="grid gap-6 py-2">
-                                <div className="space-y-2">
-                                    <Label htmlFor="edit-name" className="text-black dark:text-white font-black ml-1 text-sm">학급 이름</Label>
-                                    <Input id="edit-name" value={editName} onChange={(e) => setEditName(e.target.value)} className="retro-box-inner bg-white border-[3px] border-black h-12 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 text-black font-bold" />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="edit-code" className="text-black dark:text-white font-black ml-1 text-sm">세션 접속 코드 (8자리 제한 없음)</Label>
-                                    <Input id="edit-code" value={editCode} onChange={(e) => setEditCode(e.target.value)} className="retro-box-inner bg-white border-[3px] border-black h-12 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 text-black font-mono font-black tracking-widest uppercase" />
-                                </div>
-                            </div>
-                            <div className="mt-6 flex justify-end">
-                                <Button type="submit" className="retro-btn w-full h-12 bg-yellow-400 text-black border-[3px] border-black shadow-[4px_4px_0_#000] text-lg font-black hover:bg-yellow-500">정보 업데이트 (SAVE)</Button>
-                            </div>
-                        </form>
-                    </div>
-                </DialogContent>
-            </Dialog>
         </div>
     );
 }

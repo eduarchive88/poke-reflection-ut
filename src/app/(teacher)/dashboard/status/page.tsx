@@ -60,6 +60,9 @@ function StatusContent() {
     const [selectedPokemonStat, setSelectedPokemonStat] = useState<any | null>(null);
     const [isStatDialogOpen, setIsStatDialogOpen] = useState(false);
 
+    // 이미 지급된 전설 포켓몬 ID 추적 (set 사용)
+    const [alreadyGivenIds, setAlreadyGivenIds] = useState<Set<number>>(new Set());
+
     // 학생별 성찰 기록 상세 모달 관련
     const [isReflectionListOpen, setIsReflectionListOpen] = useState(false);
     const [studentReflections, setStudentReflections] = useState<any[]>([]);
@@ -246,6 +249,8 @@ function StatusContent() {
             });
             toast.success(`${selectedStudent.name} 학생에게 ${pokeName}(을)를 지급했습니다!`);
             setIsRewardDialogOpen(false);
+            // 지급 후 alreadyGivenIds 업데이트
+            setAlreadyGivenIds(prev => new Set(prev).add(pokeId));
         } catch (error) {
             console.error(error);
             toast.error("보상 지급 중 오류가 발생했습니다.");
@@ -364,8 +369,21 @@ function StatusContent() {
                                                 <Button
                                                     size="sm"
                                                     className="retro-btn bg-amber-400 hover:bg-amber-300 text-black font-black flex-inline items-center justify-center gap-1 border-2 border-black"
-                                                    onClick={() => {
+                                                    onClick={async () => {
                                                         setSelectedStudent(student);
+                                                        // 보상 모달 열기 전에 해당 학생의 인벤토리 조회
+                                                        try {
+                                                            const q = query(collection(db, "pokemon_inventory"), where("studentId", "==", student.id));
+                                                            const snap = await getDocs(q);
+                                                            const givenIds = new Set<number>();
+                                                            snap.forEach(doc => {
+                                                                const data = doc.data();
+                                                                if (data.isLegendary) givenIds.add(data.pokemonId);
+                                                            });
+                                                            setAlreadyGivenIds(givenIds);
+                                                        } catch (e) {
+                                                            setAlreadyGivenIds(new Set());
+                                                        }
                                                         setIsRewardDialogOpen(true);
                                                     }}
                                                 >
@@ -449,22 +467,41 @@ function StatusContent() {
                         </DialogTitle>
                         <DialogDescription className="text-black font-bold bg-white/50 p-2 rounded border-2 border-slate-300 border-dashed mt-2">
                             {selectedStudent?.name} 학생에게 특별한 포켓몬을 선물합니다.
+                            <span className="ml-2 text-slate-500 text-xs">❌ 표시 포켓몬은 이미 지급되었습니다.</span>
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3 py-4">
-                        {LEGENDARY_POKEMON.map((poke) => (
-                            <button
-                                key={poke.id}
-                                disabled={isRewarding}
-                                onClick={() => giveReward(poke.id, poke.name, poke.image, poke.types)}
-                                className="group flex flex-col items-center p-2 retro-box bg-white hover:bg-amber-100 transition-colors text-center relative overflow-hidden active:scale-95"
-                            >
-                                <div className="absolute top-0 right-0 bg-yellow-400 text-[8px] font-black px-1.5 py-0.5 border-b-2 border-l-2 border-black z-10" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>LEGEND</div>
-                                <img src={poke.image} alt={poke.name} className="w-16 h-16 group-hover:scale-110 transition-transform pixelated" />
-                                <span className="mt-2 text-xs font-black text-black" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>{poke.name}</span>
-                                <span className="text-[10px] text-slate-500 font-bold border-t-2 border-dashed border-slate-300 w-full pt-1 mt-1">No.{poke.id.toString().padStart(3, '0')}</span>
-                            </button>
-                        ))}
+                        {LEGENDARY_POKEMON.map((poke) => {
+                            const alreadyGiven = alreadyGivenIds.has(poke.id);
+                            return (
+                                <button
+                                    key={poke.id}
+                                    disabled={isRewarding || alreadyGiven}
+                                    onClick={() => !alreadyGiven && giveReward(poke.id, poke.name, poke.image, poke.types)}
+                                    className={`group flex flex-col items-center p-2 retro-box text-center relative overflow-hidden transition-colors
+                                        ${alreadyGiven
+                                            ? 'bg-slate-200 cursor-not-allowed opacity-60'
+                                            : 'bg-white hover:bg-amber-100 active:scale-95 cursor-pointer'
+                                        }`}
+                                >
+                                    {alreadyGiven ? (
+                                        /* 이미 지급된 포켓몬: ❌ 배지 */
+                                        <div className="absolute top-0 right-0 bg-slate-500 text-white text-[8px] font-black px-1.5 py-0.5 border-b-2 border-l-2 border-black z-10 flex items-center gap-0.5" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
+                                            <span>❌</span> 지급완료
+                                        </div>
+                                    ) : (
+                                        <div className="absolute top-0 right-0 bg-yellow-400 text-[8px] font-black px-1.5 py-0.5 border-b-2 border-l-2 border-black z-10" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>LEGEND</div>
+                                    )}
+                                    <img
+                                        src={poke.image}
+                                        alt={poke.name}
+                                        className={`w-16 h-16 transition-transform pixelated ${alreadyGiven ? 'grayscale' : 'group-hover:scale-110'}`}
+                                    />
+                                    <span className="mt-2 text-xs font-black text-black" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>{poke.name}</span>
+                                    <span className="text-[10px] text-slate-500 font-bold border-t-2 border-dashed border-slate-300 w-full pt-1 mt-1">No.{poke.id.toString().padStart(3, '0')}</span>
+                                </button>
+                            );
+                        })}
                     </div>
                 </DialogContent>
             </Dialog>
