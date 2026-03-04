@@ -172,40 +172,25 @@ export function getSkillData(skillName: string): PokemonSkill | null {
 }
 
 // 배틀 스킬 확률 선택 시스템
-// 기본 공격(몸통박치기) 60% + 보유 스킬 중 하나 40%
-// 스킬 내에서는 파워가 낮을수록 높은 확률 (가중치 역비례)
+// 기본 공격(몸통박치기) 30% + 보유 스킬 중 하나 70%
 export function selectBattleSkill(skills: string[] | undefined): PokemonSkill {
     const basicAttack: PokemonSkill = { name: "몸통박치기", type: "normal", power: 40 };
 
     // 스킬이 없으면 항상 기본 공격
     if (!skills || skills.length === 0) return basicAttack;
 
-    // 60% 확률로 기본 공격 사용
-    if (Math.random() < 0.6) return basicAttack;
+    // 30% 확률로 기본 공격 사용
+    if (Math.random() < 0.3) return basicAttack;
 
-    // 40% 확률로 보유 스킬 중 하나 (가중치 기반 랜덤)
+    // 70% 확률로 보유 스킬 중 하나 (랜덤 추출을 통한 골고루 사용)
     const validSkills = skills
         .map(name => getSkillData(name))
         .filter((s): s is PokemonSkill => s !== null);
 
     if (validSkills.length === 0) return basicAttack;
 
-    // 파워 역비례 가중치: power 40→가중치3, power 80→가중치2, power 120→가중치1
-    const weights = validSkills.map(s => {
-        if (s.power <= 50) return 3;
-        if (s.power <= 85) return 2;
-        return 1;
-    });
-
-    const totalWeight = weights.reduce((sum, w) => sum + w, 0);
-    let rand = Math.random() * totalWeight;
-
-    for (let i = 0; i < validSkills.length; i++) {
-        rand -= weights[i];
-        if (rand <= 0) return validSkills[i];
-    }
-
-    return validSkills[validSkills.length - 1];
+    const randomIndex = Math.floor(Math.random() * validSkills.length);
+    return validSkills[randomIndex];
 }
 
 export function calculateDamage(attackerLevel: number, attackerAttack: number, defenderDefense: number, skillPower: number, effectiveness: number): number {

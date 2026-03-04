@@ -585,34 +585,49 @@ function StatusContent() {
                             </DialogHeader>
                             <div className="flex flex-col items-center gap-4 py-4">
                                 <img src={selectedPokemonStat.image} alt={selectedPokemonStat.name} className="w-32 h-32 pixelated drop-shadow-md" />
-                                <div className="text-center mb-2">
+                                <div className="text-center mb-2 flex items-center gap-2">
                                     <span className="text-black font-black bg-slate-200 px-3 py-1 border-2 border-black inline-block" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
                                         Lv.{selectedPokemonStat.level || 50}
                                     </span>
+                                    {selectedPokemonStat.types && selectedPokemonStat.types.length > 0 && (
+                                        <div className="flex gap-1">
+                                            {selectedPokemonStat.types.map((t: string) => (
+                                                <span key={t} className="bg-gray-100 border border-black px-2 py-0.5 text-xs font-bold uppercase" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>{t}</span>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="w-full space-y-3 bg-white p-4 border-4 border-black retro-box">
-                                    <div className="flex justify-between items-center text-black font-black" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
-                                        <span>HP</span>
-                                        <span>{selectedPokemonStat.stats?.hp || 50}</span>
-                                    </div>
-                                    <div className="w-full bg-slate-200 h-4 border-2 border-black">
-                                        <div className="bg-green-400 h-full border-r-2 border-black" style={{ width: `${Math.min(((selectedPokemonStat.stats?.hp || 50) / 150) * 100, 100)}%` }}></div>
-                                    </div>
 
-                                    <div className="flex justify-between items-center text-black font-black" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
-                                        <span>공격</span>
-                                        <span>{selectedPokemonStat.stats?.attack || 50}</span>
+                                <div className="w-full bg-white p-4 border-4 border-black retro-box grid grid-cols-3 gap-2 text-center">
+                                    <div className="flex flex-col items-center p-2 bg-red-50 border-2 border-black">
+                                        <span className="text-xs font-bold text-red-600 mb-1" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>HP</span>
+                                        <span className="text-lg font-black" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>{selectedPokemonStat.stats?.hp || 50}</span>
                                     </div>
-                                    <div className="w-full bg-slate-200 h-4 border-2 border-black">
-                                        <div className="bg-red-400 h-full border-r-2 border-black" style={{ width: `${Math.min(((selectedPokemonStat.stats?.attack || 50) / 150) * 100, 100)}%` }}></div>
+                                    <div className="flex flex-col items-center p-2 bg-blue-50 border-2 border-black">
+                                        <span className="text-xs font-bold text-blue-600 mb-1" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>공격</span>
+                                        <span className="text-lg font-black" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>{selectedPokemonStat.stats?.attack || 50}</span>
                                     </div>
+                                    <div className="flex flex-col items-center p-2 bg-green-50 border-2 border-black">
+                                        <span className="text-xs font-bold text-green-600 mb-1" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>방어</span>
+                                        <span className="text-lg font-black" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>{selectedPokemonStat.stats?.defense || 50}</span>
+                                    </div>
+                                </div>
 
-                                    <div className="flex justify-between items-center text-black font-black" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
-                                        <span>방어</span>
-                                        <span>{selectedPokemonStat.stats?.defense || 50}</span>
-                                    </div>
-                                    <div className="w-full bg-slate-200 h-4 border-2 border-black">
-                                        <div className="bg-blue-400 h-full border-r-2 border-black" style={{ width: `${Math.min(((selectedPokemonStat.stats?.defense || 50) / 150) * 100, 100)}%` }}></div>
+                                <div className="w-full space-y-2 mt-2">
+                                    <h4 className="text-sm font-black border-b-2 border-black pb-1" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>보유 기술</h4>
+                                    <div className="grid grid-cols-1 gap-2">
+                                        {selectedPokemonStat.skills && selectedPokemonStat.skills.length > 0 ? (
+                                            selectedPokemonStat.skills.map((skill: string, idx: number) => (
+                                                <div key={idx} className="bg-yellow-50 border-2 border-black p-2 text-sm font-bold flex justify-between" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
+                                                    <span>{skill}</span>
+                                                    <span className="text-[10px] sm:text-xs text-gray-500">배틀스킬</span>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="bg-gray-50 border-2 border-black p-2 text-sm font-bold text-gray-400 text-center" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
+                                                습득한 기술이 없습니다.
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

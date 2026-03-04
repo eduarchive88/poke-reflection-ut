@@ -631,6 +631,12 @@ export default function FriendlyMatchPage() {
                                         <li>▶ 양쪽 플레이어가 모두 [준비 완료]를 누르면 시작됩니다.</li>
                                         <li>▶ 패배한 포켓몬은 일정 시간 동안 휴식해야 합니다.</li>
                                     </ul>
+                                    <h3 className="text-lg sm:text-xl font-black pixel-text mt-6 mb-4 border-b-2 border-black pb-2">🔥 상성 규칙</h3>
+                                    <ul className="space-y-3 text-xs sm:text-sm pixel-text text-gray-700">
+                                        <li>▶ <span className="text-red-500 font-bold">효과 굉장 (데미지 2배)</span> : 물 ➔ 불꽃, 전기 ➔ 비행 등</li>
+                                        <li>▶ <span className="text-blue-500 font-bold">효과 별로 (데미지 절반)</span> : 불꽃 ➔ 물, 풀 ➔ 비행 등</li>
+                                        <li>▶ 상세한 상성은 하단 메뉴의 <span className="font-bold border-b border-black">상성표</span>를 확인하세요!</li>
+                                    </ul>
                                 </div>
 
                                 {/* 대기 중 표시 */}

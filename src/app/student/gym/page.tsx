@@ -507,7 +507,7 @@ export default function GymPage() {
                     <motion.div key="select" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, scale: 0.9 }}>
                         <div className="flex items-center justify-between pixel-box bg-white p-4 mb-6">
                             <h3 className="text-sm sm:text-base font-bold pixel-text flex items-center gap-2">
-                                🎒 도전 포켓몬 선택
+                                🎒 {gym?.leaderId ? "도전 포켓몬 선택" : "차지할 포켓몬 선택"}
                             </h3>
                             <Button onClick={() => setGameState("info")} className="pixel-button bg-gray-300 text-black hidden sm:flex">
                                 도망치기
@@ -552,7 +552,7 @@ export default function GymPage() {
                                             </div>
                                         </div>
                                         <div className="absolute inset-0 bg-black/10 hidden group-hover:flex items-center justify-center">
-                                            <span className="bg-red-500 text-white pixel-text text-sm sm:text-base px-3 py-1 border-2 border-black animate-pulse">출전!</span>
+                                            <span className="bg-red-500 text-white pixel-text text-sm sm:text-base px-3 py-1 border-2 border-black animate-pulse">{gym?.leaderId ? "출전!" : "차지하기!"}</span>
                                         </div>
                                     </div>
                                 ))}
