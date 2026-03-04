@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { collection, query, where, getDocs, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, getDoc, setDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { useTeacherClass } from "@/contexts/TeacherClassContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -496,27 +496,77 @@ function StatusContent() {
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 py-4">
-                            {studentInventory.map((item) => (
-                                <Card
-                                    key={item.id}
-                                    className="relative overflow-hidden retro-box bg-white hover:-translate-y-1 transition-transform group cursor-pointer active:scale-95"
-                                    onClick={() => {
-                                        setSelectedPokemonStat(item);
-                                        setIsStatDialogOpen(true);
-                                    }}
-                                >
-                                    <div className={`absolute top-0 right-0 px-1.5 py-0.5 text-[8px] font-black border-b-2 border-l-2 border-black z-10 ${item.isLegendary ? 'bg-yellow-400 text-black' : 'bg-slate-200 text-black'}`} style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
-                                        {item.isLegendary ? "LEGEND" : `No.${item.pokemonId.toString().padStart(3, '0')}`}
-                                    </div>
-                                    <CardContent className="p-4 text-center">
-                                        <img src={item.image} alt={item.name} className="w-16 h-16 mx-auto group-hover:scale-110 transition-transform pixelated drop-shadow-md" />
-                                        <p className="font-black mt-2 text-sm text-black" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>{item.koName || item.name}</p>
-                                        <div className="flex justify-center items-center gap-1 mt-2">
-                                            <span className="text-[10px] font-black text-white bg-black px-2 py-0.5 border-2 border-black">Lv.{item.level}</span>
+                            {studentInventory.map((item) => {
+                                // 활동 제한 상태 계산
+                                let isRetired = false;
+                                let retiredRemaining = '';
+                                if (item.retiredUntil) {
+                                    let retiredDate: Date | null = null;
+                                    try {
+                                        if (typeof item.retiredUntil.toDate === 'function') retiredDate = item.retiredUntil.toDate();
+                                        else if (item.retiredUntil instanceof Date) retiredDate = item.retiredUntil;
+                                        else if (item.retiredUntil.seconds) retiredDate = new Date(item.retiredUntil.seconds * 1000);
+                                    } catch (e) { /* ignore */ }
+                                    if (retiredDate && retiredDate > new Date()) {
+                                        isRetired = true;
+                                        const diff = retiredDate.getTime() - Date.now();
+                                        const hours = Math.floor(diff / (1000 * 60 * 60));
+                                        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                                        retiredRemaining = `${hours}시간 ${mins}분`;
+                                    }
+                                }
+                                return (
+                                    <Card
+                                        key={item.id}
+                                        className={`relative overflow-hidden retro-box hover:-translate-y-1 transition-transform group cursor-pointer active:scale-95 ${isRetired ? 'bg-red-50 border-red-300' : 'bg-white'}`}
+                                        onClick={() => {
+                                            setSelectedPokemonStat(item);
+                                            setIsStatDialogOpen(true);
+                                        }}
+                                    >
+                                        <div className={`absolute top-0 right-0 px-1.5 py-0.5 text-[8px] font-black border-b-2 border-l-2 border-black z-10 ${item.isLegendary ? 'bg-yellow-400 text-black' : 'bg-slate-200 text-black'}`} style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
+                                            {item.isLegendary ? "LEGEND" : `No.${item.pokemonId.toString().padStart(3, '0')}`}
                                         </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
+                                        {/* 활동 제한 뱃지 */}
+                                        {isRetired && (
+                                            <div className="absolute top-0 left-0 px-1.5 py-0.5 text-[8px] font-black bg-red-500 text-white border-b-2 border-r-2 border-black z-10" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
+                                                🔒 휴식중
+                                            </div>
+                                        )}
+                                        <CardContent className="p-4 text-center">
+                                            <img src={item.image} alt={item.name} className={`w-16 h-16 mx-auto group-hover:scale-110 transition-transform pixelated drop-shadow-md ${isRetired ? 'grayscale opacity-60' : ''}`} />
+                                            <p className="font-black mt-2 text-sm text-black" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>{item.koName || item.name}</p>
+                                            <div className="flex justify-center items-center gap-1 mt-2">
+                                                <span className="text-[10px] font-black text-white bg-black px-2 py-0.5 border-2 border-black">Lv.{item.level}</span>
+                                            </div>
+                                            {/* 활동 제한 잔여 시간 + 해제 버튼 */}
+                                            {isRetired && (
+                                                <div className="mt-2 space-y-1">
+                                                    <p className="text-[9px] font-black text-red-600" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>잔여: {retiredRemaining}</p>
+                                                    <button
+                                                        className="text-[9px] font-black bg-green-400 hover:bg-green-300 text-black px-2 py-0.5 border-2 border-black active:scale-95 transition-transform"
+                                                        onClick={async (e) => {
+                                                            e.stopPropagation();
+                                                            if (!confirm(`${item.koName || item.name}의 활동 제한을 해제하시겠습니까?`)) return;
+                                                            try {
+                                                                await updateDoc(doc(db, "pokemon_inventory", item.id), { retiredUntil: null });
+                                                                // 로컬 상태 업데이트
+                                                                setStudentInventory(prev => prev.map(p => p.id === item.id ? { ...p, retiredUntil: null } : p));
+                                                                toast.success(`${item.koName || item.name}의 활동 제한이 해제되었습니다!`);
+                                                            } catch (err) {
+                                                                console.error(err);
+                                                                toast.error('활동 제한 해제에 실패했습니다.');
+                                                            }
+                                                        }}
+                                                    >
+                                                        ✅ 제한 해제
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                );
+                            })}
                         </div>
                     )}
                 </DialogContent>

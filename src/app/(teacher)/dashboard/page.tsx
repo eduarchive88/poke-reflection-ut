@@ -101,6 +101,14 @@ export default function TeacherDashboardHub() {
             path: "/dashboard/gym",
             color: "bg-rose-100 dark:bg-rose-900/40 border-rose-300 dark:border-rose-700",
             hoverAccent: "hover:bg-rose-50 dark:hover:bg-rose-900/60"
+        },
+        {
+            title: "로그 현황",
+            description: "배틀, 포켓몬 획득, 레벨업, 성찰 등 모든 학생 활동 기록을 확인합니다.",
+            icon: <img src="https://play.pokemonshowdown.com/sprites/itemicons/journal.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Log" />,
+            path: "/dashboard/logs",
+            color: "bg-purple-100 dark:bg-purple-900/40 border-purple-300 dark:border-purple-700",
+            hoverAccent: "hover:bg-purple-50 dark:hover:bg-purple-900/60"
         }
     ];
 

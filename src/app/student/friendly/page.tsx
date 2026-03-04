@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { PokemonImage } from "@/components/PokemonImage";
-import { getSkillData, calculateDamage } from "@/lib/pokemonData";
+import { getSkillData, calculateDamage, selectBattleSkill } from "@/lib/pokemonData";
 
 interface Student {
     id: string;
@@ -463,12 +463,9 @@ export default function FriendlyMatchPage() {
                 await wait(1000);
             }
 
-            const fallbackSkillName = "몸통박치기";
-            const mySkillName = me.skills && me.skills.length > 0 ? me.skills[Math.floor(Math.random() * me.skills.length)] : fallbackSkillName;
-            const oppSkillName = opp.skills && opp.skills.length > 0 ? opp.skills[Math.floor(Math.random() * opp.skills.length)] : fallbackSkillName;
-
-            const mySkill = getSkillData(mySkillName) || { name: fallbackSkillName, type: "normal", power: 40 };
-            const oppSkill = getSkillData(oppSkillName) || { name: fallbackSkillName, type: "normal", power: 40 };
+            // 확률 기반 스킬 선택 (기본공격 60% + 보유스킬 40%)
+            const mySkill = selectBattleSkill(me.skills);
+            const oppSkill = selectBattleSkill(opp.skills);
 
             const myEff = getEffectiveness([mySkill.type], opp.types);
             const oppEff = getEffectiveness([oppSkill.type], me.types);

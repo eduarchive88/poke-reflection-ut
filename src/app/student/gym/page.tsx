@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { PokemonImage } from "@/components/PokemonImage";
-import { getSkillData, calculateDamage } from "@/lib/pokemonData";
+import { getSkillData, calculateDamage, selectBattleSkill } from "@/lib/pokemonData";
 
 // 상성 데이터
 const TYPE_CHART: Record<string, Record<string, number>> = {
@@ -236,12 +236,9 @@ export default function GymPage() {
         await wait(2000);
 
         while (pHp > 0 && eHp > 0) {
-            const fallbackSkillName = "몸통박치기";
-            const pSkillName = player.skills && player.skills.length > 0 ? player.skills[Math.floor(Math.random() * player.skills.length)] : fallbackSkillName;
-            const eSkillName = enemy.skills && enemy.skills.length > 0 ? enemy.skills[Math.floor(Math.random() * enemy.skills.length)] : fallbackSkillName;
-
-            const pSkill = getSkillData(pSkillName) || { name: fallbackSkillName, type: "normal", power: 40 };
-            const eSkill = getSkillData(eSkillName) || { name: fallbackSkillName, type: "normal", power: 40 };
+            // 확률 기반 스킬 선택 (기본공격 60% + 보유스킬 40%)
+            const pSkill = selectBattleSkill(player.skills);
+            const eSkill = selectBattleSkill(enemy.skills);
 
             const pEff = getEffectiveness([pSkill.type], enemy.types);
             const eEff = getEffectiveness([eSkill.type], player.types);

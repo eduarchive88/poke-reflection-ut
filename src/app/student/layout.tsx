@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { PenTool, Archive, BookHeart, Swords, LogOut, Trophy, Users } from "lucide-react";
+import { PenTool, Archive, BookHeart, Swords, LogOut, Trophy, Users, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 // TODO: Custom Session 관리 로직 임포트 필요
@@ -46,6 +46,7 @@ export default function StudentLayout({
         { name: "기록 (Write)", path: "/write", icon: <PenTool className="h-5 w-5" /> },
         { name: "보관함 (Archive)", path: "/archive", icon: <Archive className="h-5 w-5" /> },
         { name: "포켓몬 도감", path: "/pokedex", icon: <BookHeart className="h-5 w-5" /> },
+        { name: "상성표", path: "/type-chart", icon: <Zap className="h-5 w-5" /> },
         { name: "체육관 (Gym)", path: "/gym", icon: <Trophy className="h-5 w-5" /> },
         { name: "친선 경기", path: "/friendly", icon: <Users className="h-5 w-5" /> },
     ];
