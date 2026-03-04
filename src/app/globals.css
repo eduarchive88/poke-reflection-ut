@@ -229,4 +229,32 @@
     border-radius: 4px;
     image-rendering: pixelated;
   }
+
+  /* 신규 포켓몬 스타일 로고 */
+  .pocketmon-logo {
+    font-family: 'NeoDunggeunmo', sans-serif;
+    color: #ffcb05;
+    /* Pokemon Yellow */
+    -webkit-text-stroke: 2px #000000;
+    text-shadow:
+      4px 4px 0px #3b4cca,
+      /* Pokemon Blue Shadow */
+      6px 6px 0px rgba(0, 0, 0, 0.5);
+    filter: drop-shadow(0 0 10px rgba(255, 203, 5, 0.3));
+    letter-spacing: -0.02em;
+  }
+
+  .reflection-sub-logo {
+    font-family: 'NeoDunggeunmo', sans-serif;
+    @apply text-slate-500 dark:text-slate-400 font-black uppercase tracking-[0.3em];
+    text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.2);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.2);
+  }
+
+  .dark .text-glow {
+    text-shadow: 0 0 15px rgba(59, 76, 202, 0.5), 0 0 30px rgba(59, 76, 202, 0.2);
+  }
 }

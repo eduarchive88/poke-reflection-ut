@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowRight, User } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export const dynamic = 'force-dynamic';
 
@@ -22,21 +23,41 @@ export default function Home() {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#3b4cca]/10 rounded-full blur-[120px] -z-10 animate-pulse"></div>
       <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-[#ffde00]/5 rounded-full blur-[100px] -z-10 animate-pulse"></div>
 
-      <div className="space-y-6 max-w-4xl px-4">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/40 border border-slate-700/50 backdrop-blur-xl mb-4 animate-bounce">
-          <Sparkles className="h-4 w-4 text-amber-500" />
+      <div className="space-y-6 max-w-4xl px-4 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/40 border border-slate-700/50 backdrop-blur-xl mb-4"
+        >
+          <Sparkles className="h-4 w-4 text-amber-500 animate-pulse" />
           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">The Ultimate Experience</span>
-        </div>
+        </motion.div>
 
-        <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-tight drop-shadow-2xl">
-          <span className="text-white">Poke-Reflection</span><br />
-          <span className="pokemon-gradient-text italic">Ultimate Edition</span>
-        </h1>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: "spring", stiffness: 100 }}
+          className="relative"
+        >
+          <h1 className="flex flex-col items-center justify-center">
+            <span className="pocketmon-logo text-6xl md:text-9xl italic block transform -rotate-1 skew-x-[-10deg]">
+              POCKETMON
+            </span>
+            <span className="reflection-sub-logo text-xl md:text-3xl mt-2 block text-glow">
+              REFLECTION ULTIMATE
+            </span>
+          </h1>
+        </motion.div>
 
-        <p className="text-lg md:text-2xl text-slate-400 font-medium max-w-2xl mx-auto leading-relaxed tracking-tight">
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="text-lg md:text-2xl text-white font-bold max-w-2xl mx-auto leading-relaxed tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+        >
           선생님과 학생이 함께하는 스마트 성찰 플랫폼.<br />
           오늘의 성실한 배움이 당신의 포켓몬을 강하게 성장시킵니다.
-        </p>
+        </motion.p>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-6 pt-4 w-full max-w-md px-6">
