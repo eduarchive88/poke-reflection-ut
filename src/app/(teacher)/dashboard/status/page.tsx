@@ -525,7 +525,7 @@ function StatusContent() {
                                         }}
                                     >
                                         <div className={`absolute top-0 right-0 px-1.5 py-0.5 text-[8px] font-black border-b-2 border-l-2 border-black z-10 ${item.isLegendary ? 'bg-yellow-400 text-black' : 'bg-slate-200 text-black'}`} style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
-                                            {item.isLegendary ? "LEGEND" : `No.${item.pokemonId.toString().padStart(3, '0')}`}
+                                            {item.isLegendary ? "LEGEND" : `No.${String(item.pokemonId || 0).padStart(3, '0')}`}
                                         </div>
                                         {/* 활동 제한 뱃지 */}
                                         {isRetired && (
@@ -589,10 +589,10 @@ function StatusContent() {
                                     <span className="text-black font-black bg-slate-200 px-3 py-1 border-2 border-black inline-block" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
                                         Lv.{selectedPokemonStat.level || 50}
                                     </span>
-                                    {selectedPokemonStat.types && selectedPokemonStat.types.length > 0 && (
+                                    {Array.isArray(selectedPokemonStat.types) && selectedPokemonStat.types.length > 0 && (
                                         <div className="flex gap-1">
-                                            {selectedPokemonStat.types.map((t: string) => (
-                                                <span key={t} className="bg-gray-100 border border-black px-2 py-0.5 text-xs font-bold uppercase" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>{t}</span>
+                                            {selectedPokemonStat.types.map((t: string, idx: number) => (
+                                                <span key={idx} className="bg-gray-100 border border-black px-2 py-0.5 text-xs font-bold uppercase" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>{String(t)}</span>
                                             ))}
                                         </div>
                                     )}
@@ -616,11 +616,17 @@ function StatusContent() {
                                 <div className="w-full space-y-2 mt-2">
                                     <h4 className="text-sm font-black border-b-2 border-black pb-1" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>보유 기술</h4>
                                     <div className="grid grid-cols-1 gap-2">
-                                        {selectedPokemonStat.skills && selectedPokemonStat.skills.length > 0 ? (
-                                            selectedPokemonStat.skills.map((skill: string, idx: number) => (
-                                                <div key={idx} className="bg-yellow-50 border-2 border-black p-2 text-sm font-bold flex justify-between" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
-                                                    <span>{skill}</span>
-                                                    <span className="text-[10px] sm:text-xs text-gray-500">배틀스킬</span>
+                                        {Array.isArray(selectedPokemonStat.skills) && selectedPokemonStat.skills.length > 0 ? (
+                                            selectedPokemonStat.skills.map((skill: any, idx: number) => (
+                                                <div key={idx} className="bg-yellow-50 border-2 border-black p-2 text-sm font-bold flex justify-between items-center" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
+                                                    <div className="flex items-center gap-1">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-black block" />
+                                                        <span>{typeof skill === 'object' && skill !== null ? (skill.name || '알 수 없는 스킬') : String(skill)}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        {typeof skill === 'object' && skill !== null && skill.type && <span className="text-[10px] text-gray-500 uppercase">{String(skill.type)}</span>}
+                                                        {typeof skill === 'object' && skill !== null && skill.power && <span className="text-xs text-blue-600 font-black">역량 {String(skill.power)}</span>}
+                                                    </div>
                                                 </div>
                                             ))
                                         ) : (
