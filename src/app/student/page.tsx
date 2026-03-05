@@ -44,12 +44,16 @@ export default function StudentDashboard() {
 
             const q = query(
                 collection(db, "reflections"),
-                where("studentId", "==", studentId),
-                where("createdAt", ">=", monday)
+                where("studentId", "==", studentId)
             );
             const snapshots = await getDocs(q);
             const list: any[] = [];
-            snapshots.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+            snapshots.forEach(doc => {
+                const data = doc.data();
+                if (data.createdAt && data.createdAt.toDate() >= monday) {
+                    list.push({ id: doc.id, ...data });
+                }
+            });
             setRecentReflections(list);
 
             // 최근 활동 로그 가져오기 (최신 6개)

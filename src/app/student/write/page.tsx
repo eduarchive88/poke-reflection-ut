@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp, doc, setDoc, getDoc, updateDoc, increment, writeBatch, runTransaction } from "firebase/firestore";
+import { collection, serverTimestamp, doc, getDoc, increment, runTransaction, query, where, getDocs } from "firebase/firestore";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -122,6 +122,30 @@ export default function WritePage() {
 
             const earnedCandies = Math.max(1, Math.floor(wordCount / 50));
 
+            // 주간 성찰 횟수 확인 및 보너스 캔디 로직
+            const now = new Date();
+            const day = now.getDay();
+            const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+            const monday = new Date(now);
+            monday.setDate(diff);
+            monday.setHours(0, 0, 0, 0);
+
+            const weeklyQuery = query(
+                collection(db, "reflections"),
+                where("studentId", "==", session.studentId)
+            );
+            const weeklySnap = await getDocs(weeklyQuery);
+            let countThisWeek = 0;
+            weeklySnap.forEach(d_ => {
+                const d = d_.data();
+                if (d.createdAt && d.createdAt.toDate() >= monday) {
+                    countThisWeek++;
+                }
+            });
+            const isWeeklyAchieved = (countThisWeek === 2); // 현재 작성이 3회째인 경우
+            const bonusCandies = isWeeklyAchieved ? 10 : 0;
+            const totalCandies = earnedCandies + bonusCandies;
+
             // Firestore runTransaction을 사용하여 모든 작업을 원자적으로 처리
             await runTransaction(db, async (transaction) => {
                 // 1. 포켓몬 지급 또는 레벨업 확인
@@ -137,15 +161,15 @@ export default function WritePage() {
                     wordCount: wordCount,
                     participationRating: rating,
                     earnedCandies: earnedCandies,
+                    bonusCandies: bonusCandies,
                     createdAt: serverTimestamp(),
                 });
 
                 // 3. 학생 정보 업데이트 (캔디 누적 및 마지막 작성일 갱신)
                 transaction.update(studentRef, {
-                    candies: increment(earnedCandies),
+                    candies: increment(totalCandies),
                     lastReflectedAt: serverTimestamp(),
-                    reflectionCount: increment(1),
-                    weeklyAchv: increment(1)
+                    reflectionCount: increment(1)
                 });
 
                 // 4. 포켓몬 지급 또는 레벨업 실행
@@ -226,11 +250,13 @@ export default function WritePage() {
                     studentId: session.studentId,
                     classId: session.classId,
                     type: "candy_gain",
-                    title: `캔디 ${earnedCandies}개 획득! 🍬`,
-                    description: `성찰 일기 작성 보상으로 캔디 ${earnedCandies}개를 받았습니다.`,
+                    title: isWeeklyAchieved ? `주간 목표 달성! 캔디 ${totalCandies}개 획득! 🍬` : `캔디 ${totalCandies}개 획득! 🍬`,
+                    description: isWeeklyAchieved
+                        ? `성찰 일기 주 3회 작성 보너스로 10개 추가! 총 ${totalCandies}개를 받았습니다.`
+                        : `성찰 일기 작성 보상으로 캔디 ${totalCandies}개를 받았습니다.`,
                     details: {
-                        amount: earnedCandies,
-                        reason: "reflection"
+                        amount: totalCandies,
+                        reason: isWeeklyAchieved ? "weekly_bonus" : "reflection"
                     },
                     createdAt: serverTimestamp()
                 });
@@ -238,7 +264,7 @@ export default function WritePage() {
 
             setRewardPokemon(pokemon);
             setHasAlreadyReflected(true);
-            toast.success(`${earnedCandies}개의 캔디를 획득했습니다! 성찰 일기가 저장되었습니다.`);
+            toast.success(isWeeklyAchieved ? `주간 목표 달성! 보너스 포함 ${totalCandies}개의 캔디를 획득했습니다!` : `${totalCandies}개의 캔디를 획득했습니다! 성찰 일기가 저장되었습니다.`);
         } catch (error) {
             console.error(error);
             toast.error("저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
