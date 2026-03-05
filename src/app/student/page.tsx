@@ -59,14 +59,13 @@ export default function StudentDashboard() {
             // 최근 활동 로그 가져오기 (최신 6개)
             const logQ = query(
                 collection(db, "student_logs"),
-                where("studentId", "==", studentId),
-                orderBy("createdAt", "desc"),
-                limit(6)
+                where("studentId", "==", studentId)
             );
             const logSnap = await getDocs(logQ);
             const logs: any[] = [];
             logSnap.forEach(d => logs.push({ id: d.id, ...d.data() }));
-            setRecentLogs(logs);
+            logs.sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate());
+            setRecentLogs(logs.slice(0, 6));
 
             // 파트너 포켓몬 가져오기 (가장 레벨이 높은 포켓몬)
             const pokeQ = query(collection(db, "pokemon_inventory"), where("studentId", "==", studentId));

@@ -35,15 +35,15 @@ export default function ActivitiesPage() {
         try {
             const q = query(
                 collection(db, "student_logs"),
-                where("studentId", "==", studentId),
-                orderBy("createdAt", "desc")
+                where("studentId", "==", studentId)
             );
             const querySnapshot = await getDocs(q);
             const logsData: any[] = [];
             querySnapshot.forEach((doc) => {
                 logsData.push({ id: doc.id, ...doc.data() });
             });
-            setLogs(logsData);
+            logsData.sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate());
+            setLogs(logsData.slice(0, 50));
         } catch (error) {
             console.error("Error fetching logs:", error);
             toast.error("활동 기록을 불러오는데 실패했습니다.");
