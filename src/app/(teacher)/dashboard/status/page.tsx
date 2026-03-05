@@ -195,7 +195,7 @@ function StatusContent() {
                     "학생 이름": studentMap[data.studentId] || "알 수 없음",
                     "날짜": data.createdAt?.toDate().toLocaleString() || "",
                     "성찰 내용": data.content || "",
-                    "별점": data.rating || 0
+                    "별점": data.participationRating || data.rating || 0
                 });
             });
 
@@ -414,7 +414,7 @@ function StatusContent() {
                                             {[1, 2, 3, 4, 5].map((star) => (
                                                 <Sparkles
                                                     key={star}
-                                                    className={`h-4 w-4 ${star <= (item.rating || 0) ? 'text-amber-400 fill-amber-400 drop-shadow-[1px_1px_0px_black]' : 'text-slate-300 fill-slate-300'}`}
+                                                    className={`h-4 w-4 ${star <= (item.participationRating || item.rating || 0) ? 'text-amber-400 fill-amber-400 drop-shadow-[1px_1px_0px_black]' : 'text-slate-300 fill-slate-300'}`}
                                                 />
                                             ))}
                                         </div>

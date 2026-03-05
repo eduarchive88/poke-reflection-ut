@@ -20,6 +20,7 @@ interface LogEntry {
     description: string;
     studentName: string;
     detail?: string;
+    rating?: number;
 }
 
 function LogsContent() {
@@ -83,7 +84,8 @@ function LogsContent() {
                     date,
                     studentName,
                     description: `${studentName} 학생이 성찰 일기를 작성했습니다.`,
-                    detail: data.content?.substring(0, 50) + (data.content?.length > 50 ? '...' : '')
+                    detail: data.content?.substring(0, 50) + (data.content?.length > 50 ? '...' : ''),
+                    rating: data.participationRating || data.rating || 0
                 });
             });
 
@@ -226,6 +228,7 @@ function LogsContent() {
             "종류": getLogStyle(l.type).label,
             "일시": l.date.toLocaleString(),
             "학생": l.studentName,
+            "별점": l.type === 'reflection' ? (l.rating || 0) : "-",
             "내용": l.description,
             "상세": l.detail || ""
         }));
@@ -332,7 +335,16 @@ function LogsContent() {
                                         </div>
                                         {/* 내용 */}
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-black text-black truncate">{log.description}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-sm font-black text-black truncate">{log.description}</p>
+                                                {log.type === 'reflection' && (log.rating || 0) > 0 && (
+                                                    <div className="flex items-center text-amber-400 shrink-0">
+                                                        {[...Array(log.rating)].map((_, i) => (
+                                                            <Star key={i} className="h-3 w-3 fill-current drop-shadow-[1px_1px_0px_black]" />
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
                                             {log.detail && (
                                                 <p className="text-xs text-slate-600 font-medium mt-0.5 truncate">{log.detail}</p>
                                             )}

@@ -6,7 +6,7 @@ import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Archive, Calendar, MessageSquare, ChevronLeft } from "lucide-react";
+import { Archive, Calendar, MessageSquare, ChevronLeft, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 export const dynamic = 'force-dynamic';
@@ -18,6 +18,8 @@ export default function ArchivePage() {
         id: string;
         content: string;
         wordCount: number;
+        participationRating?: number;
+        rating?: number;
         createdAt: {
             toDate: () => Date;
         };
@@ -120,8 +122,18 @@ export default function ArchivePage() {
                                     <Calendar className="h-3 w-3" />
                                     {ref.createdAt?.toDate ? ref.createdAt.toDate().toLocaleString('ko-KR') : "방금 전"}
                                 </div>
-                                <div className="flex items-center gap-1">
-                                    글자 수: {ref.wordCount}
+                                <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-1">
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <Sparkles
+                                                key={star}
+                                                className={`h-3 w-3 ${star <= (ref.participationRating || ref.rating || 0) ? 'text-amber-400 fill-amber-400 drop-shadow-[1px_1px_0px_black]' : 'text-slate-300 fill-slate-300'}`}
+                                            />
+                                        ))}
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        글자 수: {ref.wordCount}
+                                    </div>
                                 </div>
                             </div>
                             <CardContent className="pt-4">
