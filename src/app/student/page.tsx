@@ -184,16 +184,13 @@ export default function StudentDashboard() {
                                 </div>
 
                                 {partnerPokemon && (
-                                    <div className="hidden sm:flex flex-col items-center drop-shadow-[4px_4px_0_rgba(0,0,0,0.5)] ml-4 translate-y-4">
-                                        <div className="w-24 h-24 sm:w-32 sm:h-32 mb-[-10px] z-10">
+                                    <div className="hidden sm:flex flex-col items-center drop-shadow-[4px_4px_0_rgba(0,0,0,0.5)] ml-8 translate-y-4">
+                                        <div className="w-32 h-32 sm:w-48 sm:h-48 z-10">
                                             <PokemonImage
                                                 id={partnerPokemon.pokemonId}
                                                 name={partnerPokemon.koName || partnerPokemon.name}
                                                 className="w-full h-full object-contain pixelated [transform:scaleX(-1)]"
                                             />
-                                        </div>
-                                        <div className="bg-white border-2 border-black px-2 py-0.5 z-20 shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-black">
-                                            <span className="text-xs font-black pixel-text uppercase">Lv.{partnerPokemon.level || 1} {partnerPokemon.koName || partnerPokemon.name}</span>
                                         </div>
                                     </div>
                                 )}
