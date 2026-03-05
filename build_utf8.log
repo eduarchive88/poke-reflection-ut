@@ -1,0 +1,305 @@
+﻿
+> poke-reflection-ut@0.1.0 build
+> next build
+
+   ??Next.js 15.1.12
+   - Environments: .env.local
+   - Experiments (use with caution):
+     쨌 cpus
+
+   Creating an optimized production build ...
+node.exe : [Error: Cannot
+ apply unknown utility cl
+ass `retro-box`]
+위치 줄:1 문자:1
++ & "C:\Program Files\nod
+ejs/node.exe" "C:\Program
+ Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo       
+       : NotSpecified:   
+  ([Error: Cannot ...s   
+ s `retro-box`]:Strin    
+g) [], RemoteExcepti    o
+n
+    + FullyQualifiedErro 
+   rId : NativeCommandE  
+  rror
+ 
+<w> [webpack.cache.PackFi
+leCacheStrategy] Skipped 
+not serializable cache it
+em 'Compilation/modules|C
+:\Users\eduar\OneDrive\De
+sktop\pocketmon diary\pok
+e-reflection-ut\node_modu
+les\next\dist\build\webpa
+ck\loaders\css-loader\src
+\index.js??ruleSet[1].rul
+es[13].oneOf[10].use[2]!C
+:\Users\eduar\OneDrive\De
+sktop\pocketmon diary\pok
+e-reflection-ut\node_modu
+les\next\dist\build\webpa
+ck\loaders\postcss-loader
+\src\index.js??ruleSet[1]
+.rules[13].oneOf[10].use[
+3]!C:\Users\eduar\OneDriv
+e\Desktop\pocketmon diary
+\poke-reflection-ut\src\a
+pp\globals.css': No seria
+lizer registered for Post
+CSSSyntaxError
+<w> while serializing web
+pack/lib/cache/PackFileCa
+cheStrategy.PackContentIt
+ems -> webpack/lib/Normal
+Module -> webpack/lib/Mod
+uleBuildError -> PostCSSS
+yntaxError
+Failed to compile.
+
+./src/app/globals.css:1:1
+Syntax error: tailwindcss
+: C:\Users\eduar\OneDrive
+\Desktop\pocketmon diary\
+poke-reflection-ut\src\ap
+p\globals.css Cannot appl
+y unknown utility class `
+retro-box`
+
+[1m[31m>[39m[22m[90m
+ 1 | [39m[36m@import[3
+9m [32m"tailwindcss"[39
+m[33m;[39m
+ [90m   | [39m[1m[31m
+^[39m[22m
+ [90m 2 | [39m[36m@imp
+ort[39m [32m"tw-animate
+-css"[39m[33m;[39m
+ [90m 3 | [39m[36m@imp
+ort[39m [32m"shadcn/tai
+lwind.css"[39m[33m;[39
+m
+
+./src/app/globals.css
+Syntax error: tailwindcss
+: C:\Users\eduar\OneDrive
+\Desktop\pocketmon diary\
+poke-reflection-ut\src\ap
+p\globals.css Cannot appl
+y unknown utility class `
+retro-box` (1:1)
+
+[1m[31m>[39m[22m[90m
+ 1 | [39m[36m@import[3
+9m [32m"tailwindcss"[39
+m[33m;[39m
+ [90m   | [39m[1m[31m
+^[39m[22m
+ [90m 2 | [39m[36m@imp
+ort[39m [32m"tw-animate
+-css"[39m[33m;[39m
+ [90m 3 | [39m[36m@imp
+ort[39m [32m"shadcn/tai
+lwind.css"[39m[33m;[39
+m
+
+    at tryRunOrWebpackErr
+or (C:\Users\eduar\OneDri
+ve\Desktop\pocketmon diar
+y\poke-reflection-ut\node
+_modules\next\dist\compil
+ed\webpack\bundle5.js:28:
+314962)
+    at __webpack_require_
+module__ (C:\Users\eduar\
+OneDrive\Desktop\pocketmo
+n diary\poke-reflection-u
+t\node_modules\next\dist\
+compiled\webpack\bundle5.
+js:28:131434)
+    at __nested_webpack_r
+equire_161179__ (C:\Users
+\eduar\OneDrive\Desktop\p
+ocketmon diary\poke-refle
+ction-ut\node_modules\nex
+t\dist\compiled\webpack\b
+undle5.js:28:130872)
+    at C:\Users\eduar\One
+Drive\Desktop\pocketmon d
+iary\poke-reflection-ut\n
+ode_modules\next\dist\com
+piled\webpack\bundle5.js:
+28:131723
+    at symbolIterator (C:
+\Users\eduar\OneDrive\Des
+ktop\pocketmon diary\poke
+-reflection-ut\node_modul
+es\next\dist\compiled\neo
+-async\async.js:1:14444)
+    at done (C:\Users\edu
+ar\OneDrive\Desktop\pocke
+tmon diary\poke-reflectio
+n-ut\node_modules\next\di
+st\compiled\neo-async\asy
+nc.js:1:14824)
+    at Hook.eval [as call
+Async] (eval at create (C
+:\Users\eduar\OneDrive\De
+sktop\pocketmon diary\pok
+e-reflection-ut\node_modu
+les\next\dist\compiled\we
+bpack\bundle5.js:13:9218)
+, <anonymous>:15:1)
+    at Hook.CALL_ASYNC_DE
+LEGATE [as _callAsync] (C
+:\Users\eduar\OneDrive\De
+sktop\pocketmon diary\pok
+e-reflection-ut\node_modu
+les\next\dist\compiled\we
+bpack\bundle5.js:13:6372)
+    at C:\Users\eduar\One
+Drive\Desktop\pocketmon d
+iary\poke-reflection-ut\n
+ode_modules\next\dist\com
+piled\webpack\bundle5.js:
+28:130593
+    at symbolIterator (C:
+\Users\eduar\OneDrive\Des
+ktop\pocketmon diary\poke
+-reflection-ut\node_modul
+es\next\dist\compiled\neo
+-async\async.js:1:14402)
+-- inner error --
+Syntax error: tailwindcss
+: C:\Users\eduar\OneDrive
+\Desktop\pocketmon diary\
+poke-reflection-ut\src\ap
+p\globals.css Cannot appl
+y unknown utility class `
+retro-box` (1:1)
+
+[1m[31m>[39m[22m[90m
+ 1 | [39m[36m@import[3
+9m [32m"tailwindcss"[39
+m[33m;[39m
+ [90m   | [39m[1m[31m
+^[39m[22m
+ [90m 2 | [39m[36m@imp
+ort[39m [32m"tw-animate
+-css"[39m[33m;[39m
+ [90m 3 | [39m[36m@imp
+ort[39m [32m"shadcn/tai
+lwind.css"[39m[33m;[39
+m
+
+    at Object.<anonymous>
+ (C:\Users\eduar\OneDrive
+\Desktop\pocketmon diary\
+poke-reflection-ut\node_m
+odules\next\dist\build\we
+bpack\loaders\css-loader\
+src\index.js??ruleSet[1].
+rules[13].oneOf[10].use[2
+]!C:\Users\eduar\OneDrive
+\Desktop\pocketmon diary\
+poke-reflection-ut\node_m
+odules\next\dist\build\we
+bpack\loaders\postcss-loa
+der\src\index.js??ruleSet
+[1].rules[13].oneOf[10].u
+se[3]!C:\Users\eduar\OneD
+rive\Desktop\pocketmon di
+ary\poke-reflection-ut\sr
+c\app\globals.css:1:7)
+    at C:\Users\eduar\One
+Drive\Desktop\pocketmon d
+iary\poke-reflection-ut\n
+ode_modules\next\dist\com
+piled\webpack\bundle5.js:
+28:955548
+    at Hook.eval [as call
+] (eval at create (C:\Use
+rs\eduar\OneDrive\Desktop
+\pocketmon diary\poke-ref
+lection-ut\node_modules\n
+ext\dist\compiled\webpack
+\bundle5.js:13:8996), <an
+onymous>:7:1)
+    at Hook.CALL_DELEGATE
+ [as _call] (C:\Users\edu
+ar\OneDrive\Desktop\pocke
+tmon diary\poke-reflectio
+n-ut\node_modules\next\di
+st\compiled\webpack\bundl
+e5.js:13:6266)
+    at C:\Users\eduar\One
+Drive\Desktop\pocketmon d
+iary\poke-reflection-ut\n
+ode_modules\next\dist\com
+piled\webpack\bundle5.js:
+28:131467
+    at tryRunOrWebpackErr
+or (C:\Users\eduar\OneDri
+ve\Desktop\pocketmon diar
+y\poke-reflection-ut\node
+_modules\next\dist\compil
+ed\webpack\bundle5.js:28:
+314916)
+    at __webpack_require_
+module__ (C:\Users\eduar\
+OneDrive\Desktop\pocketmo
+n diary\poke-reflection-u
+t\node_modules\next\dist\
+compiled\webpack\bundle5.
+js:28:131434)
+    at __nested_webpack_r
+equire_161179__ (C:\Users
+\eduar\OneDrive\Desktop\p
+ocketmon diary\poke-refle
+ction-ut\node_modules\nex
+t\dist\compiled\webpack\b
+undle5.js:28:130872)
+    at C:\Users\eduar\One
+Drive\Desktop\pocketmon d
+iary\poke-reflection-ut\n
+ode_modules\next\dist\com
+piled\webpack\bundle5.js:
+28:131723
+    at symbolIterator (C:
+\Users\eduar\OneDrive\Des
+ktop\pocketmon diary\poke
+-reflection-ut\node_modul
+es\next\dist\compiled\neo
+-async\async.js:1:14444)
+
+Generated code for C:\Use
+rs\eduar\OneDrive\Desktop
+\pocketmon diary\poke-ref
+lection-ut\node_modules\n
+ext\dist\build\webpack\lo
+aders\css-loader\src\inde
+x.js??ruleSet[1].rules[13
+].oneOf[10].use[2]!C:\Use
+rs\eduar\OneDrive\Desktop
+\pocketmon diary\poke-ref
+lection-ut\node_modules\n
+ext\dist\build\webpack\lo
+aders\postcss-loader\src\
+index.js??ruleSet[1].rule
+s[13].oneOf[10].use[3]!C:
+\Users\eduar\OneDrive\Des
+ktop\pocketmon diary\poke
+-reflection-ut\src\app\gl
+obals.css
+
+Import trace for requeste
+d module:
+./src/app/globals.css
+
+
+> Build failed because of
+ webpack errors
