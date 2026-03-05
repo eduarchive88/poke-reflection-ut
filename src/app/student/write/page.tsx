@@ -20,6 +20,7 @@ export default function WritePage() {
     interface PokemonReward {
         id: number;
         name: string;
+        koName?: string;
         image: string;
         types: string[];
     }
@@ -108,7 +109,7 @@ export default function WritePage() {
             const initialStats = getPokemonStats(randomPokeId, 5);
             const initialSkills = getRandomSkills(types);
 
-            const pokemon: PokemonReward & { koName: string } = {
+            const pokemon: PokemonReward = {
                 id: randomPokeId,
                 name: pokeData.name,
                 koName: koName,
@@ -294,7 +295,7 @@ export default function WritePage() {
                                         className="w-48 h-48 relative z-10 animate-bounce"
                                     />
                                 </div>
-                                <h3 className="text-3xl font-bold mt-4 capitalize">{rewardPokemon.name}</h3>
+                                <h3 className="text-3xl font-bold mt-4 capitalize">{rewardPokemon.koName || rewardPokemon.name}</h3>
                                 <div className="flex gap-2 mt-2">
                                     {rewardPokemon.types.map((type: string) => (
                                         <span key={type} className="px-3 py-1 bg-secondary text-secondary-foreground rounded-full text-xs font-semibold uppercase">{type}</span>
