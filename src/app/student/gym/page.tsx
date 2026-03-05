@@ -581,6 +581,39 @@ export default function GymPage() {
                                                     <span className="text-[10px] font-bold text-gray-600 pixel-text">DEF</span>
                                                 </div>
                                             </div>
+
+                                            {/* 점령 및 보상 정보 */}
+                                            <div className="mt-4 w-full bg-gray-50 border-2 border-black p-2 sm:p-3 text-center text-xs sm:text-sm font-bold pixel-text text-gray-700 shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]">
+                                                <div className="mb-1.5 flex items-center justify-center gap-1.5">
+                                                    <span>🚩</span>
+                                                    <span>점령 시각:</span>
+                                                    <span className="text-black">
+                                                        {(() => {
+                                                            if (!gym.occupiedAt) return "알 수 없음";
+                                                            let d = new Date();
+                                                            if (typeof gym.occupiedAt.toDate === 'function') d = gym.occupiedAt.toDate();
+                                                            else if (gym.occupiedAt.seconds) d = new Date(gym.occupiedAt.seconds * 1000);
+                                                            const pad = (n: number) => n.toString().padStart(2, '0');
+                                                            return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                                                        })()}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center justify-center gap-1.5 text-yellow-600">
+                                                    <span>🍬</span>
+                                                    <span>다음 보상:</span>
+                                                    <span className="text-red-600">
+                                                        {(() => {
+                                                            if (!gym.lastRewardAt) return "알 수 없음";
+                                                            let d = new Date();
+                                                            if (typeof gym.lastRewardAt.toDate === 'function') d = gym.lastRewardAt.toDate();
+                                                            else if (gym.lastRewardAt.seconds) d = new Date(gym.lastRewardAt.seconds * 1000);
+                                                            const nextD = new Date(d.getTime() + 7 * 24 * 60 * 60 * 1000);
+                                                            const pad = (n: number) => n.toString().padStart(2, '0');
+                                                            return `${nextD.getFullYear()}.${pad(nextD.getMonth() + 1)}.${pad(nextD.getDate())} ${pad(nextD.getHours())}:${pad(nextD.getMinutes())}`;
+                                                        })()}
+                                                    </span>
+                                                </div>
+                                            </div>
                                         </>
                                     ) : (
                                         <div className="py-20 text-center">

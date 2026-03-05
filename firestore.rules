@@ -46,5 +46,10 @@ service cloud.firestore {
     match /battle_logs/{logId} {
       allow read, create: if true;
     }
+
+    // 학생 활동 로그(Student Logs) 컬렉션:
+    match /student_logs/{logId} {
+      allow read, create: if true;
+    }
   }
 }
