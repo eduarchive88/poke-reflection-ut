@@ -80,15 +80,24 @@ export default function WritePage() {
 
         setIsSubmitting(true);
         try {
-            // 0. 학생 정보 재확인 (중복 방지)
+            // 0. 학생 정보 재확인 (중복 방지 - 서버 시간 사용)
+            const timeRes = await fetch('/api/time');
+            const timeData = await timeRes.json();
+            const serverToday = timeData.date; // YYYY-MM-DD 형식 (루트에서 처리한 형식)
+
             const studentRef = doc(db, "students", session.studentId);
             const studentSnap = await getDoc(studentRef);
             if (studentSnap.exists()) {
                 const data = studentSnap.data();
                 if (data.lastReflectedAt) {
-                    const lastDate = data.lastReflectedAt.toDate().toLocaleDateString();
-                    const todayDate = new Date().toLocaleDateString();
-                    if (lastDate === todayDate) {
+                    const lastDate = data.lastReflectedAt.toDate().toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        timeZone: 'Asia/Seoul'
+                    }).replace(/\. /g, '-').replace(/\./g, '');
+                    
+                    if (lastDate === serverToday) {
                         toast.error("이미 오늘은 성찰 일기를 작성했습니다.");
                         setHasAlreadyReflected(true);
                         setIsSubmitting(false);

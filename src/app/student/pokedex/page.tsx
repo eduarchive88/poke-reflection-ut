@@ -48,7 +48,8 @@ export default function PokedexPage() {
     const [myPokemon, setMyPokemon] = useState<Pokemon[]>([]);
     const [candies, setCandies] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null);
+    const [isLevelUpProcessing, setIsLevelUpProcessing] = useState(false);
+    const [selectedPokemon, setSelectedPokemon] = useState<Pokemon|null>(null);
     const [now, setNow] = useState(new Date());
 
     useEffect(() => {
@@ -122,10 +123,15 @@ export default function PokedexPage() {
 
 
     const handleLevelUp = async (inventoryId: string) => {
-        if (!session || candies <= 0) {
+        if (!session || candies <= 0 || isLevelUpProcessing) {
+            if (isLevelUpProcessing) return;
             toast.error("캔디가 부족합니다! 성찰 일기를 써서 캔디를 모아보세요.");
             return;
         }
+
+        setIsLevelUpProcessing(true);
+        // 0.5초 후 다시 활성화 (최소 텀 보장)
+        setTimeout(() => setIsLevelUpProcessing(false), 500);
 
         try {
             const statsFields = ['hp', 'attack', 'defense'];
@@ -337,9 +343,9 @@ export default function PokedexPage() {
                                             size="sm"
                                             className="w-full text-xs font-bold gap-1 rounded-full relative z-30"
                                             onClick={() => handleLevelUp(poke.id)}
-                                            disabled={isRetired}
+                                            disabled={isRetired || isLevelUpProcessing}
                                         >
-                                            레벨 업
+                                            {isLevelUpProcessing ? "처리 중..." : "레벨 업"}
                                         </Button>
                                         <Button
                                             variant="outline"
@@ -429,8 +435,12 @@ export default function PokedexPage() {
                                     </div>
                                 </div>
 
-                                <Button className="w-full h-12 rounded-full font-bold" onClick={() => handleLevelUp(selectedPokemon.id)}>
-                                    캔디 1개로 레벨업 하기
+                                <Button 
+                                    className="w-full h-12 rounded-full font-bold" 
+                                    onClick={() => handleLevelUp(selectedPokemon.id)}
+                                    disabled={isLevelUpProcessing}
+                                >
+                                    {isLevelUpProcessing ? "처리 중..." : "캔디 1개로 레벨업 하기"}
                                 </Button>
                             </div>
                         </div>
