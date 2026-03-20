@@ -54,14 +54,14 @@ export default function ActivitiesPage() {
 
     const getLogIcon = (type: string) => {
         switch (type) {
-            case "reflection": return "/images/items/town-map.png";
-            case "candy_gain": return "/images/items/rare-candy.png";
-            case "pokemon_catch": return "/images/items/poke-ball.png";
-            case "level_up": return "/images/items/exp-share.png";
+            case "reflection": return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png";
+            case "candy_gain": return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png";
+            case "pokemon_catch": return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
+            case "level_up": return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png";
             case "battle_friendly":
-            case "battle_gym": return "/images/items/vs-seeker.png";
-            case "layoff_start": return "/images/items/revive.png";
-            default: return "/images/items/star-piece.png";
+            case "battle_gym": return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png";
+            case "layoff_start": return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png";
+            default: return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png";
         }
     };
 

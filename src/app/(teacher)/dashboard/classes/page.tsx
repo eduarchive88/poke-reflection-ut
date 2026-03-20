@@ -117,7 +117,7 @@ export default function ClassesPage() {
                     <div className="space-y-1">
                         <h2 className="text-3xl sm:text-4xl font-black italic drop-shadow-[2px_2px_0_rgba(0,0,0,0.2)] text-black dark:text-white">학급 관리</h2>
                         <p className="text-slate-500 font-bold tracking-tight text-xs uppercase flex items-center gap-1">
-                            <img src="/images/items/up-grade.png" className="w-4 h-4" style={{ imageRendering: 'pixelated' }} alt="PC" />
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/up-grade.png" className="w-4 h-4" style={{ imageRendering: 'pixelated' }} alt="PC" />
                             Class & Session Management
                         </p>
                     </div>
@@ -132,7 +132,7 @@ export default function ClassesPage() {
                     </DialogTrigger>
                     <DialogContent className="retro-box sm:max-w-[425px] bg-white dark:bg-slate-800 p-0 overflow-hidden">
                         <div className="bg-indigo-600 p-4 border-b-[3px] border-black flex items-center gap-2">
-                            <img src="/images/items/exp-candys.png" className="w-6 h-6" style={{ imageRendering: 'pixelated' }} alt="Candy" />
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-candy-s.png" className="w-6 h-6" style={{ imageRendering: 'pixelated' }} alt="Candy" />
                             <DialogTitle className="text-xl font-black text-white uppercase italic drop-shadow-[2px_2px_0_rgba(0,0,0,0.5)]">새 학급 생성</DialogTitle>
                         </div>
                         <div className="p-6 bg-slate-100 dark:bg-slate-700">
@@ -166,7 +166,7 @@ export default function ClassesPage() {
                 <div className="py-24 text-center text-slate-500 font-medium animate-pulse">상태를 불러오는 중...</div>
             ) : !selectedClassData ? (
                 <Card className="retro-box bg-slate-100 dark:bg-slate-800 flex flex-col items-center justify-center p-12 text-center">
-                    <img src="/images/items/tm-normal.png" className="w-16 h-16 mb-4 filter grayscale opacity-50" style={{ imageRendering: 'pixelated' }} alt="Empty" />
+                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/tm-normal.png" className="w-16 h-16 mb-4 filter grayscale opacity-50" style={{ imageRendering: 'pixelated' }} alt="Empty" />
                     <p className="text-xl font-black text-slate-500 dark:text-slate-400 mb-2">선택된 학급이 없거나, 등록된 학급이 없습니다.</p>
                     <p className="text-sm font-bold text-slate-400 dark:text-slate-500">상단의 메뉴에서 학급을 선택하거나 새 학급을 생성해보세요.</p>
                 </Card>
@@ -177,7 +177,7 @@ export default function ClassesPage() {
                         {/* 카드 헤더: 학급 이름 인라인 편집 */}
                         <CardHeader className="p-6 border-b-[3px] border-black bg-indigo-500 text-white">
                             <CardDescription className="text-indigo-200 font-bold text-xs uppercase tracking-widest flex items-center gap-1 mb-3">
-                                <img src="/images/items/town-map.png" className="w-4 h-4" style={{ imageRendering: 'pixelated' }} alt="Map" />
+                                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png" className="w-4 h-4" style={{ imageRendering: 'pixelated' }} alt="Map" />
                                 학급 이름 (클릭하여 바로 수정 가능)
                             </CardDescription>
                             <Input
@@ -192,7 +192,7 @@ export default function ClassesPage() {
                             {/* 세션 코드 인라인 편집 Section */}
                             <div className="bg-white dark:bg-slate-800 border-[3px] border-black p-6 shadow-[4px_4px_0px_rgba(0,0,0,1)] relative overflow-hidden">
                                 <div className="absolute -right-4 -bottom-4 opacity-10 pointer-events-none">
-                                    <img src="/images/items/poke-ball.png" className="w-32 h-32" style={{ imageRendering: 'pixelated' }} alt="BG" />
+                                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-32 h-32" style={{ imageRendering: 'pixelated' }} alt="BG" />
                                 </div>
                                 <p className="text-sm font-black text-slate-500 mb-1 uppercase tracking-widest">학생 접속 세션 코드</p>
                                 <p className="text-xs font-bold text-amber-600 bg-amber-50 border-2 border-amber-300 p-2 mb-3">

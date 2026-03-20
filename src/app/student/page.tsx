@@ -87,14 +87,14 @@ export default function StudentDashboard() {
 
     const getLogIcon = (type: string) => {
         switch (type) {
-            case "reflection": return "/images/items/town-map.png";
-            case "candy_gain": return "/images/items/rare-candy.png";
-            case "pokemon_catch": return "/images/items/poke-ball.png";
-            case "level_up": return "/images/items/exp-share.png";
+            case "reflection": return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png";
+            case "candy_gain": return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png";
+            case "pokemon_catch": return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
+            case "level_up": return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png";
             case "battle_friendly":
-            case "battle_gym": return "/images/items/vs-seeker.png";
-            case "layoff_start": return "/images/items/revive.png";
-            default: return "/images/items/star-piece.png";
+            case "battle_gym": return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png";
+            case "layoff_start": return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png";
+            default: return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png";
         }
     };
 
@@ -103,7 +103,7 @@ export default function StudentDashboard() {
             name: "성찰 일지 쓰기",
             description: "오늘의 배움을 기록하고 새로운 포켓몬 동료를 만나보세요.",
             path: "/student/write",
-            icon: <img src="/images/items/poke-ball.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Poke Ball" />,
+            icon: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Poke Ball" />,
             bgColor: "bg-red-100 dark:bg-red-900/40",
             hoverAccent: "hover:bg-red-50 dark:hover:bg-red-900/60"
         },
@@ -111,7 +111,7 @@ export default function StudentDashboard() {
             name: "활동 기록",
             description: "나의 모든 활동 내역을 상세하게 확인하세요.",
             path: "/student/activities",
-            icon: <img src="/images/items/journal.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Journal" />,
+            icon: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/journal.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Journal" />,
             bgColor: "bg-blue-100 dark:bg-blue-900/40",
             hoverAccent: "hover:bg-blue-50 dark:hover:bg-blue-900/60"
         },
@@ -119,7 +119,7 @@ export default function StudentDashboard() {
             name: "기록 보관함",
             description: "나의 성장이 담긴 소중한 기록들을 한곳에서 확인하세요.",
             path: "/student/archive",
-            icon: <img src="/images/items/heavy-ball.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Heavy Ball" />,
+            icon: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/heavy-ball.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Heavy Ball" />,
             bgColor: "bg-slate-200 dark:bg-slate-700",
             hoverAccent: "hover:bg-slate-100 dark:hover:bg-slate-600"
         },
@@ -127,7 +127,7 @@ export default function StudentDashboard() {
             name: "포켓몬 도감",
             description: "나와 함께하는 포켓몬들의 능력치를 확인하고 관리하세요.",
             path: "/student/pokedex",
-            icon: <img src="/images/items/safari-ball.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Safari Ball" />,
+            icon: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/safari-ball.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Safari Ball" />,
             bgColor: "bg-green-100 dark:bg-green-900/40",
             hoverAccent: "hover:bg-green-50 dark:hover:bg-green-900/60"
         },
@@ -135,7 +135,7 @@ export default function StudentDashboard() {
             name: "포켓몬 체육관",
             description: "최고의 트레이너들과 경쟁하여 체육관을 차지하세요.",
             path: "/student/gym",
-            icon: <img src="/images/items/ultra-ball.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Ultra Ball" />,
+            icon: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Ultra Ball" />,
             bgColor: "bg-yellow-100 dark:bg-yellow-900/40",
             hoverAccent: "hover:bg-yellow-50 dark:hover:bg-yellow-900/60"
         },
@@ -143,7 +143,7 @@ export default function StudentDashboard() {
             name: "친선 경기",
             description: "친구들의 포켓몬과 실시간으로 대결을 신청해보세요.",
             path: "/student/friendly",
-            icon: <img src="/images/items/vs-seeker.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Vs Seeker" />,
+            icon: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Vs Seeker" />,
             bgColor: "bg-purple-100 dark:bg-purple-900/40",
             hoverAccent: "hover:bg-purple-50 dark:hover:bg-purple-900/60"
         }
@@ -170,7 +170,7 @@ export default function StudentDashboard() {
                             animate={{ opacity: 1, y: 0 }}
                             className="inline-flex items-center gap-2 px-4 py-1 bg-black/30 border-[3px] border-black text-white text-xs font-black uppercase tracking-[0.3em] shadow-[2px_2px_0px_#000]"
                         >
-                            <img src="/images/items/exp-share.png" className="w-5 h-5" style={{ imageRendering: 'pixelated' }} alt="Exp Share" />
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png" className="w-5 h-5" style={{ imageRendering: 'pixelated' }} alt="Exp Share" />
                             TRAINER ID CARD
                         </motion.div>
 
@@ -207,7 +207,7 @@ export default function StudentDashboard() {
                                 className="retro-btn bg-yellow-400 text-black hover:bg-yellow-300 h-12 px-6"
                                 onClick={() => router.push("/student/write")}
                             >
-                                <img src="/images/items/poke-ball.png" className="w-6 h-6 mr-2" style={{ imageRendering: 'pixelated' }} alt="icon" />
+                                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" className="w-6 h-6 mr-2" style={{ imageRendering: 'pixelated' }} alt="icon" />
                                 오늘 기록하기
                             </Button>
                             <Button
@@ -240,7 +240,7 @@ export default function StudentDashboard() {
                                         </div>
                                     </div>
                                     <div className="p-2 border-2 border-black bg-yellow-100 dark:bg-yellow-900/50 shadow-[2px_2px_0px_#000]">
-                                        <img src="/images/items/rare-candy.png" className="w-10 h-10" style={{ imageRendering: 'pixelated' }} alt="Rare Candy" />
+                                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png" className="w-10 h-10" style={{ imageRendering: 'pixelated' }} alt="Rare Candy" />
                                     </div>
                                 </div>
 
@@ -332,7 +332,7 @@ export default function StudentDashboard() {
                             <div className="flex items-center justify-between p-6 bg-slate-200 dark:bg-slate-700 border-b-[3px] border-black pb-4 relative z-10">
                                 <div className="flex items-center gap-4">
                                     <div className="p-2 border-2 border-black bg-white shadow-[2px_2px_0px_#000]">
-                                        <img src="/images/items/town-map.png" className="w-8 h-8" style={{ imageRendering: 'pixelated' }} alt="Town Map" />
+                                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png" className="w-8 h-8" style={{ imageRendering: 'pixelated' }} alt="Town Map" />
                                     </div>
                                     <h3 className="text-2xl font-black italic tracking-tighter" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.1)' }}>최근 활동 요약</h3>
                                 </div>
@@ -350,7 +350,7 @@ export default function StudentDashboard() {
                                     </div>
                                 ) : recentLogs.length === 0 ? (
                                     <div className="h-full flex flex-col items-center justify-center text-center space-y-4 py-8 border-4 border-dashed border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 rounded">
-                                        <img src="/images/items/old-amber.png" className="w-16 h-16 grayscale opacity-60" style={{ imageRendering: 'pixelated' }} alt="No Data" />
+                                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/old-amber.png" className="w-16 h-16 grayscale opacity-60" style={{ imageRendering: 'pixelated' }} alt="No Data" />
                                         <p className="text-sm font-black uppercase tracking-[0.2em] text-slate-500">최근 활동이 없습니다.</p>
                                     </div>
                                 ) : (
