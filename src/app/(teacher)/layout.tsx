@@ -164,7 +164,7 @@ function TeacherLayoutInner({ children }: { children: React.ReactNode }) {
                                         {/* 포켓볼 아이콘 */}
                                         <div className="w-14 h-14 bg-indigo-100 dark:bg-indigo-900/50 border-[3px] border-black flex items-center justify-center shadow-[2px_2px_0px_#000] flex-shrink-0 group-hover:scale-110 transition-transform">
                                             <img
-                                                src={`/images/items/${['poke-ball', 'great-ball', 'ultra-ball', 'master-ball', 'premier-ball', 'luxury-ball'][index % 6]}.png`}
+                                                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${['poke-ball', 'great-ball', 'ultra-ball', 'master-ball', 'premier-ball', 'luxury-ball'][index % 6]}.png`}
                                                 className="w-10 h-10"
                                                 style={{ imageRendering: 'pixelated' }}
                                                 alt="Ball"

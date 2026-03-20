@@ -73,7 +73,7 @@ export default function WritePage() {
     }, [router]);
 
     const wordCount = content.trim() === "" ? 0 : content.trim().length;
-    const isReady = wordCount >= 10 && rating > 0 && !hasAlreadyReflected;
+    const isReady = wordCount >= 70 && rating > 0 && !hasAlreadyReflected;
 
     const handleSubmit = async () => {
         if (!isReady || isSubmitting || !session) return;
@@ -398,7 +398,7 @@ export default function WritePage() {
                     ) : (
                         <>
                             <Textarea
-                                placeholder="오늘 무엇을 배웠나요? 즐거웠던 일이나 반성할 점은 무엇인가요? (상단 가이드 질문을 참고하여 10자 이상 작성해주세요)"
+                                placeholder="오늘 무엇을 배웠나요? 즐거웠던 일이나 반성할 점은 무엇인가요? (상단 가이드 질문을 참고하여 70자 이상 작성해주세요)"
                                 className="min-h-[300px] text-lg leading-relaxed focus-visible:ring-primary border-2 rounded-2xl"
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
@@ -406,8 +406,8 @@ export default function WritePage() {
                             />
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-sm font-medium">
                                 <div className="flex flex-col gap-1 w-full sm:w-auto">
-                                    <span className={`inline-flex items-center whitespace-nowrap ${wordCount >= 10 ? "text-primary font-bold" : "text-muted-foreground"}`}>
-                                        📝 글자 수: <span className="text-lg mx-1">{wordCount}</span> / 10자 이상
+                                    <span className={`inline-flex items-center whitespace-nowrap ${wordCount >= 70 ? "text-primary font-bold" : "text-muted-foreground"}`}>
+                                        📝 글자 수: <span className="text-lg mx-1">{wordCount}</span> / 70자 이상
                                     </span>
                                     <span className={`inline-flex items-center whitespace-nowrap ${rating > 0 ? "text-yellow-600 font-bold" : "text-muted-foreground"}`}>
                                         ⭐ 참여도 별점: {rating > 0 ? <span className="ml-1">{rating}점 선택됨</span> : <span className="ml-1 text-slate-400 font-normal italic">미선택</span>}
@@ -420,7 +420,7 @@ export default function WritePage() {
                                 ) : (
                                     <div className="text-muted-foreground bg-secondary/50 px-4 py-2 rounded-full flex items-center gap-2 border whitespace-nowrap">
                                         <Info className="h-4 w-4 shrink-0" />
-                                        <span>{rating === 0 ? "별점을 먼저 선택해주세요" : (wordCount < 10 ? "내용을 조금 더 적어주세요" : "")}</span>
+                                        <span>{rating === 0 ? "별점을 먼저 선택해주세요" : (wordCount < 70 ? "내용을 조금 더 적어주세요" : "")}</span>
                                     </div>
                                 )}
                             </div>
