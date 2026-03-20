@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { collection, query, where, getDocs, doc, getDoc, setDoc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, getDoc, setDoc, serverTimestamp, updateDoc, increment, deleteDoc } from "firebase/firestore";
 import { getPokemonStats, getRandomSkills } from "@/lib/pokemonData";
 import { useTeacherClass } from "@/contexts/TeacherClassContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -246,6 +246,40 @@ function StatusContent() {
         }
     };
 
+    const confiscatePokemon = async (student: StudentData) => {
+        if (!confirm(`정말 ${student.name} 학생의 포켓몬 1마리와 캔디 1개를 무작위로 압수하시겠습니까?\n(버그 악용 조치)`)) return;
+
+        try {
+            // 1. 해당 학생의 모든 포켓몬 조회
+            const q = query(collection(db, "pokemon_inventory"), where("studentId", "==", student.id));
+            const snap = await getDocs(q);
+            
+            if (snap.empty) {
+                toast.error("압수할 포켓몬이 없습니다.");
+                return;
+            }
+
+            // 2. 랜덤하게 1마리 선택
+            const docs = snap.docs;
+            const randomDoc = docs[Math.floor(Math.random() * docs.length)];
+            const pokemonData = randomDoc.data();
+            const pokemonName = pokemonData.koName || pokemonData.name;
+
+            // 3. 포켓몬 삭제
+            await deleteDoc(doc(db, "pokemon_inventory", randomDoc.id));
+
+            // 4. 불이익: 캔디 1개 차감 (음수 될 수 있음)
+            const studentRef = doc(db, "students", student.id);
+            await updateDoc(studentRef, {
+                candies: increment(-1)
+            });
+
+            toast.success(`${student.name} 학생의 포켓몬(${pokemonName})과 캔디 1개를 압수했습니다.`);
+        } catch (error) {
+            console.error(error);
+            toast.error("포켓몬 압수 중 오류가 발생했습니다.");
+        }
+    };
 
     return (
         <div className="space-y-6 pb-12">
@@ -361,6 +395,13 @@ function StatusContent() {
                                                 >
                                                     <img src="https://play.pokemonshowdown.com/sprites/itemicons/star-piece.png" alt="Reward" className="w-4 h-4 pixelated" />
                                                     보상
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    className="retro-btn bg-red-500 hover:bg-red-400 text-white font-black flex-inline items-center justify-center gap-1 border-2 border-black"
+                                                    onClick={() => confiscatePokemon(student)}
+                                                >
+                                                    <XCircle className="w-4 h-4" /> 압수
                                                 </Button>
                                                 <Button
                                                     size="sm"
