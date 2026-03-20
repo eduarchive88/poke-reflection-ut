@@ -276,7 +276,7 @@ function StudentsContent() {
                     </Button>
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/town-map.png" alt="Students" className="w-8 h-8 pixelated" />
+                            <img src="/images/items/town-map.png" alt="Students" className="w-8 h-8 pixelated" />
                         </div>
                         <div className="space-y-1">
                             <h2 className="text-3xl font-black tracking-tighter text-black uppercase" style={{ fontFamily: '"NeoDunggeunmo", sans-serif', textShadow: '2px 2px 0px white' }}>학생 명렬표 관리</h2>
@@ -291,14 +291,14 @@ function StudentsContent() {
                             <Dialog open={isAddIndividualOpen} onOpenChange={setIsAddIndividualOpen}>
                                 <DialogTrigger asChild>
                                     <Button className="h-12 flex-1 sm:flex-none px-6 retro-btn bg-amber-400 hover:bg-amber-300 text-black font-black flex items-center gap-2">
-                                        <img src="https://play.pokemonshowdown.com/sprites/itemicons/poke-ball.png" alt="Add" className="w-5 h-5 pixelated" />
+                                        <img src="/images/items/poke-ball.png" alt="Add" className="w-5 h-5 pixelated" />
                                         개별 추가
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-[425px] retro-box bg-slate-100 p-6">
                                     <DialogHeader>
                                         <DialogTitle className="text-2xl font-black text-black uppercase flex items-center gap-2" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
-                                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/poke-ball.png" alt="" className="w-6 h-6 pixelated" />
+                                            <img src="/images/items/poke-ball.png" alt="" className="w-6 h-6 pixelated" />
                                             학생 개별 등록
                                         </DialogTitle>
                                         <DialogDescription className="text-black font-bold bg-white/50 p-2 rounded border-2 border-slate-300 border-dashed mt-2">
@@ -328,7 +328,7 @@ function StudentsContent() {
                                                     <>등록 중...</>
                                                 ) : (
                                                     <>
-                                                        <img src="https://play.pokemonshowdown.com/sprites/itemicons/repel.png" alt="" className="w-5 h-5 pixelated" />
+                                                        <img src="/images/items/repel.png" alt="" className="w-5 h-5 pixelated" />
                                                         학생 저장
                                                     </>
                                                 )}
@@ -341,14 +341,14 @@ function StudentsContent() {
                             <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
                                 <DialogTrigger asChild>
                                     <Button className="h-12 flex-1 sm:flex-none px-6 retro-btn bg-emerald-400 hover:bg-emerald-300 text-black font-black flex items-center gap-2">
-                                        <img src="https://play.pokemonshowdown.com/sprites/itemicons/tm-normal.png" alt="Upload" className="w-5 h-5 pixelated" />
+                                        <img src="/images/items/tm-normal.png" alt="Upload" className="w-5 h-5 pixelated" />
                                         일괄 등록
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-[425px] retro-box bg-slate-100 p-6">
                                     <DialogHeader>
                                         <DialogTitle className="text-2xl font-black text-black uppercase flex items-center gap-2" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
-                                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/pc-box.png" alt="" className="w-6 h-6 pixelated" />
+                                            <img src="/images/items/pc-box.png" alt="" className="w-6 h-6 pixelated" />
                                             엑셀 명렬표 업로드
                                         </DialogTitle>
                                         <DialogDescription className="text-black font-bold bg-white/50 p-2 rounded border-2 border-slate-300 border-dashed mt-2">
@@ -357,7 +357,7 @@ function StudentsContent() {
                                     </DialogHeader>
                                     <div className="grid gap-6 py-6">
                                         <Button className="h-12 w-full retro-btn bg-slate-200 hover:bg-slate-300 text-black font-bold flex items-center gap-2" onClick={downloadTemplate}>
-                                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/exp-candys.png" alt="" className="w-5 h-5 pixelated" />
+                                            <img src="/images/items/exp-candys.png" alt="" className="w-5 h-5 pixelated" />
                                             작성 양식 받기 (Excel)
                                         </Button>
                                         <div className="space-y-2">
@@ -384,7 +384,7 @@ function StudentsContent() {
                                                 <>데이터 분석 및 업로드 중...</>
                                             ) : (
                                                 <>
-                                                    <img src="https://play.pokemonshowdown.com/sprites/itemicons/up-grade.png" alt="" className="w-5 h-5 pixelated" />
+                                                    <img src="/images/items/up-grade.png" alt="" className="w-5 h-5 pixelated" />
                                                     명단 일괄 등록하기
                                                 </>
                                             )}
@@ -401,7 +401,7 @@ function StudentsContent() {
                 <CardHeader className="bg-indigo-100 border-b-4 border-black p-4 sm:p-6">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
-                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/pokedex.png" alt="Pokedex" className="w-10 h-10 pixelated" />
+                            <img src="/images/items/pokedex.png" alt="Pokedex" className="w-10 h-10 pixelated" />
                             <div>
                                 <CardTitle className="text-2xl font-black text-black uppercase" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
                                     {classes.find(c => c.id === selectedClassId)?.className || "학급 미지정"}
@@ -419,12 +419,12 @@ function StudentsContent() {
                 <CardContent className="p-0 overflow-x-auto">
                     {loading ? (
                         <div className="p-24 text-center text-black font-black text-xl flex flex-col items-center justify-center gap-4">
-                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/town-map.png" alt="Loading" className="w-12 h-12 pixelated animate-bounce" />
+                            <img src="/images/items/town-map.png" alt="Loading" className="w-12 h-12 pixelated animate-bounce" />
                             <p style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>데이터 동기화 중...</p>
                         </div>
                     ) : students.length === 0 ? (
                         <div className="text-center py-24 text-black font-bold border-4 border-dashed border-slate-300 rounded-xl bg-slate-50 m-6 flex flex-col items-center gap-4">
-                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/poke-ball.png" alt="Empty" className="w-12 h-12 pixelated opacity-50 grayscale" />
+                            <img src="/images/items/poke-ball.png" alt="Empty" className="w-12 h-12 pixelated opacity-50 grayscale" />
                             <p className="bg-white px-4 py-2 border-2 border-slate-300 border-dashed">등록된 학생 데이터가 없습니다.<br />상단 버튼을 통해 등록해주세요.</p>
                         </div>
                     ) : (

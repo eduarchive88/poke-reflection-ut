@@ -295,7 +295,7 @@ function StatusContent() {
                     </Button>
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/town-map.png" alt="Status" className="w-8 h-8 pixelated" />
+                            <img src="/images/items/town-map.png" alt="Status" className="w-8 h-8 pixelated" />
                         </div>
                         <div className="space-y-1">
                             <h2 className="text-3xl font-black tracking-tighter text-black uppercase" style={{ fontFamily: '"NeoDunggeunmo", sans-serif', textShadow: '2px 2px 0px white' }}>{className || "학급"} 현황판</h2>
@@ -305,7 +305,7 @@ function StatusContent() {
                 </div>
                 <div className="flex flex-wrap gap-2 w-full xl:w-auto items-center">
                     <Button onClick={exportToExcelFull} className="flex-1 sm:flex-none retro-btn bg-emerald-400 hover:bg-emerald-300 text-black font-black flex items-center gap-2 px-6 h-12">
-                        <img src="https://play.pokemonshowdown.com/sprites/itemicons/tm-normal.png" alt="Excel" className="w-5 h-5 pixelated" />
+                        <img src="/images/items/tm-normal.png" alt="Excel" className="w-5 h-5 pixelated" />
                         기록 다운로드
                     </Button>
                 </div>
@@ -369,7 +369,7 @@ function StatusContent() {
                                             </TableCell>
                                             <TableCell className="text-center space-x-2">
                                                 <Button size="sm" className="retro-btn bg-cyan-400 hover:bg-cyan-300 text-black font-black flex-inline items-center justify-center gap-1 border-2 border-black" onClick={() => fetchInventory(student)}>
-                                                    <img src="https://play.pokemonshowdown.com/sprites/itemicons/town-map.png" alt="Dex" className="w-4 h-4 pixelated" />
+                                                    <img src="/images/items/town-map.png" alt="Dex" className="w-4 h-4 pixelated" />
                                                     도감
                                                 </Button>
                                                 <Button
@@ -393,7 +393,7 @@ function StatusContent() {
                                                         setIsRewardDialogOpen(true);
                                                     }}
                                                 >
-                                                    <img src="https://play.pokemonshowdown.com/sprites/itemicons/star-piece.png" alt="Reward" className="w-4 h-4 pixelated" />
+                                                    <img src="/images/items/star-piece.png" alt="Reward" className="w-4 h-4 pixelated" />
                                                     보상
                                                 </Button>
                                                 <Button
@@ -425,7 +425,7 @@ function StatusContent() {
                 <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto retro-box bg-slate-100 p-6">
                     <DialogHeader>
                         <DialogTitle className="text-2xl font-black text-black uppercase flex items-center gap-2" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
-                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/journal.png" alt="Journal" className="w-6 h-6 pixelated" />
+                            <img src="/images/items/journal.png" alt="Journal" className="w-6 h-6 pixelated" />
                             {selectedStudent?.name} 학생의 성찰 기록
                         </DialogTitle>
                         <DialogDescription className="text-black font-bold bg-white/50 p-2 rounded border-2 border-slate-300 border-dashed mt-2">
@@ -434,12 +434,12 @@ function StatusContent() {
                     </DialogHeader>
                     {loadingStudentReflections ? (
                         <div className="py-20 text-center text-black font-black flex flex-col items-center justify-center gap-4">
-                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/town-map.png" alt="Loading" className="w-12 h-12 pixelated animate-bounce" />
+                            <img src="/images/items/town-map.png" alt="Loading" className="w-12 h-12 pixelated animate-bounce" />
                             <p style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>기록을 불러오는 중...</p>
                         </div>
                     ) : studentReflections.length === 0 ? (
                         <div className="py-20 text-center text-black font-bold border-4 border-dashed border-slate-300 rounded-xl bg-white m-6 flex flex-col items-center justify-center gap-4">
-                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/poke-ball.png" alt="Empty" className="w-10 h-10 pixelated opacity-50 grayscale" />
+                            <img src="/images/items/poke-ball.png" alt="Empty" className="w-10 h-10 pixelated opacity-50 grayscale" />
                             아직 작성된 성찰 기록이 없습니다.
                         </div>
                     ) : (
@@ -475,7 +475,7 @@ function StatusContent() {
                 <DialogContent className="sm:max-w-md retro-box bg-slate-100 p-6">
                     <DialogHeader>
                         <DialogTitle className="text-xl font-black text-black uppercase flex items-center gap-2" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
-                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/star-piece.png" alt="Gift" className="w-6 h-6 pixelated" />
+                            <img src="/images/items/star-piece.png" alt="Gift" className="w-6 h-6 pixelated" />
                             전설의 포켓몬 보상 지급
                         </DialogTitle>
                         <DialogDescription className="text-black font-bold bg-white/50 p-2 rounded border-2 border-slate-300 border-dashed mt-2">
@@ -524,7 +524,7 @@ function StatusContent() {
                 <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto retro-box bg-slate-100 p-6">
                     <DialogHeader>
                         <DialogTitle className="text-2xl font-black text-black uppercase flex items-center gap-2" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
-                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/town-map.png" alt="Pokedex" className="w-6 h-6 pixelated" />
+                            <img src="/images/items/town-map.png" alt="Pokedex" className="w-6 h-6 pixelated" />
                             {selectedStudent?.name} 학생의 포켓몬 도감
                         </DialogTitle>
                         <DialogDescription className="text-black font-bold bg-white/50 p-2 rounded border-2 border-slate-300 border-dashed mt-2">
@@ -533,12 +533,12 @@ function StatusContent() {
                     </DialogHeader>
                     {loadingInventory ? (
                         <div className="py-20 text-center text-black font-black flex flex-col items-center justify-center gap-4">
-                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/town-map.png" alt="Loading" className="w-12 h-12 pixelated animate-bounce" />
+                            <img src="/images/items/town-map.png" alt="Loading" className="w-12 h-12 pixelated animate-bounce" />
                             <p style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>도감을 가져오는 중...</p>
                         </div>
                     ) : studentInventory.length === 0 ? (
                         <div className="py-20 text-center text-black font-bold border-4 border-dashed border-slate-300 rounded-xl bg-white m-6 flex flex-col items-center justify-center gap-4">
-                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/poke-ball.png" alt="Empty" className="w-10 h-10 pixelated opacity-50 grayscale" />
+                            <img src="/images/items/poke-ball.png" alt="Empty" className="w-10 h-10 pixelated opacity-50 grayscale" />
                             아직 수집한 포켓몬이 없습니다.
                         </div>
                     ) : (
@@ -626,7 +626,7 @@ function StatusContent() {
                         <>
                             <DialogHeader>
                                 <DialogTitle className="text-xl font-black text-black uppercase flex items-center gap-2" style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>
-                                    <img src="https://play.pokemonshowdown.com/sprites/itemicons/potion.png" alt="Stats" className="w-6 h-6 pixelated" />
+                                    <img src="/images/items/potion.png" alt="Stats" className="w-6 h-6 pixelated" />
                                     {selectedPokemonStat.koName || selectedPokemonStat.name} 스탯 정보
                                 </DialogTitle>
                             </DialogHeader>

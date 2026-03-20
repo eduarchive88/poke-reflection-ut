@@ -254,7 +254,7 @@ function LogsContent() {
                 </Button>
                 <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                        <img src="https://play.pokemonshowdown.com/sprites/itemicons/journal.png" alt="Log" className="w-8 h-8 pixelated" />
+                        <img src="/images/items/journal.png" alt="Log" className="w-8 h-8 pixelated" />
                     </div>
                     <div className="space-y-1">
                         <h2 className="text-3xl font-black tracking-tighter text-black uppercase" style={{ fontFamily: '"NeoDunggeunmo", sans-serif', textShadow: '2px 2px 0px white' }}>{className || "학급"} 로그 현황</h2>
@@ -315,12 +315,12 @@ function LogsContent() {
                 <CardContent className="p-0">
                     {loading ? (
                         <div className="py-20 text-center text-black font-black flex flex-col items-center justify-center gap-4">
-                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/town-map.png" alt="Loading" className="w-12 h-12 pixelated animate-bounce" />
+                            <img src="/images/items/town-map.png" alt="Loading" className="w-12 h-12 pixelated animate-bounce" />
                             <p style={{ fontFamily: '"NeoDunggeunmo", sans-serif' }}>로그를 불러오는 중...</p>
                         </div>
                     ) : filteredLogs.length === 0 ? (
                         <div className="py-20 text-center text-black font-bold border-4 border-dashed border-slate-300 rounded-xl bg-white m-6 flex flex-col items-center justify-center gap-4">
-                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/poke-ball.png" alt="Empty" className="w-10 h-10 pixelated opacity-50 grayscale" />
+                            <img src="/images/items/poke-ball.png" alt="Empty" className="w-10 h-10 pixelated opacity-50 grayscale" />
                             기록된 로그가 없습니다.
                         </div>
                     ) : (

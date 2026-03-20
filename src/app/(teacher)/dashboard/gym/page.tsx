@@ -123,7 +123,7 @@ export default function TeacherGymDashboard() {
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
-                <img src="https://play.pokemonshowdown.com/sprites/itemicons/poke-ball.png" className="w-12 h-12 animate-bounce" style={{ imageRendering: 'pixelated' }} alt="Loading" />
+                <img src="/images/items/poke-ball.png" className="w-12 h-12 animate-bounce" style={{ imageRendering: 'pixelated' }} alt="Loading" />
                 <p className="font-extrabold animate-pulse uppercase tracking-widest text-base shadow-sm">
                     체육관 정보를 불러오는 중...
                 </p>
@@ -159,7 +159,7 @@ export default function TeacherGymDashboard() {
                     </Button>
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-rose-400 border-2 border-black flex items-center justify-center w-12 h-12">
-                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/vs-seeker.png" className="w-8 h-8 drop-shadow-sm" style={{ imageRendering: 'pixelated' }} alt="Gym Status" />
+                            <img src="/images/items/vs-seeker.png" className="w-8 h-8 drop-shadow-sm" style={{ imageRendering: 'pixelated' }} alt="Gym Status" />
                         </div>
                         <div>
                             <h2 className="text-xl sm:text-2xl font-black pixel-text uppercase">Gym Status</h2>
@@ -263,7 +263,7 @@ export default function TeacherGymDashboard() {
                         <div className="md:col-span-5 xl:col-span-4 flex flex-col gap-6">
                             <div className="pixel-box bg-white p-6 shadow-[4px_4px_0_0_rgba(0,0,0,1)] border-4 border-black flex-1">
                                 <h3 className="text-lg sm:text-xl font-black pixel-text mb-6 border-b-4 border-black pb-3 flex items-center gap-2">
-                                    <img src="https://play.pokemonshowdown.com/sprites/itemicons/journal.png" className="w-6 h-6" style={{ imageRendering: 'pixelated' }} alt="Journal" />
+                                    <img src="/images/items/journal.png" className="w-6 h-6" style={{ imageRendering: 'pixelated' }} alt="Journal" />
                                     체육관 기록
                                 </h3>
 

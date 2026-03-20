@@ -54,14 +54,14 @@ export default function ActivitiesPage() {
 
     const getLogIcon = (type: string) => {
         switch (type) {
-            case "reflection": return "https://play.pokemonshowdown.com/sprites/itemicons/town-map.png";
-            case "candy_gain": return "https://play.pokemonshowdown.com/sprites/itemicons/rare-candy.png";
-            case "pokemon_catch": return "https://play.pokemonshowdown.com/sprites/itemicons/poke-ball.png";
-            case "level_up": return "https://play.pokemonshowdown.com/sprites/itemicons/exp-share.png";
+            case "reflection": return "/images/items/town-map.png";
+            case "candy_gain": return "/images/items/rare-candy.png";
+            case "pokemon_catch": return "/images/items/poke-ball.png";
+            case "level_up": return "/images/items/exp-share.png";
             case "battle_friendly":
-            case "battle_gym": return "https://play.pokemonshowdown.com/sprites/itemicons/vs-seeker.png";
-            case "layoff_start": return "https://play.pokemonshowdown.com/sprites/itemicons/revive.png";
-            default: return "https://play.pokemonshowdown.com/sprites/itemicons/star-piece.png";
+            case "battle_gym": return "/images/items/vs-seeker.png";
+            case "layoff_start": return "/images/items/revive.png";
+            default: return "/images/items/star-piece.png";
         }
     };
 

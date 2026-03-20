@@ -142,7 +142,7 @@ function TeacherLayoutInner({ children }: { children: React.ReactNode }) {
                             {/* 학급 선택 헤더 */}
                             <div className="text-center space-y-4">
                                 <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest border-[3px] border-black shadow-[2px_2px_0px_#000]">
-                                    <img src="https://play.pokemonshowdown.com/sprites/itemicons/pc-box.png" className="w-4 h-4" style={{ imageRendering: 'pixelated' }} alt="PC" />
+                                    <img src="/images/items/pc-box.png" className="w-4 h-4" style={{ imageRendering: 'pixelated' }} alt="PC" />
                                     CLASS SELECT
                                 </div>
                                 <h2 className="text-3xl sm:text-4xl font-black text-black dark:text-white tracking-tighter italic" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.1)' }}>
@@ -164,7 +164,7 @@ function TeacherLayoutInner({ children }: { children: React.ReactNode }) {
                                         {/* 포켓볼 아이콘 */}
                                         <div className="w-14 h-14 bg-indigo-100 dark:bg-indigo-900/50 border-[3px] border-black flex items-center justify-center shadow-[2px_2px_0px_#000] flex-shrink-0 group-hover:scale-110 transition-transform">
                                             <img
-                                                src={`https://play.pokemonshowdown.com/sprites/itemicons/${['poke-ball', 'great-ball', 'ultra-ball', 'master-ball', 'premier-ball', 'luxury-ball'][index % 6]}.png`}
+                                                src={`/images/items/${['poke-ball', 'great-ball', 'ultra-ball', 'master-ball', 'premier-ball', 'luxury-ball'][index % 6]}.png`}
                                                 className="w-10 h-10"
                                                 style={{ imageRendering: 'pixelated' }}
                                                 alt="Ball"

@@ -73,7 +73,7 @@ export default function TeacherDashboardHub() {
         {
             title: "학급 관리",
             description: "새로운 학급을 생성하고 접속용 세션 코드를 관리합니다.",
-            icon: <img src="https://play.pokemonshowdown.com/sprites/itemicons/up-grade.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="PC" />,
+            icon: <img src="/images/items/up-grade.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="PC" />,
             path: "/dashboard/classes",
             color: "bg-indigo-100 dark:bg-indigo-900/40 border-indigo-300 dark:border-indigo-700",
             hoverAccent: "hover:bg-indigo-50 dark:hover:bg-indigo-900/60"
@@ -81,7 +81,7 @@ export default function TeacherDashboardHub() {
         {
             title: "학생 명렬표",
             description: "전체 학생 명단을 확인하고 포켓몬 보유 현황을 관리합니다.",
-            icon: <img src="https://play.pokemonshowdown.com/sprites/itemicons/town-map.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Town map" />,
+            icon: <img src="/images/items/town-map.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Town map" />,
             path: "/dashboard/students",
             color: "bg-emerald-100 dark:bg-emerald-900/40 border-emerald-300 dark:border-emerald-700",
             hoverAccent: "hover:bg-emerald-50 dark:hover:bg-emerald-900/60"
@@ -89,7 +89,7 @@ export default function TeacherDashboardHub() {
         {
             title: "성찰 현황판",
             description: "학생들의 성찰 일기 작성 현황과 통계를 실시간으로 확인합니다.",
-            icon: <img src="https://play.pokemonshowdown.com/sprites/itemicons/exp-share.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Exp share" />,
+            icon: <img src="/images/items/exp-share.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Exp share" />,
             path: "/dashboard/status",
             color: "bg-amber-100 dark:bg-amber-900/40 border-amber-300 dark:border-amber-700",
             hoverAccent: "hover:bg-amber-50 dark:hover:bg-amber-900/60"
@@ -97,7 +97,7 @@ export default function TeacherDashboardHub() {
         {
             title: "체육관 현황",
             description: "현재 체육관의 마스터와 도전 현황을 실시간으로 확인합니다.",
-            icon: <img src="https://play.pokemonshowdown.com/sprites/itemicons/vs-seeker.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Gym" />,
+            icon: <img src="/images/items/vs-seeker.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Gym" />,
             path: "/dashboard/gym",
             color: "bg-rose-100 dark:bg-rose-900/40 border-rose-300 dark:border-rose-700",
             hoverAccent: "hover:bg-rose-50 dark:hover:bg-rose-900/60"
@@ -105,7 +105,7 @@ export default function TeacherDashboardHub() {
         {
             title: "로그 현황",
             description: "배틀, 포켓몬 획득, 레벨업, 성찰 등 모든 학생 활동 기록을 확인합니다.",
-            icon: <img src="https://play.pokemonshowdown.com/sprites/itemicons/journal.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Log" />,
+            icon: <img src="/images/items/journal.png" className="w-12 h-12" style={{ imageRendering: 'pixelated' }} alt="Log" />,
             path: "/dashboard/logs",
             color: "bg-purple-100 dark:bg-purple-900/40 border-purple-300 dark:border-purple-700",
             hoverAccent: "hover:bg-purple-50 dark:hover:bg-purple-900/60"
@@ -116,7 +116,7 @@ export default function TeacherDashboardHub() {
         return (
             <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
                 <img
-                    src="https://play.pokemonshowdown.com/sprites/itemicons/poke-ball.png"
+                    src="/images/items/poke-ball.png"
                     className="w-12 h-12 animate-bounce"
                     style={{ imageRendering: 'pixelated' }}
                     alt="Loading"
@@ -142,7 +142,7 @@ export default function TeacherDashboardHub() {
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-12">
                     <div className="space-y-6 text-center lg:text-left">
                         <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-black/30 border-[3px] border-black text-white text-[10px] font-black uppercase tracking-widest shadow-[2px_2px_0px_#000]">
-                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/pc-box.png" className="w-4 h-4" style={{ imageRendering: 'pixelated' }} alt="PC Box" onError={(e) => e.currentTarget.style.display = 'none'} />
+                            <img src="/images/items/pc-box.png" className="w-4 h-4" style={{ imageRendering: 'pixelated' }} alt="PC Box" onError={(e) => e.currentTarget.style.display = 'none'} />
                             PROFESSOR'S LAB SYSTEM
                         </div>
                         <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tighter leading-tight italic drop-shadow-[4px_4px_0_rgba(0,0,0,0.5)]">
@@ -158,12 +158,12 @@ export default function TeacherDashboardHub() {
                     {/* Quick Stats Grid */}
                     <div className="grid grid-cols-2 gap-4 w-full lg:w-auto">
                         <Card className="retro-box p-4 bg-white dark:bg-slate-900 border-2 items-center flex flex-col justify-center min-w-[150px]">
-                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/poke-ball.png" className="w-8 h-8 mb-2" style={{ imageRendering: 'pixelated' }} alt="Poke Ball" />
+                            <img src="/images/items/poke-ball.png" className="w-8 h-8 mb-2" style={{ imageRendering: 'pixelated' }} alt="Poke Ball" />
                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Total Trainers</p>
                             <p className="text-3xl font-black text-black dark:text-white mt-1 text-center" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.1)' }}>{stats.totalStudents}</p>
                         </Card>
                         <Card className="retro-box p-4 bg-white dark:bg-slate-900 border-2 items-center flex flex-col justify-center min-w-[150px]">
-                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/great-ball.png" className="w-8 h-8 mb-2" style={{ imageRendering: 'pixelated' }} alt="Great Ball" />
+                            <img src="/images/items/great-ball.png" className="w-8 h-8 mb-2" style={{ imageRendering: 'pixelated' }} alt="Great Ball" />
                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Active Classes</p>
                             <p className="text-3xl font-black text-black dark:text-white mt-1 text-center" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.1)' }}>{stats.activeClasses}</p>
                         </Card>
@@ -226,12 +226,12 @@ export default function TeacherDashboardHub() {
                     <Card className="retro-box h-full bg-slate-100 dark:bg-slate-800 p-8 flex flex-col relative overflow-hidden group">
                         <div className="retro-box-inner"></div>
                         <div className="absolute top-0 right-0 p-6 opacity-[0.05] pointer-events-none group-hover:opacity-[0.1] transition-opacity">
-                            <img src="https://play.pokemonshowdown.com/sprites/itemicons/porygon.png" className="w-32 h-32" style={{ imageRendering: 'pixelated' }} alt="Porygon" onError={(e) => e.currentTarget.style.display = 'none'} />
+                            <img src="/images/pokemon/porygon.png" className="w-32 h-32" style={{ imageRendering: 'pixelated' }} alt="Porygon" onError={(e) => e.currentTarget.style.display = 'none'} />
                         </div>
                         <div className="relative z-10 flex flex-col h-full">
                             <div className="flex items-center gap-3 mb-8 border-b-[3px] border-black pb-4">
                                 <div className="p-2 bg-white border-2 border-black shadow-[2px_2px_0px_#000]">
-                                    <img src="https://play.pokemonshowdown.com/sprites/itemicons/data-card.png" className="w-6 h-6" style={{ imageRendering: 'pixelated' }} alt="Parts" onError={(e) => { e.currentTarget.src = 'https://play.pokemonshowdown.com/sprites/itemicons/potion.png'; }} />
+                                    <img src="/images/items/data-card.png" className="w-6 h-6" style={{ imageRendering: 'pixelated' }} alt="Parts" onError={(e) => { e.currentTarget.src = '/images/items/potion.png'; }} />
                                 </div>
                                 <h3 className="text-xl font-black italic tracking-tighter text-black dark:text-white" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.1)' }}>시스템 상태</h3>
                             </div>
@@ -254,7 +254,7 @@ export default function TeacherDashboardHub() {
                             </div>
 
                             <div className="mt-6 p-3 bg-white dark:bg-slate-900 border-[3px] border-black shadow-[2px_2px_0px_#000] flex items-center gap-3">
-                                <img src="https://play.pokemonshowdown.com/sprites/itemicons/journal.png" className="w-5 h-5" style={{ imageRendering: 'pixelated' }} alt="Journal" />
+                                <img src="/images/items/journal.png" className="w-5 h-5" style={{ imageRendering: 'pixelated' }} alt="Journal" />
                                 <span className="text-[10px] font-bold text-black dark:text-white uppercase tracking-wider">
                                     {new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" })}
                                 </span>
