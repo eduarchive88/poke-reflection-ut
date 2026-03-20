@@ -47,80 +47,214 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
+@font-face {
+  font-family: 'NeoDunggeunmo';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.3/NeoDunggeunmo.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0px;
+  --background: #f8fafc;
+  --foreground: #1e293b;
+  --card: #ffffff;
+  --card-foreground: #1e293b;
+  --popover: #ffffff;
+  --popover-foreground: #1e293b;
+  --primary: #3b4cca;
+  /* Pokemon Blue */
+  --primary-foreground: #ffffff;
+  --secondary: #ffcb05;
+  /* Pokemon Yellow - Adjusted to a more standard yellow */
+  --secondary-foreground: #3b4cca;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #ff0000;
+  /* Pokeball Red */
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --border: #000000;
+  --input: #e2e8f0;
+  --ring: #3b4cca;
+  --sidebar: #f8fafc;
+  --sidebar-foreground: #1e293b;
+  --sidebar-primary: #3b4cca;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ffcb05;
+  --sidebar-accent-foreground: #3b4cca;
+  --sidebar-border: #000000;
+  --sidebar-ring: #3b4cca;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #0f172a;
+  --foreground: #e2e8f0;
+  --card: #1e293b;
+  --card-foreground: #f8fafc;
+  --popover: #000c1f;
+  --popover-foreground: #f8fafc;
+  --primary: #ffcb05;
+  /* Pokemon Yellow for dark mode accent */
+  --primary-foreground: #3b4cca;
+  --secondary: #3b4cca;
+  /* Pokemon Blue */
+  --secondary-foreground: #ffffff;
+  --muted: #334155;
+  --muted-foreground: #94a3b8;
+  --accent: #ff3e3e;
+  /* Brighter Red for dark mode */
+  --accent-foreground: #ffffff;
+  --destructive: #ff4444;
+  --border: #000000;
+  --input: #000000;
+  --ring: #ffcb05;
+  --sidebar: #000c1f;
+  --sidebar-foreground: #f8fafc;
+  --sidebar-primary: #ffcb05;
+  --sidebar-primary-foreground: #3b4cca;
+  --sidebar-accent: #3b4cca;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #000000;
+  --sidebar-ring: #ffcb05;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors duration-300 relative min-h-screen overflow-x-hidden;
+    font-family: 'NeoDunggeunmo', sans-serif;
+    /* 클래식 게임보이 배경스러운 단색+도트패턴 */
+    background-color: #e0e8f0;
+    background-image:
+      linear-gradient(45deg, #cbd5e1 25%, transparent 25%, transparent 75%, #cbd5e1 75%, #cbd5e1),
+      linear-gradient(45deg, #cbd5e1 25%, transparent 25%, transparent 75%, #cbd5e1 75%, #cbd5e1);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+  }
+
+  .dark body {
+    background-color: #0f172a;
+    background-image:
+      linear-gradient(45deg, #1e293b 25%, transparent 25%, transparent 75%, #1e293b 75%, #1e293b),
+      linear-gradient(45deg, #1e293b 25%, transparent 25%, transparent 75%, #1e293b 75%, #1e293b);
+  }
+}
+
+@layer components {
+
+  /* 레트로 픽셀 박스 (대화창/메뉴창 스타일) */
+  .retro-box {
+    @apply bg-white dark:bg-slate-800 border-[3px] border-black text-black dark:text-white transition-all duration-200 relative;
+    box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+    border-radius: 4px;
+    /* 최소한의 모서리 라운딩 (옵션) */
+    image-rendering: pixelated;
+    /* 이미지 안 깨지게 */
+  }
+
+  /* 레트로 박스 안쪽의 얇은 프레임선 (디테일) */
+  .retro-box-inner {
+    content: "";
+    @apply absolute inset-1 border-[2px] border-slate-300 dark:border-slate-600 pointer-events-none rounded-[2px];
+  }
+
+  /* 레트로 버튼 */
+  .retro-btn {
+    @apply bg-white dark:bg-slate-700 text-black dark:text-white border-[3px] border-black font-bold uppercase tracking-widest px-4 py-2 flex items-center justify-center transition-all;
+    box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 1);
+    border-radius: 4px;
+  }
+
+  .retro-btn:hover {
+    @apply bg-slate-100 dark:bg-slate-600 translate-x-[1px] translate-y-[1px];
+    box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  .retro-btn:active {
+    @apply translate-x-[3px] translate-y-[3px];
+    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  /* 클릭 요소(카드 등) hover 시 픽셀 느낌 이동 퍼포먼스 */
+  .hover-pixel-lift:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  /* 픽셀 텍스트용 그라디언트는 가독성 문제로 단색/강조색 권장하나 유지 가능 */
+  .pokemon-gradient-text {
+    @apply text-blue-700 dark:text-yellow-400 font-bold;
+    text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+  }
+
+  .pokeball-button {
+    @apply bg-red-600 text-white hover:bg-red-500 border-black border-[3px] font-bold uppercase tracking-widest px-4 py-2 flex items-center justify-center transition-all;
+    box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 1);
+    border-radius: 4px;
+  }
+
+  .back-button-premium {
+    @apply bg-slate-200 dark:bg-slate-700 text-sm py-2 px-4 text-black dark:text-white border-[3px] border-black font-bold uppercase tracking-widest flex items-center justify-center transition-all;
+    box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 1);
+    border-radius: 4px;
+  }
+
+  .cute-dots {
+    display: none;
+    /* 삭제 */
+  }
+
+  /* 잔여 스타일(premium-card 등)은 retro-box 기반으로 덮어씀 */
+  .premium-card {
+    @apply bg-white dark:bg-slate-800 border-[3px] border-black text-black dark:text-white transition-all duration-200 relative;
+    box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+    border-radius: 4px;
+    image-rendering: pixelated;
+  }
+
+  .glass {
+    @apply bg-white dark:bg-slate-800 border-[3px] border-black text-black dark:text-white transition-all duration-200 relative;
+    box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+    border-radius: 4px;
+    image-rendering: pixelated;
+  }
+
+  .stat-card-premium {
+    @apply bg-white dark:bg-slate-800 border-[3px] border-black text-black dark:text-white transition-all duration-200 relative p-4;
+    box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+    border-radius: 4px;
+    image-rendering: pixelated;
+  }
+
+  /* 신규 포켓몬 스타일 로고 */
+  .pocketmon-logo {
+    font-family: 'NeoDunggeunmo', sans-serif;
+    color: #ffcb05;
+    /* Pokemon Yellow */
+    -webkit-text-stroke: 2px #000000;
+    text-shadow:
+      4px 4px 0px #3b4cca,
+      /* Pokemon Blue Shadow */
+      6px 6px 0px rgba(0, 0, 0, 0.5);
+    filter: drop-shadow(0 0 10px rgba(255, 203, 5, 0.3));
+    letter-spacing: -0.02em;
+  }
+
+  .reflection-sub-logo {
+    font-family: 'NeoDunggeunmo', sans-serif;
+    @apply text-slate-500 dark:text-slate-400 font-black uppercase tracking-[0.3em];
+    text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.2);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.2);
+  }
+
+  .dark .text-glow {
+    text-shadow: 0 0 15px rgba(59, 76, 202, 0.5), 0 0 30px rgba(59, 76, 202, 0.2);
   }
 }
